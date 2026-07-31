@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#121212</color>
+    <color name="surface">#1E1E1E</color>
+    <color name="surface_variant">#2A2A2A</color>
+    <color name="on_background">#ECECEC</color>
+    <color name="on_surface_muted">#A0A0A0</color>
+
+    <color name="accent">#4FA3E3</color>
+    <color name="accent_dark">#2F6FA0</color>
+
+    <color name="safe_result">#ECECEC</color>
+    <color name="error_result">#E05252</color>
+    <color name="banner_amber">#3A2E12</color>
+    <color name="banner_amber_text">#E0A84F</color>
+
+    <color name="divider">#333333</color>

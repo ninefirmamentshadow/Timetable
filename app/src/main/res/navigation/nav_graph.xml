@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/calculatorFragment">
+
+    <fragment
+        android:id="@+id/calculatorFragment"
+        android:name="com.clocktools.timetable.ui.calculator.CalculatorFragment"
+        android:label="@string/nav_calculator" />
+
+    <fragment
+        android:id="@+id/zonesFragment"
+        android:name="com.clocktools.timetable.ui.zones.ZonesFragment"
+        android:label="@string/nav_zones">
+        <action
+            android:id="@+id/action_zonesFragment_to_zoneEditFragment"
+            app:destination="@id/zoneEditFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.clocktools.timetable.ui.settings.SettingsFragment"
+        android:label="@string/nav_settings" />
+
+    <fragment
+        android:id="@+id/zoneEditFragment"
+        android:name="com.clocktools.timetable.ui.zones.ZoneEditFragment"
+        android:label="@string/zone_edit_title_new">
+        <argument
+            android:name="zoneId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+</navigation>

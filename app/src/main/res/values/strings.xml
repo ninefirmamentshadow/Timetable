@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clock Tools</string>
+
+    <string name="nav_calculator">Calculator</string>
+    <string name="nav_zones">Zones</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Calculator -->
+    <string name="calculator_zone_label">Zone</string>
+    <string name="calculator_appointment_label">Appointment length</string>
+    <string name="chip_30">30 min</string>
+    <string name="chip_60">60 min</string>
+    <string name="chip_90">90 min</string>
+    <string name="chip_120">120 min</string>
+    <string name="chip_custom">Custom</string>
+    <string name="calculator_custom_hint">Minutes</string>
+    <string name="calculator_no_zones">Add a zone to begin.</string>
+    <string name="calculator_helper_text">Enter the last return bus that gets you back BEFORE curfew.</string>
+    <string name="calculator_result_no_safe_start">NO SAFE START — window closed</string>
+    <string name="calculator_breakdown_deadline">Last return: %1$s</string>
+    <string name="calculator_breakdown_appointment">− Appointment: %1$d min</string>
+    <string name="calculator_breakdown_buffer">− Buffer: %1$d min</string>
+    <string name="calculator_breakdown_walk">− Walk to stop: %1$d min</string>
+    <string name="calculator_breakdown_contingency">− Contingency: %1$d min</string>
+    <string name="calculator_breakdown_result_safe">= Last safe start: %1$s</string>
+    <string name="calculator_breakdown_result_no_safe">= NO SAFE START</string>
+    <string name="stale_banner_format">⚠ %1$s schedule last verified %2$s — re-check against GoRaleigh.</string>
+
+    <!-- Zones -->
+    <string name="zones_title">Zones</string>
+    <string name="zones_add">Add zone</string>
+    <string name="zones_empty">No zones yet. Tap + to add one.</string>
+    <string name="zones_outbound_label">Out: %1$s</string>
+    <string name="zones_return_label">Return: %1$s</string>
+    <string name="zones_verified_label">Verified %1$s</string>
+    <string name="zones_delete_confirm_title">Delete zone?</string>
+    <string name="zones_delete_confirm_message">This removes %1$s and its schedule. This can\'t be undone.</string>
+    <string name="zones_delete">Delete</string>
+    <string name="zones_cancel">Cancel</string>
+
+    <!-- Zone edit -->
+    <string name="zone_edit_title_new">Add zone</string>
+    <string name="zone_edit_title_existing">Edit zone</string>
+    <string name="zone_edit_name_label">Zone name</string>
+    <string name="zone_edit_route_label">Route label</string>
+    <string name="zone_edit_outbound_label">Last outbound</string>
+    <string name="zone_edit_return_label">Last return</string>
+    <string name="zone_edit_walk_label">Walk to stop (minutes)</string>
+    <string name="zone_edit_verified_label">Last verified %1$s</string>
+    <string name="zone_edit_save">Save</string>
+    <string name="zone_edit_delete">Delete zone</string>
+    <string name="zone_edit_error_name_required">Zone name is required</string>
+    <string name="zone_edit_error_route_required">Route label is required</string>
+    <string name="zone_edit_error_invalid_time">Times must be between 4:00 AM and midnight</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_curfew_label">Curfew time</string>
+    <string name="settings_buffer_label">Buffer (minutes)</string>
+    <string name="settings_contingency_label">Contingency (minutes)</string>
+    <string name="settings_reverify_label">Re-verify interval (days)</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_saved">Settings saved</string>
+</resources>

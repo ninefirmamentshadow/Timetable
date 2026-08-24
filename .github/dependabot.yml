@@ -1,0 +1,41 @@
+version: 2
+
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 1
+    rebase-strategy: "auto"
+    groups:
+      actions-stack:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "deps(actions)"
+
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:45"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 1
+    rebase-strategy: "auto"
+    groups:
+      timetable-stack:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+    commit-message:
+      prefix: "deps(timetable)"

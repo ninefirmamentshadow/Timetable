@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0E0F11</color>
+    <color name="surface">#16181C</color>
+    <color name="surface_raised">#1E2126</color>
+    <color name="outline">#2C3037</color>
+    <color name="on_surface">#E7E9EC</color>
+    <color name="on_surface_muted">#98A0AA</color>
+
+    <color name="accent">#6EA8FE</color>
+    <color name="on_accent">#06183A</color>
+
+    <color name="earned">#39D07E</color>
+    <color name="projected">#FFB020</color>
+    <color name="block">#FF6B6B</color>
+
+    <color name="ic_launcher_background">#16181C</color>
+</resources>

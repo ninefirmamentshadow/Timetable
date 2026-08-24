@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Timetable</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_agenda">Agenda</string>
+    <string name="nav_availability">Availability</string>
+    <string name="nav_earnings">Earnings</string>
+
+    <!-- Agenda -->
+    <string name="no_upcoming">No upcoming bookings</string>
+    <string name="agenda_empty">Nothing scheduled. Tap + to add a booking.</string>
+    <string name="add_booking">Add booking</string>
+
+    <!-- Booking editor -->
+    <string name="new_booking">New booking</string>
+    <string name="edit_booking">Edit booking</string>
+    <string name="alias_hint">Client alias</string>
+    <string name="date_label">Date</string>
+    <string name="time_label">Time</string>
+    <string name="duration_hint">Duration (minutes)</string>
+    <string name="rate_hint">Rate (e.g. 300)</string>
+    <string name="location_hint">Location label (optional)</string>
+    <string name="notes_hint">Notes (optional)</string>
+    <string name="status_label">Status</string>
+    <string name="screened">Screened</string>
+    <string name="deposit">Deposit received</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="back">Back</string>
+    <string name="save_anyway">Save anyway</string>
+    <string name="conflicts_title">Scheduling conflict</string>
+    <string name="error_alias_required">An alias is required</string>
+    <string name="error_duration">Enter a duration in minutes</string>
+    <string name="error_rate">Enter a rate like 300 or $300</string>
+
+    <!-- Availability -->
+    <string name="availability_empty">No availability windows. Add the days and hours you take bookings.</string>
+    <string name="add_window">Add window</string>
+    <string name="travel_buffer_label">Travel buffer (minutes)</string>
+    <string name="travel_buffer_help">Minimum gap warned between two bookings. Covers transit for outcall.</string>
+    <string name="save_buffer">Set</string>
+    <string name="day_label">Day</string>
+    <string name="window_start">Start</string>
+    <string name="window_end">End</string>
+    <string name="error_buffer">Enter minutes (0 or more)</string>
+    <string name="error_window_order">Window end must be after start</string>
+    <string name="remove">Remove</string>
+
+    <!-- Earnings -->
+    <string name="earned_label">Earned</string>
+    <string name="projected_label">Projected</string>
+    <string name="by_week_label">Earned by week</string>
+    <string name="no_earnings">No completed bookings yet</string>
+
+    <plurals name="completed_count">
+        <item quantity="one">%d completed booking</item>
+        <item quantity="other">%d completed bookings</item>
+    </plurals>
+    <plurals name="projected_count">
+        <item quantity="one">%d open booking</item>
+        <item quantity="other">%d open bookings</item>
+    </plurals>
+</resources>

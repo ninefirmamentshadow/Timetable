@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <!-- A calendar grid: header bar plus day cells. -->
+    <path android:fillColor="#6EA8FE"
+        android:pathData="M34,32h40a4,4 0 0 1 4,4v6H30v-6a4,4 0 0 1 4,-4z" />
+    <path android:fillColor="#6EA8FE"
+        android:pathData="M30,48h48v28a4,4 0 0 1 -4,4H34a4,4 0 0 1 -4,-4z" />
+    <path android:fillColor="#16181C"
+        android:pathData="M38,56h8v6h-8zM50,56h8v6h-8zM62,56h8v6h-8zM38,66h8v6h-8zM50,66h8v6h-8z" />
+</vector>

@@ -3,6 +3,7 @@ package com.sovereignops.timetable.data
 import android.content.Context
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -30,6 +31,16 @@ class Repository(context: Context) {
         } else {
             bookingDao.update(booking.toEntity()); booking.id
         }
+
+    /**
+     * Change one booking's status from the stored row, so a stale in-memory copy
+     * can never overwrite other fields. Returns false when the row no longer exists.
+     */
+    suspend fun setBookingStatus(id: Long, status: BookingStatus): Boolean {
+        val stored = bookingDao.byId(id)?.toModel() ?: return false
+        bookingDao.update(stored.withStatus(status).toEntity())
+        return true
+    }
 
     suspend fun deleteBooking(id: Long) = bookingDao.deleteById(id)
 

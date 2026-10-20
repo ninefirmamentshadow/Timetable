@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingStatus
 import com.sovereignops.timetable.core.schedule.Conflict
 import com.sovereignops.timetable.core.schedule.ConflictDetector
 import com.sovereignops.timetable.data.Repository
@@ -56,6 +57,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             .check(candidate, bookingSnapshot.value, availabilitySnapshot.value)
 
     fun saveBooking(booking: Booking) = viewModelScope.launch { repo.saveBooking(booking) }
+
+    /** Record how a booking ended (or change its status); reads the stored row first. */
+    fun setBookingStatus(id: Long, status: BookingStatus) =
+        viewModelScope.launch { repo.setBookingStatus(id, status) }
 
     fun deleteBooking(id: Long) = viewModelScope.launch { repo.deleteBooking(id) }
 

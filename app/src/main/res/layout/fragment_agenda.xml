@@ -23,6 +23,20 @@
             xmlns:tools="http://schemas.android.com/tools"
             android:text="@string/no_upcoming" />
 
+        <TextView
+            android:id="@+id/review_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="@color/surface_raised"
+            android:textColor="@color/projected"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"

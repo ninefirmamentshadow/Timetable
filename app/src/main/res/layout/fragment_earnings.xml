@@ -85,6 +85,15 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/review_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/projected"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <TextView
             style="@style/SectionLabel"
             android:text="@string/by_week_label" />
 

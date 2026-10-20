@@ -39,4 +39,15 @@ data class Booking(
     fun isPast(now: LocalDateTime): Boolean = !end.isAfter(now)
 
     fun isUpcoming(now: LocalDateTime): Boolean = end.isAfter(now)
+
+    /**
+     * Still an open inquiry or confirmation although its time has passed: nobody
+     * recorded whether it happened. Such a booking is neither earned nor
+     * projected money; it needs the operator to mark it completed, no-show or
+     * cancelled.
+     */
+    fun needsReview(now: LocalDateTime): Boolean = status.isProjected && isPast(now)
+
+    /** Copy with a new [status]; everything else is unchanged. */
+    fun withStatus(status: BookingStatus): Booking = copy(status = status)
 }

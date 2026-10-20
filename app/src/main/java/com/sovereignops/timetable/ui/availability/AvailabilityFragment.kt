@@ -1,6 +1,7 @@
 package com.sovereignops.timetable.ui.availability
 
 import android.app.TimePickerDialog
+import android.text.format.DateFormat
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +15,10 @@ import com.sovereignops.timetable.R
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.databinding.DialogAvailabilityBinding
 import com.sovereignops.timetable.databinding.FragmentAvailabilityBinding
+import com.sovereignops.timetable.ui.Formats
 import com.sovereignops.timetable.ui.MainViewModel
 import java.time.DayOfWeek
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -79,24 +80,25 @@ class AvailabilityFragment : Fragment() {
         var start = LocalTime.of(18, 0)
         var end = LocalTime.of(23, 0)
         fun render() {
-            dialogBinding.startButton.text = start.format(TIME)
-            dialogBinding.endButton.text = end.format(TIME)
+            dialogBinding.startButton.text = Formats.timeOf(requireContext(), start)
+            dialogBinding.endButton.text = Formats.minuteOfDay(requireContext(), AvailabilityWindow.endMinuteOf(end))
         }
         render()
         dialogBinding.startButton.setOnClickListener {
             TimePickerDialog(requireContext(), { _, h, m -> start = LocalTime.of(h, m); render() },
-                start.hour, start.minute, false).show()
+                start.hour, start.minute, DateFormat.is24HourFormat(requireContext())).show()
         }
         dialogBinding.endButton.setOnClickListener {
+            // Picking 12:00 AM as the end means midnight, the end of the day.
             TimePickerDialog(requireContext(), { _, h, m -> end = LocalTime.of(h, m); render() },
-                end.hour, end.minute, false).show()
+                end.hour, end.minute, DateFormat.is24HourFormat(requireContext())).show()
         }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.add_window)
             .setView(dialogBinding.root)
             .setPositiveButton(R.string.save) { _, _ ->
-                if (end <= start) {
+                if (AvailabilityWindow.endMinuteOf(end) <= AvailabilityWindow.minuteOf(start)) {
                     MaterialAlertDialogBuilder(requireContext())
                         .setMessage(R.string.error_window_order)
                         .setPositiveButton(android.R.string.ok, null)
@@ -115,7 +117,4 @@ class AvailabilityFragment : Fragment() {
         _binding = null
     }
 
-    companion object {
-        private val TIME = DateTimeFormatter.ofPattern("h:mm a")
-    }
 }

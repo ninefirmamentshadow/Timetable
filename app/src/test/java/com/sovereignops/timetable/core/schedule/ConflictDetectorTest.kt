@@ -112,4 +112,52 @@ class ConflictDetectorTest {
         assertTrue(ConflictDetector(45).hasHardConflict(overlapCandidate, listOf(a)))
         assertFalse(ConflictDetector(45).hasHardConflict(nearCandidate, listOf(a)))
     }
+
+    // Regression: availability at the midnight boundary.
+    private val saturday = friday.plusDays(1)
+    private fun win(day: DayOfWeek, from: LocalTime, to: LocalTime) = AvailabilityWindow(0, day, from, to)
+
+    @Test fun bookingEndingExactlyAtMidnightFitsAWindowThatEndsAtMidnight() {
+        val windows = listOf(win(DayOfWeek.FRIDAY, LocalTime.of(18, 0), LocalTime.MIDNIGHT))
+        val candidate = booking(1, friday.withHour(23), 60) // 23:00–24:00
+        assertTrue(ConflictDetector().check(candidate, emptyList(), windows).isEmpty())
+    }
+
+    @Test fun bookingCrossingMidnightIsCoveredByAdjacentDaysWindows() {
+        val windows = listOf(
+            win(DayOfWeek.FRIDAY, LocalTime.of(18, 0), LocalTime.MIDNIGHT),
+            win(DayOfWeek.SATURDAY, LocalTime.MIDNIGHT, LocalTime.of(3, 0)),
+        )
+        val candidate = booking(1, friday.withHour(23), 120) // 23:00 Fri – 01:00 Sat
+        assertTrue(ConflictDetector().check(candidate, emptyList(), windows).isEmpty())
+    }
+
+    @Test fun bookingCrossingMidnightWithoutTheNextDaysWindowIsOutsideAvailability() {
+        val windows = listOf(win(DayOfWeek.FRIDAY, LocalTime.of(18, 0), LocalTime.MIDNIGHT))
+        val candidate = booking(1, friday.withHour(23), 120)
+        val conflicts = ConflictDetector().check(candidate, emptyList(), windows)
+        assertEquals(listOf(ConflictKind.OUTSIDE_AVAILABILITY), conflicts.map { it.kind })
+    }
+
+    @Test fun touchingWindowsOnOneDayCountAsOneStretch() {
+        val windows = listOf(
+            win(DayOfWeek.FRIDAY, LocalTime.of(18, 0), LocalTime.of(20, 0)),
+            win(DayOfWeek.FRIDAY, LocalTime.of(20, 0), LocalTime.of(23, 0)),
+        )
+        assertTrue(ConflictDetector().check(booking(1, friday.withHour(19), 120), emptyList(), windows).isEmpty())
+    }
+
+    @Test fun aGapBetweenWindowsIsNotCovered() {
+        val windows = listOf(
+            win(DayOfWeek.FRIDAY, LocalTime.of(18, 0), LocalTime.of(19, 0)),
+            win(DayOfWeek.FRIDAY, LocalTime.of(20, 0), LocalTime.of(23, 0)),
+        )
+        val conflicts = ConflictDetector().check(booking(1, friday.withHour(18).withMinute(30), 120), emptyList(), windows)
+        assertEquals(listOf(ConflictKind.OUTSIDE_AVAILABILITY), conflicts.map { it.kind })
+    }
+
+    @Test fun bookingOnTheNextDayAfterMidnightUsesThatDaysWindow() {
+        val windows = listOf(win(DayOfWeek.SATURDAY, LocalTime.MIDNIGHT, LocalTime.of(3, 0)))
+        assertTrue(ConflictDetector().check(booking(1, saturday.withHour(1), 60), emptyList(), windows).isEmpty())
+    }
 }

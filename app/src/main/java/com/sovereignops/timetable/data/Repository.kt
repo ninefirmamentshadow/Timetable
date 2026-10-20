@@ -37,14 +37,14 @@ class Repository(context: Context) {
      * can never overwrite other fields. Returns false when the row no longer exists.
      */
     suspend fun setBookingStatus(id: Long, status: BookingStatus): Boolean {
-        val stored = bookingDao.byId(id)?.toModel() ?: return false
+        val stored = bookingDao.getById(id)?.toModel() ?: return false
         bookingDao.update(stored.withStatus(status).toEntity())
         return true
     }
 
     suspend fun deleteBooking(id: Long) = bookingDao.deleteById(id)
 
-    suspend fun bookingById(id: Long): Booking? = bookingDao.byId(id)?.toModel()
+    suspend fun bookingById(id: Long): Booking? = bookingDao.getById(id)?.toModel()
 
     suspend fun saveAvailability(window: AvailabilityWindow): Long =
         availabilityDao.insert(window.toEntity())

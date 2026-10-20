@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.roborazzi)
 }
 
 /**
@@ -24,6 +25,9 @@ val releaseStoreFile: String? =
 android {
     namespace = "com.sovereignops.timetable"
     compileSdk = 35
+    // Pinned to what scripts/bootstrap-android-sdk.sh installs; AGP would otherwise
+    // auto-download its own default build-tools into the SDK.
+    buildToolsVersion = "35.0.0"
 
     defaultConfig {
         applicationId = "com.sovereignops.timetable"
@@ -78,12 +82,29 @@ android {
     }
 
     lint {
-        abortOnError = false
+        // New problems fail the build; the ones that already existed are tracked in
+        // lint-baseline.xml. Do not edit the baseline to hide a new problem.
+        abortOnError = true
         checkReleaseBuilds = false
+        baseline = file("lint-baseline.xml")
+        // Dependency freshness is Dependabot's job; these checks only add churn
+        // to the baseline every time a version moves.
+        disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
     }
 
     testOptions {
-        unitTests.isReturnDefaultValues = true
+        unitTests {
+            isReturnDefaultValues = true
+            // Robolectric needs merged resources and the manifest to inflate the real UI.
+            isIncludeAndroidResources = true
+            all { test ->
+                // Local override for the Robolectric android-all download, for networks
+                // where Maven Central is rate limited; CI leaves it unset.
+                System.getenv("ROBOLECTRIC_DEPENDENCY_REPO_URL")
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { test.systemProperty("robolectric.dependency.repo.url", it) }
+            }
+        }
     }
 
     packaging {
@@ -115,4 +136,11 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.ext.junit)
+    testImplementation(libs.androidx.test.espresso.core)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.junit.rule)
+    testImplementation(libs.roborazzi.accessibility.check)
 }

@@ -1,0 +1,56 @@
+{
+  "repo": "Timetable",
+  "objective": "Pipeline kit, policy files, bug fixes, backup/export, calendar, reminders, app lock and encrypted database for Timetable",
+  "branch": "claude/sovereign-execution-protocol-r676ri",
+  "base_commit": "396fbe7",
+  "head_commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+  "owner_agent": "claude",
+  "claimed": [],
+  "verified": [
+    {
+      "check": "unit-tests",
+      "command": "./gradlew test",
+      "result": "PASS",
+      "commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+      "detail": "(+uncommitted changes)"
+    },
+    {
+      "check": "lint",
+      "command": "./gradlew lintDebug",
+      "result": "PASS",
+      "commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+      "detail": "(+uncommitted changes)"
+    },
+    {
+      "check": "assembleDebug",
+      "command": "./gradlew assembleDebug",
+      "result": "PASS",
+      "commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+      "detail": "(+uncommitted changes)"
+    },
+    {
+      "check": "third-party",
+      "command": "python3 scripts/check_third_party.py",
+      "result": "PASS",
+      "commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+      "detail": "(+uncommitted changes)"
+    },
+    {
+      "check": "diff-check",
+      "command": "git diff --check HEAD",
+      "result": "PASS",
+      "commit": "396fbe7daebcf56169afc9ec8386db184b4cbd2d",
+      "detail": "(+uncommitted changes)"
+    }
+  ],
+  "not_run": [
+    "Real-device install and acceptance (no emulator or KVM in the build environment)",
+    "Instrumented (androidTest) tests"
+  ],
+  "pending": [],
+  "next_action": "Run scripts/verify.sh --handoff",
+  "next_executor_hint": "coding-model",
+  "opened_at": "2026-10-20T18:25:00Z",
+  "closed_at": null,
+  "owner_interventions": 0
+}

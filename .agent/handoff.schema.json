@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent branch handoff",
+  "description": "One file per active branch at .agent/handoffs/<branch-with-slashes-as-dashes>.json. A receiving agent reads it before doing anything else. Only scripts/verify.sh writes `verified`; agents write `claimed`. Never paste logs: reference artifacts by path and sha256.",
+  "type": "object",
+  "required": ["repo", "objective", "branch", "base_commit", "head_commit", "owner_agent", "claimed", "verified", "not_run", "pending", "next_action", "opened_at"],
+  "additionalProperties": false,
+  "properties": {
+    "repo": {"type": "string"},
+    "objective": {"type": "string"},
+    "branch": {"type": "string"},
+    "base_commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "head_commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+    "owner_agent": {"type": "string", "description": "The one agent allowed to push this branch. Others read or review only."},
+    "claimed": {"type": "array", "items": {"type": "string"}, "description": "Work the agent says it did. Not evidence."},
+    "verified": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["check", "command", "result", "commit"],
+        "additionalProperties": false,
+        "properties": {
+          "check": {"type": "string"},
+          "command": {"type": "string"},
+          "result": {"enum": ["PASS", "FAIL", "NOT_RUN"]},
+          "commit": {"type": "string", "pattern": "^[0-9a-f]{7,40}$"},
+          "detail": {"type": "string"}
+        }
+      }
+    },
+    "not_run": {"type": "array", "items": {"type": "string"}, "description": "Checks that did not run and why, e.g. real-device install."},
+    "pending": {"type": "array", "items": {"type": "string"}},
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256"],
+        "additionalProperties": false,
+        "properties": {"path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+      }
+    },
+    "next_action": {"type": "string"},
+    "next_executor_hint": {"enum": ["reasoning-model", "coding-model", "script", "owner-device-test", "owner-decision"]},
+    "opened_at": {"type": "string", "format": "date-time"},
+    "closed_at": {"type": ["string", "null"], "format": "date-time"},
+    "owner_interventions": {"type": "integer", "minimum": 0, "description": "Times the owner had to step in. Feeds workflow metrics; no dashboard."}
+  }
+}

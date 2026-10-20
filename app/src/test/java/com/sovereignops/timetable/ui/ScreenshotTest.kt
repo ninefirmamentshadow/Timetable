@@ -1,0 +1,95 @@
+package com.sovereignops.timetable.ui
+
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import com.github.takahirom.roborazzi.RoborazziATFAccessibilityCheckOptions
+import com.github.takahirom.roborazzi.RoborazziATFAccessibilityChecker
+import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.checkRoboAccessibility
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckPreset
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.sovereignops.timetable.R
+import com.sovereignops.timetable.data.AppDatabase
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+/**
+ * Golden screenshots and accessibility checks of the three tabs, in the dark
+ * theme, at 320 dp and 411 dp wide and at font scale 1.0 and 2.0.
+ *
+ * Goldens live in app/src/test/screenshots. scripts/verify.sh compares against
+ * them; after an intended UI change run `./gradlew recordRoborazziDebug`,
+ * review the images, and commit them with the change.
+ */
+@OptIn(ExperimentalRoborazziApi::class)
+@RunWith(AndroidJUnit4::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [35])
+class ScreenshotTest {
+
+    private lateinit var db: AppDatabase
+
+    @Before
+    fun setUp() {
+        TestSupport.fixClock()
+        db = TestSupport.installInMemoryDatabase()
+        TestSupport.seed(db)
+    }
+
+    @After
+    fun tearDown() {
+        TestSupport.uninstallDatabase(db)
+        TestSupport.restoreClock()
+    }
+
+    private fun shoot(screen: String, navId: Int, widthDp: Int, fontScale: Float) {
+        val height = if (widthDp <= 320) 640 else 891
+        RuntimeEnvironment.setQualifiers("w${widthDp}dp-h${height}dp-night-xxhdpi")
+        RuntimeEnvironment.setFontScale(fontScale)
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            lateinit var viewModel: MainViewModel
+            scenario.onActivity { activity ->
+                viewModel = ViewModelProvider(activity)[MainViewModel::class.java]
+                // LiveData is lazy: activate both so the wait below sees real values.
+                viewModel.bookings.observeForever { }
+                viewModel.availability.observeForever { }
+                activity.findViewById<BottomNavigationView>(R.id.bottom_nav).selectedItemId = navId
+            }
+            TestSupport.awaitUntil {
+                viewModel.bookings.value != null && viewModel.availability.value != null
+            }
+            val name = "${screen}_w${widthDp}_f${fontScale}"
+            onView(isRoot()).captureRoboImage("src/test/screenshots/$name.png")
+            onView(isRoot()).checkRoboAccessibility(
+                roborazziATFAccessibilityCheckOptions = RoborazziATFAccessibilityCheckOptions(
+                    checker = RoborazziATFAccessibilityChecker(preset = AccessibilityCheckPreset.LATEST),
+                    failureLevel = RoborazziATFAccessibilityChecker.CheckLevel.Error,
+                ),
+            )
+        }
+    }
+
+    @Test fun agenda_w320_f1() = shoot("agenda", R.id.nav_agenda, 320, 1.0f)
+    @Test fun agenda_w320_f2() = shoot("agenda", R.id.nav_agenda, 320, 2.0f)
+    @Test fun agenda_w411_f1() = shoot("agenda", R.id.nav_agenda, 411, 1.0f)
+    @Test fun agenda_w411_f2() = shoot("agenda", R.id.nav_agenda, 411, 2.0f)
+
+    @Test fun availability_w320_f1() = shoot("availability", R.id.nav_availability, 320, 1.0f)
+    @Test fun availability_w320_f2() = shoot("availability", R.id.nav_availability, 320, 2.0f)
+    @Test fun availability_w411_f1() = shoot("availability", R.id.nav_availability, 411, 1.0f)
+    @Test fun availability_w411_f2() = shoot("availability", R.id.nav_availability, 411, 2.0f)
+
+    @Test fun earnings_w320_f1() = shoot("earnings", R.id.nav_earnings, 320, 1.0f)
+    @Test fun earnings_w320_f2() = shoot("earnings", R.id.nav_earnings, 320, 2.0f)
+    @Test fun earnings_w411_f1() = shoot("earnings", R.id.nav_earnings, 411, 1.0f)
+    @Test fun earnings_w411_f2() = shoot("earnings", R.id.nav_earnings, 411, 2.0f)
+}

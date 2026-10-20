@@ -13,6 +13,7 @@ import com.sovereignops.timetable.core.Money
 import com.sovereignops.timetable.core.model.Booking
 import com.sovereignops.timetable.core.model.BookingStatus
 import com.sovereignops.timetable.databinding.DialogBookingBinding
+import com.sovereignops.timetable.ui.AppClock
 import com.sovereignops.timetable.ui.MainViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -31,7 +32,7 @@ class BookingEditorFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private var editingId: Long = 0
-    private var date: LocalDate = LocalDate.now()
+    private var date: LocalDate = AppClock.today()
     private var time: LocalTime = LocalTime.of(19, 0)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

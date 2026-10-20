@@ -9,9 +9,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sovereignops.timetable.core.schedule.Agenda
 import com.sovereignops.timetable.databinding.FragmentAgendaBinding
+import com.sovereignops.timetable.ui.AppClock
 import com.sovereignops.timetable.ui.MainViewModel
 import com.sovereignops.timetable.ui.editor.BookingEditorFragment
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class AgendaFragment : Fragment() {
@@ -42,7 +42,7 @@ class AgendaFragment : Fragment() {
         }
 
         viewModel.bookings.observe(viewLifecycleOwner) { bookings ->
-            val now = LocalDateTime.now()
+            val now = AppClock.now()
             val days = Agenda.upcomingByDay(bookings, now)
             val rows = buildList {
                 days.forEach { day ->

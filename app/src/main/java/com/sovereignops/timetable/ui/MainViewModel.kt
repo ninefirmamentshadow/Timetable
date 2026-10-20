@@ -47,10 +47,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         get() = settings.defaultDurationMinutes
         set(value) { settings.defaultDurationMinutes = value }
 
-    /** The current stored booking with [id], or null — used to seed the editor. */
-    fun currentBooking(id: Long): Booking? =
-        bookingSnapshot.value.firstOrNull { it.id == id }
-
     /** Conflicts for a candidate booking against the current live data. */
     fun conflictsFor(candidate: Booking): List<Conflict> =
         ConflictDetector(settings.travelBufferMinutes)

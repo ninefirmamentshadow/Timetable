@@ -44,6 +44,7 @@
     <string name="back">Back</string>
     <string name="save_anyway">Save anyway</string>
     <string name="conflicts_title">Scheduling conflict</string>
+    <string name="booking_not_found">That booking no longer exists</string>
     <string name="error_alias_required">An alias is required</string>
     <string name="error_duration">Enter a duration in minutes</string>
     <string name="error_rate">Enter a rate like 300 or $300</string>

@@ -21,6 +21,12 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var instance: AppDatabase? = null
 
+        /** Test hook: use [db] (or the real database again when null) for [get]. */
+        @androidx.annotation.VisibleForTesting
+        fun setInstanceForTesting(db: AppDatabase?) {
+            synchronized(this) { instance = db }
+        }
+
         fun get(context: Context): AppDatabase =
             instance ?: synchronized(this) {
                 instance ?: Room.databaseBuilder(

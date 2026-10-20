@@ -40,21 +40,23 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # The scheduling core (conflict / travel-buffer / earnings logic) is the
-      # load-bearing code and is fully unit-tested here without a device.
-      - name: Unit tests
-        run: ./gradlew test --stacktrace
+      # One entry point shared with local and agent runs: unit tests (including the
+      # scheduling core and the Robolectric screenshot harness), lint against the
+      # committed baseline, the debug build, the third-party inventory check and
+      # git diff --check. It exits non-zero for FAIL and for NOT_RUN.
+      - name: Verify
+        run: scripts/verify.sh
 
-      - name: Upload test report
+      - name: Upload test and lint reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report
-          path: app/build/reports/tests/
+          name: reports
+          path: |
+            app/build/reports/tests/
+            app/build/reports/lint-results-debug.html
+            app/build/outputs/roborazzi/
           if-no-files-found: ignore
-
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,6 +17,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface"
+        app:paddingBottomSystemWindowInsets="false"
+        app:paddingLeftSystemWindowInsets="false"
+        app:paddingRightSystemWindowInsets="false"
         app:menu="@menu/bottom_nav"
         xmlns:app="http://schemas.android.com/apk/res-auto" />
 

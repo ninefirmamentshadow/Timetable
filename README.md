@@ -1,11 +1,11 @@
 # Timetable
 
 A mobile-first, **offline** booking scheduler for an independent outcall,
-transit-dependent operator. Built on the Sovereign-Ops infrastructure base
-(Kotlin / Android, Room, CI-built and sideloaded).
+transit-dependent operator. Built in Kotlin / Android with Room,
+CI-built and sideloaded.
 
-Private repo. Sideloaded. Built in CI — there is no local build step in the
-normal workflow.
+Public repository. Sideloaded. Built in CI; `scripts/verify.sh` runs the same
+checks locally.
 
 ---
 
@@ -75,5 +75,5 @@ that the release variant still builds, unsigned.
 ## Agent execution
 
 Automated agents: read `AGENTS.md` before editing. It carries the security
-posture (no permissions, alias-first, local-only) and the protected-data
-boundary. Sovereign-Ops is the umbrella source of truth.
+posture (no network, only the recorded permissions, alias-first, local-only) and the protected-data
+boundary.

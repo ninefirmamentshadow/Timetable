@@ -69,7 +69,7 @@ class ConflictDetector(private val travelBufferMinutes: Int = 0) {
         }
 
         if (availability.isNotEmpty() && candidate.occupiesCalendar) {
-            val fits = availability.any { it.accommodates(candidate.start, candidate.durationMinutes) }
+            val fits = AvailabilityCoverage.covers(availability, candidate.start, candidate.durationMinutes)
             if (!fits) {
                 conflicts += Conflict(
                     ConflictKind.OUTSIDE_AVAILABILITY,

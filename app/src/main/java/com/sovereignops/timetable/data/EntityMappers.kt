@@ -8,7 +8,6 @@ import com.sovereignops.timetable.data.entity.AvailabilityEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
 import java.time.DayOfWeek
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneOffset
 
 /**
@@ -46,13 +45,13 @@ fun Booking.toEntity(): BookingEntity = BookingEntity(
 fun AvailabilityEntity.toModel(): AvailabilityWindow = AvailabilityWindow(
     id = id,
     dayOfWeek = DayOfWeek.of(dayOfWeek),
-    start = LocalTime.ofSecondOfDay(startMinuteOfDay.toLong() * 60),
-    end = LocalTime.ofSecondOfDay(endMinuteOfDay.toLong() * 60),
+    startMinute = startMinuteOfDay,
+    endMinute = endMinuteOfDay,
 )
 
 fun AvailabilityWindow.toEntity(): AvailabilityEntity = AvailabilityEntity(
     id = id,
     dayOfWeek = dayOfWeek.value,
-    startMinuteOfDay = start.toSecondOfDay() / 60,
-    endMinuteOfDay = end.toSecondOfDay() / 60,
+    startMinuteOfDay = startMinute,
+    endMinuteOfDay = endMinute,
 )

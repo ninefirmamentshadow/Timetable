@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.databinding.ItemAvailabilityBinding
-import java.time.format.DateTimeFormatter
+import com.sovereignops.timetable.ui.Formats
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -33,12 +33,11 @@ class AvailabilityAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(window: AvailabilityWindow) {
             binding.dayLabel.text = window.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-            binding.rangeLabel.text = "${window.start.format(TIME)}–${window.end.format(TIME)}"
+            val context = binding.root.context
+            binding.rangeLabel.text = "${Formats.timeOf(context, window.start)}–" +
+                Formats.minuteOfDay(context, window.endMinute)
             binding.deleteButton.setOnClickListener { onDelete(window) }
         }
 
-        companion object {
-            private val TIME = DateTimeFormatter.ofPattern("h:mm a")
-        }
     }
 }

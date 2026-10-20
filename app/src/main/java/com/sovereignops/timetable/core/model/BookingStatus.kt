@@ -24,4 +24,9 @@ enum class BookingStatus(val label: String) {
     /** Is this a still-open future commitment (drives projected earnings)? */
     val isProjected: Boolean
         get() = this == INQUIRY || this == CONFIRMED
+
+    companion object {
+        /** The outcomes an operator can record for a booking whose time has passed. */
+        val RESOLUTIONS: List<BookingStatus> = listOf(COMPLETED, NO_SHOW, CANCELLED)
+    }
 }

@@ -1,0 +1,115 @@
+package com.sovereignops.timetable.ui.agenda
+
+import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.sovereignops.timetable.R
+import com.sovereignops.timetable.core.Money
+import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingStatus
+import com.sovereignops.timetable.data.AppDatabase
+import com.sovereignops.timetable.data.toEntity
+import com.sovereignops.timetable.ui.MainActivity
+import com.sovereignops.timetable.ui.MainViewModel
+import com.sovereignops.timetable.ui.TestSupport
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowDialog
+import java.time.LocalDateTime
+
+@RunWith(AndroidJUnit4::class)
+@Config(sdk = [35], qualifiers = "w411dp-h891dp-xxhdpi")
+class AgendaScreenTest {
+
+    private lateinit var db: AppDatabase
+
+    @Before
+    fun setUp() {
+        TestSupport.fixClock()
+        db = TestSupport.installInMemoryDatabase()
+    }
+
+    @After
+    fun tearDown() {
+        TestSupport.uninstallDatabase(db)
+        TestSupport.restoreClock()
+    }
+
+    private fun insert(id: Long, start: LocalDateTime, status: BookingStatus) = runBlocking {
+        db.bookingDao().insert(
+            Booking(id, start, 60, "Alias $id", Money.dollars(300), status).toEntity(),
+        )
+    }
+
+    private fun texts(activity: MainActivity): List<String> {
+        val list = activity.findViewById<RecyclerView>(R.id.list)
+        val out = mutableListOf<String>()
+        for (i in 0 until (list.adapter?.itemCount ?: 0)) {
+            val holder = list.findViewHolderForAdapterPosition(i) ?: continue
+            holder.itemView.findViewById<TextView>(R.id.section_label)?.let { out += it.text.toString() }
+            holder.itemView.findViewById<TextView>(R.id.alias_label)?.let { out += it.text.toString() }
+        }
+        return out
+    }
+
+    // Regression: past bookings were never shown on the agenda.
+    @Test fun pastAndOverdueBookingsAreShownInTheirSections() {
+        insert(1, TestSupport.NOW.minusDays(3), BookingStatus.CONFIRMED) // overdue, unresolved
+        insert(2, TestSupport.NOW.minusDays(1), BookingStatus.COMPLETED)
+        insert(3, TestSupport.NOW.plusHours(5), BookingStatus.CONFIRMED)
+
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            lateinit var vm: MainViewModel
+            scenario.onActivity { vm = ViewModelProvider(it)[MainViewModel::class.java] }
+            TestSupport.awaitUntil { vm.bookings.value?.size == 3 }
+            scenario.onActivity { activity ->
+                assertEquals(
+                    listOf("Needs review", "Alias 1", "Upcoming", "Alias 3", "Past and closed", "Alias 2"),
+                    texts(activity),
+                )
+                assertEquals(
+                    "1 booking needs review",
+                    activity.findViewById<TextView>(R.id.review_summary).text.toString(),
+                )
+            }
+        }
+    }
+
+    // Regression: marking an overdue booking recorded its outcome and moved it out of review.
+    @Test fun markingAnOverdueBookingCompletedMovesItToPastAndEarned() {
+        insert(1, TestSupport.NOW.minusDays(3), BookingStatus.CONFIRMED)
+
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            lateinit var vm: MainViewModel
+            scenario.onActivity { vm = ViewModelProvider(it)[MainViewModel::class.java] }
+            TestSupport.awaitUntil { vm.bookings.value?.size == 1 }
+
+            scenario.onActivity { activity ->
+                val list = activity.findViewById<RecyclerView>(R.id.list)
+                val item = (0 until list.adapter!!.itemCount)
+                    .mapNotNull { list.findViewHolderForAdapterPosition(it) }
+                    .first { it.itemView.findViewById<TextView>(R.id.alias_label) != null }
+                item.itemView.performClick()
+                val dialog = ShadowDialog.getLatestDialog() as androidx.appcompat.app.AlertDialog
+                assertTrue("resolve dialog is shown", dialog.isShowing)
+                // 0 = Mark completed
+                dialog.listView.performItemClick(null, 0, 0)
+            }
+            TestSupport.awaitUntil { vm.bookings.value?.single()?.status == BookingStatus.COMPLETED }
+            scenario.onActivity { activity ->
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                assertEquals(listOf("Past and closed", "Alias 1"), texts(activity))
+                assertEquals(android.view.View.GONE, activity.findViewById<TextView>(R.id.review_summary).visibility)
+            }
+        }
+    }
+}

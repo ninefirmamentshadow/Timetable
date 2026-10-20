@@ -11,6 +11,19 @@
     <string name="no_upcoming">No upcoming bookings</string>
     <string name="agenda_empty">Nothing scheduled. Tap + to add a booking.</string>
     <string name="add_booking">Add booking</string>
+    <string name="section_needs_review">Needs review</string>
+    <string name="section_upcoming">Upcoming</string>
+    <string name="section_past">Past and closed</string>
+    <string name="resolve_title">How did it end?</string>
+    <string name="resolve_completed">Mark completed</string>
+    <string name="resolve_no_show">Mark no-show</string>
+    <string name="resolve_cancelled">Mark cancelled</string>
+    <string name="resolve_edit">Edit booking</string>
+    <string name="midnight">Midnight</string>
+    <plurals name="needs_review_summary">
+        <item quantity="one">%d booking needs review</item>
+        <item quantity="other">%d bookings need review</item>
+    </plurals>
 
     <!-- Booking editor -->
     <string name="new_booking">New booking</string>
@@ -53,6 +66,8 @@
     <string name="projected_label">Projected</string>
     <string name="by_week_label">Earned by week</string>
     <string name="no_earnings">No completed bookings yet</string>
+
+    <string name="needs_review_note">Needs review: %1$d. Open the Agenda and mark each one completed, no-show or cancelled; until then it counts as neither earned nor projected.</string>
 
     <plurals name="completed_count">
         <item quantity="one">%d completed booking</item>

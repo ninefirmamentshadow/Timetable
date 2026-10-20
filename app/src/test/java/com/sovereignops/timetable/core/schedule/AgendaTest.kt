@@ -71,4 +71,51 @@ class AgendaTest {
         val a = booking(1, date.atTime(14, 0), 60)
         assertEquals(emptyList<TimeGap>(), Agenda.gapsOn(listOf(a), date, 30))
     }
+
+    // Regression: past bookings were never shown anywhere.
+    @Test fun sectionsPutOverdueOpenBookingsInReviewAndKeepHistoryReachable() {
+        val overdue = booking(1, now.minusDays(2), status = BookingStatus.CONFIRMED)
+        val doneYesterday = booking(2, now.minusDays(1), status = BookingStatus.COMPLETED)
+        val doneLastWeek = booking(3, now.minusDays(7), status = BookingStatus.COMPLETED)
+        val cancelledPast = booking(4, now.minusDays(3), status = BookingStatus.CANCELLED)
+        val noShow = booking(5, now.minusDays(1).minusHours(2), status = BookingStatus.NO_SHOW)
+        val soon = booking(6, now.plusHours(3))
+        val cancelledFuture = booking(7, now.plusDays(1), status = BookingStatus.CANCELLED)
+
+        val s = Agenda.sections(
+            listOf(soon, doneLastWeek, overdue, cancelledFuture, doneYesterday, noShow, cancelledPast),
+            now,
+        )
+
+        assertEquals(listOf(1L), s.needsReview.map { it.id })
+        assertEquals(listOf(6L), s.upcoming.flatMap { it.bookings }.map { it.id })
+        // Closed bookings of any date, most recent day first; within a day the later booking first.
+        // A cancelled booking in the future is closed too, so it sits at the top.
+        assertEquals(
+            listOf(
+                now.plusDays(1).toLocalDate(),
+                now.minusDays(1).toLocalDate(),
+                now.minusDays(3).toLocalDate(),
+                now.minusDays(7).toLocalDate(),
+            ),
+            s.past.map { it.date },
+        )
+        assertEquals(listOf(7L), s.past[0].bookings.map { it.id })
+        assertEquals(listOf(2L, 5L), s.past[1].bookings.map { it.id })
+        // Nothing is dropped: every booking is in exactly one section.
+        val shown = s.needsReview.size + s.upcoming.sumOf { it.bookings.size } + s.past.sumOf { it.bookings.size }
+        assertEquals(7, shown)
+    }
+
+    @Test fun overdueInquiryIsNeedsReviewToo() {
+        val inquiry = booking(1, now.minusHours(5), status = BookingStatus.INQUIRY)
+        assertEquals(listOf(1L), Agenda.sections(listOf(inquiry), now).needsReview.map { it.id })
+    }
+
+    @Test fun completedBookingMarkedEarlyStaysUpcomingUntilItEnds() {
+        val early = booking(1, now.plusHours(1), status = BookingStatus.COMPLETED)
+        val s = Agenda.sections(listOf(early), now)
+        assertEquals(listOf(1L), s.upcoming.flatMap { it.bookings }.map { it.id })
+        assertEquals(0, s.past.size)
+    }
 }

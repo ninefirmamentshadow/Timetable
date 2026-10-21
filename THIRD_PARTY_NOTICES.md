@@ -97,6 +97,14 @@ are not part of the shipped APK; they are listed for completeness.
 - License read from: https://raw.githubusercontent.com/Kotlin/kotlinx.coroutines/1.8.1/LICENSE.txt
 - Use: Linked library (not copied)
 
+### kotlinx.serialization (JSON)
+
+- Version: 1.7.3
+- License: Apache-2.0
+- Upstream: https://github.com/Kotlin/kotlinx.serialization
+- License read from: https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.7.3/LICENSE.txt
+- Use: Linked library (not copied); also brings kotlinx-serialization-core
+
 
 ## Test only (not shipped)
 
@@ -193,6 +201,14 @@ are not part of the shipped APK; they are listed for completeness.
 - Use: Build plugin, not shipped
 
 ### Kotlin Gradle plugin
+
+- Version: 2.0.21
+- License: Apache-2.0
+- Upstream: https://github.com/JetBrains/kotlin
+- License read from: https://raw.githubusercontent.com/JetBrains/kotlin/v2.0.21/license/LICENSE.txt
+- Use: Build plugin, not shipped
+
+### Kotlin serialization compiler plugin
 
 - Version: 2.0.21
 - License: Apache-2.0

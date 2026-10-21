@@ -197,6 +197,22 @@
       ]
     },
     {
+      "name": "kotlinx.serialization (JSON)",
+      "upstream_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "version_or_commit": "1.7.3",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.7.3/LICENSE.txt",
+      "files": [
+        "Linked library (not copied); also brings kotlinx-serialization-core"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "org.jetbrains.kotlinx:kotlinx-serialization-json"
+      ]
+    },
+    {
       "name": "JUnit 4",
       "upstream_url": "https://github.com/junit-team/junit4",
       "version_or_commit": "4.13.2",
@@ -358,6 +374,22 @@
       "scope": "build",
       "plugin_ids": [
         "org.jetbrains.kotlin.android"
+      ]
+    },
+    {
+      "name": "Kotlin serialization compiler plugin",
+      "upstream_url": "https://github.com/JetBrains/kotlin",
+      "version_or_commit": "2.0.21",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/JetBrains/kotlin/v2.0.21/license/LICENSE.txt",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "org.jetbrains.kotlin.plugin.serialization"
       ]
     },
     {

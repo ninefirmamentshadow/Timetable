@@ -48,6 +48,12 @@ class AgendaFragment : Fragment() {
             latest = bookings
             render()
         }
+        viewModel.unreadableBookings.observe(viewLifecycleOwner) { count ->
+            binding.unreadableBanner.visibility = if (count > 0) View.VISIBLE else View.GONE
+            if (count > 0) {
+                binding.unreadableBanner.text = resources.getQuantityString(R.plurals.unreadable_records, count, count)
+            }
+        }
     }
 
     override fun onResume() {

@@ -57,6 +57,12 @@ class AvailabilityFragment : Fragment() {
 
         binding.addButton.setOnClickListener { showWindowDialog(null) }
 
+        viewModel.unreadableWindows.observe(viewLifecycleOwner) { count ->
+            binding.unreadableBanner.visibility = if (count > 0) View.VISIBLE else View.GONE
+            if (count > 0) {
+                binding.unreadableBanner.text = resources.getQuantityString(R.plurals.unreadable_records, count, count)
+            }
+        }
         viewModel.availability.observe(viewLifecycleOwner) { list ->
             windows = list
             adapter.submitList(list)

@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.sovereignops.timetable.data.dao.AvailabilityDao
+import com.sovereignops.timetable.data.dao.BackupDao
 import com.sovereignops.timetable.data.dao.BookingDao
 import com.sovereignops.timetable.data.entity.AvailabilityEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
@@ -17,6 +18,7 @@ import com.sovereignops.timetable.data.entity.BookingEntity
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao
     abstract fun availabilityDao(): AvailabilityDao
+    abstract fun backupDao(): BackupDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null

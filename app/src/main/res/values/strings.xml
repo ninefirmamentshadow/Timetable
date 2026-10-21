@@ -44,6 +44,10 @@
     <string name="back">Back</string>
     <string name="save_anyway">Save anyway</string>
     <string name="conflicts_title">Scheduling conflict</string>
+    <plurals name="unreadable_records">
+        <item quantity="one">%d unreadable record is hidden. Nothing was deleted.</item>
+        <item quantity="other">%d unreadable records are hidden. Nothing was deleted.</item>
+    </plurals>
     <string name="undo">Undo</string>
     <string name="booking_deleted">Booking deleted (%1$s)</string>
     <string name="window_deleted">%1$s window deleted</string>

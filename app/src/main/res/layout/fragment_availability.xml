@@ -55,6 +55,19 @@
                 android:text="@string/travel_buffer_help" />
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/unreadable_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="@color/surface_raised"
+            android:textColor="@color/block"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"

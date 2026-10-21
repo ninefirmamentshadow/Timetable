@@ -3,6 +3,7 @@ package com.sovereignops.timetable.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
@@ -35,8 +36,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val undoActions = mutableMapOf<Long, suspend () -> Unit>()
     private var nextToken = 1L
 
-    val bookings = repo.bookings.asLiveData()
-    val availability = repo.availability.asLiveData()
+    private val bookingsLoaded = repo.bookingsLoaded.asLiveData()
+    private val availabilityLoaded = repo.availabilityLoaded.asLiveData()
+
+    val bookings = bookingsLoaded.map { it.items }
+    val availability = availabilityLoaded.map { it.items }
+
+    /** Booking rows that could not be read; they are skipped, never deleted. */
+    val unreadableBookings = bookingsLoaded.map { it.unreadable }
+
+    /** Availability rows that could not be read. */
+    val unreadableWindows = availabilityLoaded.map { it.unreadable }
 
     /** Latest snapshots kept for synchronous conflict checks from the editor. */
     private val bookingSnapshot = MutableStateFlow<List<Booking>>(emptyList())

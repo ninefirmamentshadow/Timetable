@@ -112,4 +112,32 @@ class AgendaScreenTest {
             }
         }
     }
+
+    // Regression: one bad row crashed the list; now it is skipped and counted.
+    @Test fun anUnreadableRowDoesNotCrashTheAgendaAndIsCounted() {
+        insert(1, TestSupport.NOW.plusHours(5), BookingStatus.CONFIRMED)
+        runBlocking {
+            db.bookingDao().insert(
+                com.sovereignops.timetable.data.entity.BookingEntity(
+                    0, 1_792_000_000, 0, "Bad", 100, "CONFIRMED", "", false, false, "",
+                ),
+            )
+            db.bookingDao().insert(
+                com.sovereignops.timetable.data.entity.BookingEntity(
+                    0, 1_792_000_000, 60, "Bad", 100, "???", "", false, false, "",
+                ),
+            )
+        }
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            lateinit var vm: MainViewModel
+            scenario.onActivity { vm = ViewModelProvider(it)[MainViewModel::class.java] }
+            TestSupport.awaitUntil { vm.bookings.value?.size == 1 && vm.unreadableBookings.value == 2 }
+            scenario.onActivity { activity ->
+                assertEquals(listOf("Upcoming", "Alias 1"), texts(activity))
+                val banner = activity.findViewById<TextView>(R.id.unreadable_banner)
+                assertEquals(android.view.View.VISIBLE, banner.visibility)
+                assertEquals("2 unreadable records are hidden. Nothing was deleted.", banner.text.toString())
+            }
+        }
+    }
 }

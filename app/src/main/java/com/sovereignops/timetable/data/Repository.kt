@@ -18,11 +18,16 @@ class Repository(context: Context) {
     private val bookingDao = db.bookingDao()
     private val availabilityDao = db.availabilityDao()
 
-    val bookings: Flow<List<Booking>> =
-        bookingDao.observeAll().map { rows -> rows.map { it.toModel() } }
+    /** Readable bookings plus the count of rows that could not be read (never deleted). */
+    val bookingsLoaded: Flow<Loaded<Booking>> =
+        bookingDao.observeAll().map { rows -> Loaded.from(rows) { it.toModelResult() } }
 
-    val availability: Flow<List<AvailabilityWindow>> =
-        availabilityDao.observeAll().map { rows -> rows.map { it.toModel() } }
+    val availabilityLoaded: Flow<Loaded<AvailabilityWindow>> =
+        availabilityDao.observeAll().map { rows -> Loaded.from(rows) { it.toModelResult() } }
+
+    val bookings: Flow<List<Booking>> = bookingsLoaded.map { it.items }
+
+    val availability: Flow<List<AvailabilityWindow>> = availabilityLoaded.map { it.items }
 
     /** Insert (id == 0) or update. Returns the row id. */
     suspend fun saveBooking(booking: Booking): Long =
@@ -37,7 +42,7 @@ class Repository(context: Context) {
      * can never overwrite other fields. Returns false when the row no longer exists.
      */
     suspend fun setBookingStatus(id: Long, status: BookingStatus): Boolean {
-        val stored = bookingDao.getById(id)?.toModel() ?: return false
+        val stored = bookingDao.getById(id)?.toModelResult()?.getOrNull() ?: return false
         bookingDao.update(stored.withStatus(status).toEntity())
         return true
     }
@@ -49,7 +54,7 @@ class Repository(context: Context) {
         bookingDao.insert(booking.toEntity())
     }
 
-    suspend fun bookingById(id: Long): Booking? = bookingDao.getById(id)?.toModel()
+    suspend fun bookingById(id: Long): Booking? = bookingDao.getById(id)?.toModelResult()?.getOrNull()
 
     suspend fun saveAvailability(window: AvailabilityWindow): Long =
         availabilityDao.insert(window.toEntity())
@@ -61,5 +66,6 @@ class Repository(context: Context) {
         availabilityDao.insert(window.toEntity())
     }
 
-    suspend fun availabilityById(id: Long): AvailabilityWindow? = availabilityDao.getById(id)?.toModel()
+    suspend fun availabilityById(id: Long): AvailabilityWindow? =
+        availabilityDao.getById(id)?.toModelResult()?.getOrNull()
 }

@@ -59,7 +59,7 @@ class BookingEditorFragment : DialogFragment() {
             .setNegativeButton(R.string.cancel, null)
 
         if (editingId != 0L) {
-            builder.setNeutralButton(R.string.delete) { _, _ -> main.deleteBooking(editingId) }
+            builder.setNeutralButton(R.string.delete, null) // overridden below: ask first
         }
 
         val dialog = builder.create()
@@ -67,6 +67,7 @@ class BookingEditorFragment : DialogFragment() {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 if (attemptSave()) dialog.dismiss()
             }
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setOnClickListener { confirmDelete() }
             applyLoadedState(dialog)
         }
 
@@ -81,6 +82,26 @@ class BookingEditorFragment : DialogFragment() {
             }
         }
         return dialog
+    }
+
+    /** Deleting asks first; the snackbar that follows offers Undo. */
+    private fun confirmDelete() {
+        val draft = editor.draft.value ?: return
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.confirm_delete_booking_title)
+            .setMessage(
+                getString(
+                    R.string.confirm_delete_booking_message,
+                    draft.alias.ifBlank { getString(R.string.alias_hint) },
+                    "${draft.date.format(Formats.dateShort())}, ${Formats.timeOf(requireContext(), draft.time)}",
+                ),
+            )
+            .setPositiveButton(R.string.delete) { _, _ ->
+                main.deleteBooking(editor.bookingId)
+                dismissAllowingStateLoss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /** Inputs and Save stay disabled until the stored booking has been read. */

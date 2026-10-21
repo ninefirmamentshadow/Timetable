@@ -14,6 +14,9 @@ interface AvailabilityDao {
     @Query("SELECT * FROM availability ORDER BY dayOfWeek ASC, startMinuteOfDay ASC")
     fun observeAll(): Flow<List<AvailabilityEntity>>
 
+    @Query("SELECT * FROM availability WHERE id = :id")
+    suspend fun getById(id: Long): AvailabilityEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: AvailabilityEntity): Long
 

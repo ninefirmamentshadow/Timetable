@@ -40,4 +40,13 @@
             android:layout_marginStart="6dp" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/block"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
 </LinearLayout>

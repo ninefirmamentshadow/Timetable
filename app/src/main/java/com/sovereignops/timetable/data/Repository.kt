@@ -44,10 +44,22 @@ class Repository(context: Context) {
 
     suspend fun deleteBooking(id: Long) = bookingDao.deleteById(id)
 
+    /** Put a deleted booking back with its original id (undo). */
+    suspend fun restoreBooking(booking: Booking) {
+        bookingDao.insert(booking.toEntity())
+    }
+
     suspend fun bookingById(id: Long): Booking? = bookingDao.getById(id)?.toModel()
 
     suspend fun saveAvailability(window: AvailabilityWindow): Long =
         availabilityDao.insert(window.toEntity())
 
     suspend fun deleteAvailability(id: Long) = availabilityDao.deleteById(id)
+
+    /** Put a deleted window back with its original id (undo). */
+    suspend fun restoreAvailability(window: AvailabilityWindow) {
+        availabilityDao.insert(window.toEntity())
+    }
+
+    suspend fun availabilityById(id: Long): AvailabilityWindow? = availabilityDao.getById(id)?.toModel()
 }

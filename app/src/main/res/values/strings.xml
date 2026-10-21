@@ -44,6 +44,15 @@
     <string name="back">Back</string>
     <string name="save_anyway">Save anyway</string>
     <string name="conflicts_title">Scheduling conflict</string>
+    <string name="undo">Undo</string>
+    <string name="booking_deleted">Booking deleted (%1$s)</string>
+    <string name="window_deleted">%1$s window deleted</string>
+    <string name="confirm_delete_booking_title">Delete this booking?</string>
+    <string name="confirm_delete_booking_message">%1$s, %2$s. You can undo this right after.</string>
+    <string name="confirm_delete_window_title">Delete this window?</string>
+    <string name="confirm_delete_window_message">%1$s %2$s. You can undo this right after.</string>
+    <string name="edit_window">Edit window</string>
+    <string name="error_window_overlap">Overlaps another window: %1$s</string>
     <string name="booking_not_found">That booking no longer exists</string>
     <string name="error_alias_required">An alias is required</string>
     <string name="error_duration">Enter a duration in minutes</string>

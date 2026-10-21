@@ -51,7 +51,7 @@ class ScreenshotTest {
         TestSupport.restoreClock()
     }
 
-    private fun shoot(screen: String, navId: Int, widthDp: Int, fontScale: Float) {
+    private fun shoot(screen: String, navId: Int, widthDp: Int, fontScale: Float, settings: Boolean = false) {
         val height = if (widthDp <= 320) 640 else 891
         RuntimeEnvironment.setQualifiers("w${widthDp}dp-h${height}dp-night-xxhdpi")
         RuntimeEnvironment.setFontScale(fontScale)
@@ -63,6 +63,7 @@ class ScreenshotTest {
                 viewModel.bookings.observeForever { }
                 viewModel.availability.observeForever { }
                 activity.findViewById<BottomNavigationView>(R.id.bottom_nav).selectedItemId = navId
+                if (settings) activity.openSettings()
             }
             TestSupport.awaitUntil {
                 viewModel.bookings.value != null && viewModel.availability.value != null
@@ -92,4 +93,9 @@ class ScreenshotTest {
     @Test fun earnings_w320_f2() = shoot("earnings", R.id.nav_earnings, 320, 2.0f)
     @Test fun earnings_w411_f1() = shoot("earnings", R.id.nav_earnings, 411, 1.0f)
     @Test fun earnings_w411_f2() = shoot("earnings", R.id.nav_earnings, 411, 2.0f)
+
+    @Test fun settings_w320_f1() = shoot("settings", R.id.nav_agenda, 320, 1.0f, settings = true)
+    @Test fun settings_w320_f2() = shoot("settings", R.id.nav_agenda, 320, 2.0f, settings = true)
+    @Test fun settings_w411_f1() = shoot("settings", R.id.nav_agenda, 411, 1.0f, settings = true)
+    @Test fun settings_w411_f2() = shoot("settings", R.id.nav_agenda, 411, 2.0f, settings = true)
 }

@@ -15,6 +15,7 @@ import com.sovereignops.timetable.core.schedule.Agenda
 import com.sovereignops.timetable.databinding.FragmentAgendaBinding
 import com.sovereignops.timetable.ui.AppClock
 import com.sovereignops.timetable.ui.Formats
+import com.sovereignops.timetable.ui.MainActivity
 import com.sovereignops.timetable.ui.MainViewModel
 import com.sovereignops.timetable.ui.editor.BookingEditorFragment
 
@@ -43,6 +44,7 @@ class AgendaFragment : Fragment() {
         binding.list.adapter = adapter
 
         binding.addButton.setOnClickListener { openEditor(0L) }
+        binding.settingsButton.setOnClickListener { (requireActivity() as MainActivity).openSettings() }
 
         viewModel.bookings.observe(viewLifecycleOwner) { bookings ->
             latest = bookings

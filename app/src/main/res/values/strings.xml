@@ -91,4 +91,44 @@
         <item quantity="one">%d open booking</item>
         <item quantity="other">%d open bookings</item>
     </plurals>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_backup_section">Backup and export</string>
+    <string name="settings_backup_help">The backup is one encrypted file you choose where to save. Without its passphrase it cannot be opened, and the app cannot recover a lost passphrase.</string>
+    <string name="settings_about_section">About</string>
+    <string name="backup_create">Create encrypted backup</string>
+    <string name="backup_restore">Restore from backup</string>
+    <string name="export_calendar">Export calendar (.ics, not encrypted)</string>
+    <string name="passphrase_hint">Passphrase (at least 8 characters)</string>
+    <string name="passphrase_confirm_hint">Repeat passphrase</string>
+    <string name="passphrase_create_help">Choose a passphrase for this backup. Write it down somewhere safe: there is no way to recover it.</string>
+    <string name="passphrase_restore_help">Enter the passphrase this backup was made with.</string>
+    <string name="passphrase_too_short">Use at least 8 characters</string>
+    <string name="passphrase_mismatch">The two passphrases differ</string>
+    <string name="passphrase_invalid">That passphrase contains characters that cannot be used</string>
+    <string name="working_backup">Encrypting the backup…</string>
+    <string name="working_reading">Reading the file…</string>
+    <string name="working_restore">Checking the backup…</string>
+    <string name="working_export">Writing the calendar…</string>
+    <string name="backup_saved">Backup saved: %1$d bookings, %2$d availability windows.</string>
+    <string name="backup_skipped_unreadable">%1$d unreadable records could not be included.</string>
+    <string name="backup_failed">The backup could not be made.</string>
+    <string name="backup_write_failed">The file could not be written.</string>
+    <string name="restore_failed">The backup could not be restored.</string>
+    <string name="restore_read_failed">The file could not be read.</string>
+    <string name="restore_invalid">The backup is damaged or not valid, so nothing was changed. (%1$s)</string>
+    <string name="restore_failed_unchanged">The restore failed. Your existing data was not changed.</string>
+    <string name="restore_confirm_title">Replace everything?</string>
+    <string name="restore_confirm_message">This backup (made %3$s) has %1$d bookings and %2$d availability windows. Restoring replaces ALL current bookings, availability and the travel buffer with them. This cannot be undone.</string>
+    <string name="restore_confirm_action">Replace and restore</string>
+    <string name="restore_done">Restored %1$d bookings and %2$d availability windows.</string>
+    <string name="export_warning_title">Export unencrypted calendar?</string>
+    <string name="export_warning_message">The .ics file is NOT encrypted. Anyone who can open it sees aliases, times, location labels and status. Rates and notes are left out. Keep it somewhere safe and delete it when you are done.</string>
+    <string name="export_continue">Choose where to save</string>
+    <string name="export_saved">Calendar saved: %1$d bookings.</string>
+    <string name="notices_open">Open-source notices</string>
+    <string name="notices_title">Open-source notices</string>
+    <string name="close">Close</string>
+    <string name="notices_missing">The notices file is not bundled in this build.</string>
 </resources>

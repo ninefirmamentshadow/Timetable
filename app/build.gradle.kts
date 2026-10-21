@@ -1,5 +1,11 @@
 import java.io.FileInputStream
 import java.util.Properties
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 
 plugins {
     alias(libs.plugins.android.application)
@@ -110,6 +116,34 @@ android {
 
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
+    }
+}
+
+/**
+ * Ships the repository's THIRD_PARTY_NOTICES.md inside the APK as an asset, so the
+ * notices travel with every build (and the app shows them under Settings).
+ */
+abstract class SyncNoticesTask : DefaultTask() {
+    @get:InputFile
+    abstract val notices: RegularFileProperty
+
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
+
+    @TaskAction
+    fun sync() {
+        val out = outputDir.get().asFile
+        out.mkdirs()
+        notices.get().asFile.copyTo(out.resolve("THIRD_PARTY_NOTICES.md"), overwrite = true)
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val sync = tasks.register<SyncNoticesTask>("sync${variant.name.replaceFirstChar { it.uppercase() }}Notices") {
+            notices.set(rootProject.layout.projectDirectory.file("THIRD_PARTY_NOTICES.md"))
+        }
+        variant.sources.assets?.addGeneratedSourceDirectory(sync, SyncNoticesTask::outputDir)
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +20,7 @@ import com.sovereignops.timetable.databinding.ActivityMainBinding
 import com.sovereignops.timetable.ui.agenda.AgendaFragment
 import com.sovereignops.timetable.ui.availability.AvailabilityFragment
 import com.sovereignops.timetable.ui.earnings.EarningsFragment
+import com.sovereignops.timetable.ui.settings.SettingsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -87,7 +89,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /** Settings sits on top of the current tab; back returns to it. */
+    fun openSettings() {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.container, SettingsFragment())
+            addToBackStack("settings")
+        }
+    }
+
     private fun show(fragment: Fragment) {
+        supportFragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             replace(R.id.container, fragment)

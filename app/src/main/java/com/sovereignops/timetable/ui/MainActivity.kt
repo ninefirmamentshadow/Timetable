@@ -19,6 +19,7 @@ import com.sovereignops.timetable.R
 import com.sovereignops.timetable.databinding.ActivityMainBinding
 import com.sovereignops.timetable.ui.agenda.AgendaFragment
 import com.sovereignops.timetable.ui.availability.AvailabilityFragment
+import com.sovereignops.timetable.ui.calendar.CalendarFragment
 import com.sovereignops.timetable.ui.earnings.EarningsFragment
 import com.sovereignops.timetable.ui.settings.SettingsFragment
 
@@ -86,6 +87,15 @@ class MainActivity : AppCompatActivity() {
             binding.container.updatePadding(left = bars.left, top = bars.top, right = bars.right)
             binding.bottomNav.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
             WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    /** The month overview sits on top of the agenda; back returns to it. */
+    fun openCalendar() {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace(R.id.container, CalendarFragment())
+            addToBackStack("calendar")
         }
     }
 

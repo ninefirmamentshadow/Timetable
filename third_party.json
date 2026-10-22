@@ -4,9 +4,9 @@
     {
       "name": "AndroidX Core KTX",
       "upstream_url": "https://developer.android.com/jetpack/androidx",
-      "version_or_commit": "1.13.1",
+      "version_or_commit": "1.15.0",
       "spdx": "Apache-2.0",
-      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/core/core-ktx/1.13.1/core-ktx-1.13.1.pom",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/core/core-ktx/1.15.0/core-ktx-1.15.0.pom",
       "files": [
         "Linked library (not copied)"
       ],
@@ -84,9 +84,9 @@
     {
       "name": "AndroidX RecyclerView",
       "upstream_url": "https://developer.android.com/jetpack/androidx",
-      "version_or_commit": "1.3.2",
+      "version_or_commit": "1.4.0",
       "spdx": "Apache-2.0",
-      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/1.3.2/recyclerview-1.3.2.pom",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/1.4.0/recyclerview-1.4.0.pom",
       "files": [
         "Linked library (not copied)"
       ],
@@ -210,6 +210,22 @@
       "scope": "runtime",
       "coordinates": [
         "org.jetbrains.kotlinx:kotlinx-serialization-json"
+      ]
+    },
+    {
+      "name": "Calendar (Kizito Nwose)",
+      "upstream_url": "https://github.com/kizitonwose/Calendar",
+      "version_or_commit": "2.6.2",
+      "spdx": "MIT",
+      "license_verified_from": "https://raw.githubusercontent.com/kizitonwose/Calendar/2.6.2/LICENSE.md",
+      "files": [
+        "Linked library (not copied): month view; also brings calendar core and data modules"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "com.kizitonwose.calendar:view"
       ]
     },
     {

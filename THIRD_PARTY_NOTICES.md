@@ -19,10 +19,10 @@ are not part of the shipped APK; they are listed for completeness.
 
 ### AndroidX Core KTX
 
-- Version: 1.13.1
+- Version: 1.15.0
 - License: Apache-2.0
 - Upstream: https://developer.android.com/jetpack/androidx
-- License read from: https://dl.google.com/dl/android/maven2/androidx/core/core-ktx/1.13.1/core-ktx-1.13.1.pom
+- License read from: https://dl.google.com/dl/android/maven2/androidx/core/core-ktx/1.15.0/core-ktx-1.15.0.pom
 - Use: Linked library (not copied)
 
 ### AndroidX AppCompat
@@ -59,10 +59,10 @@ are not part of the shipped APK; they are listed for completeness.
 
 ### AndroidX RecyclerView
 
-- Version: 1.3.2
+- Version: 1.4.0
 - License: Apache-2.0
 - Upstream: https://developer.android.com/jetpack/androidx
-- License read from: https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/1.3.2/recyclerview-1.3.2.pom
+- License read from: https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/1.4.0/recyclerview-1.4.0.pom
 - Use: Linked library (not copied)
 
 ### AndroidX Lifecycle
@@ -104,6 +104,14 @@ are not part of the shipped APK; they are listed for completeness.
 - Upstream: https://github.com/Kotlin/kotlinx.serialization
 - License read from: https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.7.3/LICENSE.txt
 - Use: Linked library (not copied); also brings kotlinx-serialization-core
+
+### Calendar (Kizito Nwose)
+
+- Version: 2.6.2
+- License: MIT
+- Upstream: https://github.com/kizitonwose/Calendar
+- License read from: https://raw.githubusercontent.com/kizitonwose/Calendar/2.6.2/LICENSE.md
+- Use: Linked library (not copied): month view; also brings calendar core and data modules
 
 
 ## Test only (not shipped)
@@ -445,5 +453,35 @@ projects named above.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+```
+
+
+### MIT License (Calendar by Kizito Nwose)
+
+Applies to the Calendar library (`com.kizitonwose.calendar`), shipped in the app.
+Read from https://raw.githubusercontent.com/kizitonwose/Calendar/2.6.2/LICENSE.md
+
+```
+The MIT License (MIT)
+
+Copyright (c) 2019 Kizito Nwose
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 

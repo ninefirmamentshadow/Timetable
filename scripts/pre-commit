@@ -1,0 +1,25 @@
+#!/bin/sh
+# Local OPSEC guard. Install on each clone:
+#   cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Blocks the commit on a secret (gitleaks) or a private-pattern hit. Reports
+# file and line only, never the matched text.
+ROOT=$(git rev-parse --show-toplevel) || exit 1
+fail=0
+if command -v gitleaks >/dev/null 2>&1; then
+    gitleaks git --staged --redact --no-banner -l warn "$ROOT" || { echo "pre-commit: gitleaks found a possible secret; commit blocked." >&2; fail=1; }
+else
+    echo "pre-commit: gitleaks not installed; secret scan did NOT run (https://github.com/gitleaks/gitleaks)." >&2
+fi
+# Optional private patterns, one extended regex per line, kept untracked in
+# .opsec-patterns.local (gitignored). Never commit that file.
+PAT="$ROOT/.opsec-patterns.local"
+if [ -s "$PAT" ]; then
+    hits=$(git diff --cached --name-only --diff-filter=ACM -z | xargs -0 -r grep -nIiE -f "$PAT" -- 2>/dev/null | cut -d: -f1,2)
+    if [ -n "$hits" ]; then
+        echo "pre-commit: private pattern matched (file:line, content not shown):" >&2
+        echo "$hits" >&2
+        fail=1
+    fi
+fi
+[ -x "$ROOT/scripts/check-agent-pointers.sh" ] && { sh "$ROOT/scripts/check-agent-pointers.sh" >/dev/null || { echo "pre-commit: agent pointer files out of sync." >&2; fail=1; }; }
+exit $fail

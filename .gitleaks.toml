@@ -1,0 +1,7 @@
+# gitleaks config: default rules plus repo-specific allowlist.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known non-secrets"
+paths = ['''(^|/)build/''', '''\.smart-env/''']

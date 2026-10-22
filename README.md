@@ -1,6 +1,6 @@
 # Timetable
 
-A mobile-first, **offline** booking scheduler for an independent outcall,
+A mobile-first, **offline** booking scheduler for an independent mobile,
 transit-dependent operator. Built on the Sovereign-Ops infrastructure base
 (Kotlin / Android, Room, CI-built and sideloaded).
 
@@ -31,7 +31,7 @@ calendar and reports, worst first:
 
 - **Overlap** — a hard clash with an existing booking.
 - **Travel buffer** — a warning that two bookings are closer than your buffer
-  allows; this is an outcall workflow, and the calendar alone hides that.
+  allows; this is a travel-to-client workflow, and the calendar alone hides that.
 - **Outside availability** — the slot falls outside every declared window.
 
 A conflict does not block you — it surfaces, and you decide. The rules live in

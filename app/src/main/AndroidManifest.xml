@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
       Permissions. The owner approved exactly these (recorded in AGENTS.md, 2026-10-20):
@@ -17,7 +18,15 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!--
+      androidx.biometric merges USE_BIOMETRIC (approved) and also USE_FINGERPRINT, which is not.
+      USE_FINGERPRINT is only needed by the library's pre-API-28 fingerprint path; the app lock
+      uses BiometricPrompt on API 30+ and the device-credential intent on 26-29, so it is removed.
+    -->
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" tools:node="remove" />
+
     <application
+        android:name=".TimetableApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -37,6 +46,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".applock.LockActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:label="@string/app_name" />
+
         <receiver
             android:name=".reminders.ReminderReceiver"
             android:exported="false" />

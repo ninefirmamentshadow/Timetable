@@ -75,7 +75,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private suspend fun rescheduleRemindersNow() = withContext(Dispatchers.Default) {
-        reminders.reschedule(bookingSnapshot.value, AppClock.now(), settings.travelBufferMinutes)
+        reminders.rescheduleFromStorage(AppClock.now(), settings.travelBufferMinutes)
     }
 
     var travelBufferMinutes: Int

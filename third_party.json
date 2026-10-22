@@ -116,6 +116,22 @@
       ]
     },
     {
+      "name": "AndroidX Biometric",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.1.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/biometric/biometric/1.1.0/biometric-1.1.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.biometric:biometric"
+      ]
+    },
+    {
       "name": "AndroidX Room runtime",
       "upstream_url": "https://developer.android.com/jetpack/androidx",
       "version_or_commit": "2.7.0",

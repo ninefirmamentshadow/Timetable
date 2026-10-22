@@ -17,6 +17,7 @@ import com.sovereignops.timetable.data.AppDatabase
 import com.sovereignops.timetable.data.Repository
 import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.ui.TestSupport
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -65,7 +66,11 @@ class ReminderTest {
     private fun booking(id: Long, start: LocalDateTime, status: BookingStatus = BookingStatus.CONFIRMED) =
         Booking(id, start, 60, "Alias $id", Money.dollars(300), status, locationLabel = "Place $id")
 
-    private fun scheduler() = ReminderScheduler(app, zone)
+    private fun schedule(bookings: List<Booking>, now: LocalDateTime, buffer: Int) =
+        runBlocking { ReminderScheduler(app, zone).reschedule(bookings, now, buffer) }
+
+    private fun scheduleIn(zoneId: String, bookings: List<Booking>, now: LocalDateTime, buffer: Int) =
+        runBlocking { ReminderScheduler(app, ZoneId.of(zoneId)).reschedule(bookings, now, buffer) }
     private fun alarms() = shadowOf(alarmManager).scheduledAlarms
     private fun idOf(alarm: org.robolectric.shadows.ShadowAlarmManager.ScheduledAlarm) =
         shadowOf(alarm.operation).savedIntent.getLongExtra(ReminderReceiver.EXTRA_BOOKING_ID, 0)
@@ -76,7 +81,7 @@ class ReminderTest {
 
     @Test fun setsAnInexactAllowWhileIdleAlarmLeadPlusBufferBeforeTheStart() {
         val start = now.plusDays(1).withHour(19).withMinute(0)
-        scheduler().reschedule(listOf(booking(7, start)), now, 45)
+        schedule(listOf(booking(7, start)), now, 45)
 
         val alarm = alarms().single()
         assertEquals(1L * 7, idOf(alarm))
@@ -88,15 +93,15 @@ class ReminderTest {
 
     @Test fun nothingIsScheduledWhileRemindersAreOff() {
         ReminderSettings(app).enabled = false
-        scheduler().reschedule(listOf(booking(1, now.plusDays(1))), now, 45)
+        schedule(listOf(booking(1, now.plusDays(1))), now, 45)
         assertTrue(alarms().isEmpty())
     }
 
     @Test fun switchingOffCancelsExistingAlarms() {
-        scheduler().reschedule(listOf(booking(1, now.plusDays(1))), now, 45)
+        schedule(listOf(booking(1, now.plusDays(1))), now, 45)
         assertEquals(1, alarms().size)
         ReminderSettings(app).enabled = false
-        scheduler().reschedule(listOf(booking(1, now.plusDays(1))), now, 45)
+        schedule(listOf(booking(1, now.plusDays(1))), now, 45)
         assertTrue(alarms().isEmpty())
         assertEquals(emptySet<Long>(), ReminderSettings(app).scheduledIds)
     }
@@ -104,33 +109,52 @@ class ReminderTest {
     @Test fun aCancelledOrDeletedBookingsAlarmIsRemoved() {
         val a = booking(1, now.plusDays(1))
         val b = booking(2, now.plusDays(2))
-        scheduler().reschedule(listOf(a, b), now, 45)
+        schedule(listOf(a, b), now, 45)
         assertEquals(setOf(1L, 2L), alarms().map(::idOf).toSet())
 
-        scheduler().reschedule(listOf(a.copy(status = BookingStatus.CANCELLED), b), now, 45)
+        schedule(listOf(a.copy(status = BookingStatus.CANCELLED), b), now, 45)
         assertEquals(setOf(2L), alarms().map(::idOf).toSet())
 
-        scheduler().reschedule(emptyList(), now, 45) // b deleted
+        schedule(emptyList(), now, 45) // b deleted
         assertTrue(alarms().isEmpty())
     }
 
     @Test fun movingABookingMovesItsAlarmInsteadOfAddingASecond() {
         val original = booking(1, now.plusDays(1).withHour(19))
-        scheduler().reschedule(listOf(original), now, 45)
+        schedule(listOf(original), now, 45)
         val moved = original.copy(start = now.plusDays(2).withHour(20))
-        scheduler().reschedule(listOf(moved), now, 45)
+        schedule(listOf(moved), now, 45)
         val alarm = alarms().single()
         assertEquals(epoch(moved.start.minusMinutes(105)), alarm.triggerAtMs)
     }
 
     @Test fun changingTheTimeZoneMovesTheAlarmToTheSameWallClockTime() {
         val start = now.plusDays(1).withHour(19)
-        ReminderScheduler(app, ZoneId.of("UTC")).reschedule(listOf(booking(1, start)), now, 45)
+        scheduleIn("UTC", listOf(booking(1, start)), now, 45)
         val utc = alarms().single().triggerAtMs
-        ReminderScheduler(app, ZoneId.of("America/New_York")).reschedule(listOf(booking(1, start)), now, 45)
+        scheduleIn("America/New_York", listOf(booking(1, start)), now, 45)
         val ny = alarms().single().triggerAtMs
         assertEquals("19:00 local in New York is later in absolute time than 19:00 UTC", true, ny > utc)
         assertEquals(epoch(start.minusMinutes(105)) + 4 * 3600_000L, ny) // EDT on 2026-10-21 is UTC-4
+    }
+
+    // Regression: two reschedules in flight (one started before the reminders switch was turned
+    // on) used to cancel the alarm the other had just set.
+    @Test fun concurrentReschedulesNeverCancelEachOthersAlarms() {
+        save(booking(0, now.plusDays(1).withHour(19)))
+        ReminderSettings(app).enabled = false
+        runBlocking {
+            kotlinx.coroutines.coroutineScope {
+                val early = (1..30).map {
+                    launch(kotlinx.coroutines.Dispatchers.Default) { ReminderScheduler(app, zone).rescheduleFromStorage(now, 45) }
+                }
+                ReminderSettings(app).enabled = true // switched on while the earlier runs are in flight
+                launch(kotlinx.coroutines.Dispatchers.Default) { ReminderScheduler(app, zone).rescheduleFromStorage(now, 45) }
+                early.forEach { it.join() }
+            }
+        }
+        assertEquals(1, alarms().size)
+        assertEquals(1, ReminderSettings(app).scheduledIds.size)
     }
 
     // --- boot / time change --------------------------------------------------

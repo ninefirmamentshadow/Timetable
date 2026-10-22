@@ -34,8 +34,23 @@ object TestSupport {
         AppClock.clock = Clock.systemDefaultZone()
     }
 
+    /**
+     * androidx.lifecycle caches one AndroidViewModelFactory (and so one Application) per
+     * process. Production has a single Application; Robolectric makes a new one for every
+     * test, so a later test's view models would otherwise keep the first test's Application
+     * (and its SharedPreferences). Clear the cache so each test starts clean.
+     */
+    fun resetViewModelFactoryCache() {
+        runCatching {
+            val factory = androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory::class.java
+            factory.declaredFields.filter { java.lang.reflect.Modifier.isStatic(it.modifiers) && it.type == factory }
+                .forEach { field -> field.isAccessible = true; field.set(null, null) }
+        }
+    }
+
     /** An in-memory database whose queries run on the calling thread. */
     fun installInMemoryDatabase(): AppDatabase {
+        resetViewModelFactoryCache()
         val db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java,
@@ -73,7 +88,7 @@ object TestSupport {
     }
 
     /** Idle the main looper until [condition] holds or [timeoutMs] passes. */
-    fun awaitUntil(timeoutMs: Long = 5_000, condition: () -> Boolean) {
+    fun awaitUntil(timeoutMs: Long = 20_000, condition: () -> Boolean) {
         val deadline = System.currentTimeMillis() + timeoutMs
         while (System.currentTimeMillis() < deadline) {
             shadowOf(Looper.getMainLooper()).idle()

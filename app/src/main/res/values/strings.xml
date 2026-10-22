@@ -155,4 +155,19 @@
     <string name="reminders_error_lead">Enter minutes from 0 to 1440</string>
     <string name="reminders_channel_name">Booking reminders</string>
     <string name="reminders_channel_description">Reminders before confirmed bookings</string>
+
+    <!-- App lock -->
+    <string name="settings_lock_section">App lock</string>
+    <string name="lock_switch_title">Lock the app</string>
+    <string name="lock_timeout_hint">Lock after (seconds in the background)</string>
+    <string name="lock_help_settings">Off by default. When on, the app asks for your screen lock (PIN, pattern, password or a strong biometric) when it opens and after it has been in the background for the time above. Screenshots stay blocked while the lock is on. Needs a screen lock set on this phone.</string>
+    <string name="lock_needs_screen_lock">Set a screen lock (PIN, pattern or password) in the phone settings first. The app lock uses it.</string>
+    <string name="lock_error_timeout">Enter seconds from 0 to 600</string>
+    <string name="lock_title">Timetable is locked</string>
+    <string name="lock_help">Unlock with your screen lock to continue.</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_failed">Not unlocked. Try again.</string>
+    <string name="lock_prompt_title">Unlock Timetable</string>
+    <string name="lock_prompt_subtitle">Use your screen lock</string>
+    <string name="lock_turned_off_no_screen_lock">App lock was turned off because this phone has no screen lock.</string>
 </resources>

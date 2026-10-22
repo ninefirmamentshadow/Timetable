@@ -18,6 +18,9 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.databinding.FragmentSettingsBinding
+import com.sovereignops.timetable.applock.AppLock
+import com.sovereignops.timetable.applock.AppLockSettings
+import com.sovereignops.timetable.applock.AuthResult
 import com.sovereignops.timetable.core.reminders.ReminderPlanner
 import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.reminders.ReminderNotifications
@@ -72,6 +75,7 @@ class SettingsFragment : Fragment() {
         binding.exportButton.setOnClickListener { confirmExport() }
         binding.noticesButton.setOnClickListener { showNotices() }
         setUpReminders()
+        setUpLock()
         val prefs = Settings(requireContext())
         binding.secureSwitch.isChecked = prefs.secureWindow
         binding.secureSwitch.setOnCheckedChangeListener { _, on ->
@@ -79,6 +83,55 @@ class SettingsFragment : Fragment() {
             (requireActivity() as MainActivity).applySecureWindow()
         }
         backup.state.observe(viewLifecycleOwner) { render(it) }
+    }
+
+    private fun setUpLock() {
+        val lock = AppLockSettings(requireContext())
+        binding.lockSwitch.isChecked = lock.enabled
+        binding.lockTimeoutInput.setText(lock.timeoutSeconds.toString())
+        binding.lockSwitch.setOnCheckedChangeListener { _, on ->
+            if (on == lock.enabled) return@setOnCheckedChangeListener
+            if (!on) {
+                setLock(false)
+            } else {
+                val activity = requireActivity() as MainActivity
+                if (!activity.authenticator.isAvailable()) {
+                    binding.lockSwitch.isChecked = false
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(R.string.lock_needs_screen_lock)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .showSecure()
+                } else {
+                    // Prove it works before turning it on, so a broken setup cannot lock the person out.
+                    activity.authenticator.authenticate(
+                        getString(R.string.lock_prompt_title), getString(R.string.lock_prompt_subtitle),
+                    ) { result ->
+                        if (_binding == null) return@authenticate
+                        if (result == AuthResult.SUCCESS) setLock(true) else binding.lockSwitch.isChecked = false
+                    }
+                }
+            }
+        }
+        binding.lockTimeoutInput.setOnFocusChangeListener { _, focused -> if (!focused) saveLockTimeout() }
+        binding.lockTimeoutInput.setOnEditorActionListener { _, _, _ -> saveLockTimeout(); false }
+    }
+
+    private fun setLock(on: Boolean) {
+        AppLockSettings(requireContext()).enabled = on
+        if (binding.lockSwitch.isChecked != on) binding.lockSwitch.isChecked = on
+        AppLock.settingsChanged(requireContext())
+        (requireActivity() as MainActivity).applySecureWindow()
+    }
+
+    private fun saveLockTimeout() {
+        val seconds = binding.lockTimeoutInput.text?.toString()?.trim()?.toIntOrNull()
+        if (seconds == null || seconds !in 0..AppLockSettings.MAX_TIMEOUT_SECONDS) {
+            binding.lockTimeoutLayout.error = getString(R.string.lock_error_timeout)
+            return
+        }
+        binding.lockTimeoutLayout.error = null
+        AppLockSettings(requireContext()).timeoutSeconds = seconds
+        AppLock.settingsChanged(requireContext())
     }
 
     private fun setUpReminders() {

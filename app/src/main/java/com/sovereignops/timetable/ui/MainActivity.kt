@@ -1,6 +1,7 @@
 package com.sovereignops.timetable.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import com.sovereignops.timetable.R
+import com.sovereignops.timetable.applock.AppLock
+import com.sovereignops.timetable.applock.Authenticator
 import com.sovereignops.timetable.databinding.ActivityMainBinding
 import com.sovereignops.timetable.ui.agenda.AgendaFragment
 import com.sovereignops.timetable.ui.availability.AvailabilityFragment
@@ -26,16 +29,22 @@ import com.sovereignops.timetable.ui.settings.SettingsFragment
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    /** Used by Settings to confirm the device credential before the app lock is switched on. */
+    lateinit var authenticator: Authenticator
+        private set
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         applySecureWindow()
+        authenticator = AppLock.authenticatorFactory.create(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         applySystemBarInsets()
         observeEvents()
+        if (AppLock.isLocked(this)) binding.root.visibility = View.INVISIBLE // never flash content before the lock
 
         if (savedInstanceState == null) {
             show(AgendaFragment())
@@ -92,6 +101,30 @@ class MainActivity : AppCompatActivity() {
             binding.bottomNav.updatePadding(left = bars.left, right = bars.right, bottom = bars.bottom)
             WindowInsetsCompat.CONSUMED
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        AppLock.onHostStarted(this)
+        updateLockedContent()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateLockedContent()
+    }
+
+    override fun onStop() {
+        AppLock.onHostStopped(this, isChangingConfigurations)
+        super.onStop()
+    }
+
+    /** Content stays hidden (and out of accessibility) while the app is locked. */
+    private fun updateLockedContent() {
+        val locked = AppLock.isLocked(this)
+        binding.root.visibility = if (locked) View.INVISIBLE else View.VISIBLE
+        binding.root.importantForAccessibility =
+            if (locked) View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
     }
 
     /** The month overview sits on top of the agenda; back returns to it. */

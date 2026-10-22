@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import com.sovereignops.timetable.core.model.Booking
 import com.sovereignops.timetable.core.reminders.ReminderPlanner
+import com.sovereignops.timetable.data.Repository
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -22,7 +25,21 @@ class ReminderScheduler(
 ) {
     private val alarms get() = context.getSystemService(AlarmManager::class.java)
 
-    fun reschedule(bookings: List<Booking>, now: LocalDateTime, travelBufferMinutes: Int) {
+    /** Re-set the alarms for [bookings]. Serialised with every other reschedule (see [mutex]). */
+    suspend fun reschedule(bookings: List<Booking>, now: LocalDateTime, travelBufferMinutes: Int) {
+        mutex.withLock { apply(bookings, now, travelBufferMinutes) }
+    }
+
+    /**
+     * Read the bookings and settings fresh and re-set the alarms, all under one lock. Every caller
+     * (a settings change, a bookings change, boot) goes through here, so two of them can never
+     * interleave and cancel each other's alarms, and each run sees the latest saved settings.
+     */
+    suspend fun rescheduleFromStorage(now: LocalDateTime, travelBufferMinutes: Int) {
+        mutex.withLock { apply(Repository(context).bookingsNow(), now, travelBufferMinutes) }
+    }
+
+    private fun apply(bookings: List<Booking>, now: LocalDateTime, travelBufferMinutes: Int) {
         val settings = ReminderSettings(context)
         val wanted = if (settings.enabled) {
             ReminderPlanner.plan(bookings, now, settings.leadMinutes, travelBufferMinutes)
@@ -38,10 +55,12 @@ class ReminderScheduler(
         settings.scheduledIds = wantedIds
     }
 
-    fun cancelAll() {
-        val settings = ReminderSettings(context)
-        for (id in settings.scheduledIds) alarms.cancel(pendingIntent(id))
-        settings.scheduledIds = emptySet()
+    suspend fun cancelAll() {
+        mutex.withLock {
+            val settings = ReminderSettings(context)
+            for (id in settings.scheduledIds) alarms.cancel(pendingIntent(id))
+            settings.scheduledIds = emptySet()
+        }
     }
 
     private fun pendingIntent(bookingId: Long): PendingIntent {
@@ -52,5 +71,10 @@ class ReminderScheduler(
         return PendingIntent.getBroadcast(
             context, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
+    }
+
+    private companion object {
+        /** One lock for the whole process: scheduling reads and writes shared alarm state. */
+        val mutex = Mutex()
     }
 }

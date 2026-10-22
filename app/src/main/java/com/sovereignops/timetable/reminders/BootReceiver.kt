@@ -3,7 +3,6 @@ package com.sovereignops.timetable.reminders
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.sovereignops.timetable.data.Repository
 import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.ui.AppClock
 import kotlinx.coroutines.CoroutineScope
@@ -39,8 +38,7 @@ class BootReceiver : BroadcastReceiver() {
         )
 
         suspend fun rescheduleFromStorage(context: Context) {
-            val bookings = Repository(context).bookingsNow()
-            ReminderScheduler(context).reschedule(bookings, AppClock.now(), Settings(context).travelBufferMinutes)
+            ReminderScheduler(context).rescheduleFromStorage(AppClock.now(), Settings(context).travelBufferMinutes)
         }
     }
 }

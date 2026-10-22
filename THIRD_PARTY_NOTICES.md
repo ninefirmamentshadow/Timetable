@@ -73,6 +73,14 @@ are not part of the shipped APK; they are listed for completeness.
 - License read from: https://dl.google.com/dl/android/maven2/androidx/lifecycle/lifecycle-viewmodel-ktx/2.8.7/lifecycle-viewmodel-ktx-2.8.7.pom
 - Use: Linked library (not copied)
 
+### AndroidX Biometric
+
+- Version: 1.1.0
+- License: Apache-2.0
+- Upstream: https://developer.android.com/jetpack/androidx
+- License read from: https://dl.google.com/dl/android/maven2/androidx/biometric/biometric/1.1.0/biometric-1.1.0.pom
+- Use: Linked library (not copied)
+
 ### AndroidX Room runtime
 
 - Version: 2.7.0

@@ -60,6 +60,23 @@ A conflict does not block you — it surfaces, and you decide. The rules live in
   7:00 PM": no alias, no place. The full text shows once the phone is unlocked.
 - **Screenshots are blocked** and the recent-apps thumbnail is blank
   (`FLAG_SECURE`), on by default, switchable under Settings.
+- **App lock** (off by default): when on, the app asks for your screen lock (PIN,
+  pattern, password or a strong biometric) when it opens and after it has been in
+  the background for a time you set (30 seconds by default). It is a screen gate
+  and uses the phone's own prompt; the lock screen is opaque and covers any open
+  dialog. Screenshots stay blocked while it is on.
+- **Encrypted database.** The database is encrypted with SQLCipher. The key is 32
+  random bytes, wrapped by an Android Keystore key and kept in the app's no-backup
+  storage; it is not tied to your screen lock, so reminders still work while the
+  phone is locked. **Threat model:** this adds protection against file-copy
+  extraction and backup leaks beyond Android's built-in file encryption. It does
+  not protect against code running as the app on an unlocked device. New installs
+  are encrypted from the start. An existing plaintext database stays plaintext
+  until you tap **Encrypt database** in Settings, which is offered only after an
+  encrypted backup was made in the same session; the conversion runs at the next
+  start, into a copy that is checked row by row before it replaces the original,
+  and the old copy is deleted only after that. If anything fails the original is
+  left exactly as it was and the reason is shown.
 - **Backup** is one passphrase-encrypted file (PBKDF2-SHA256 and AES-256-GCM)
   saved wherever you choose with the system file picker; the format is in
   `docs/BACKUP_FORMAT.md`. A wrong passphrase or a damaged file changes nothing.

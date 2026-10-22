@@ -22,7 +22,10 @@ import com.sovereignops.timetable.applock.AppLock
 import com.sovereignops.timetable.applock.AppLockSettings
 import com.sovereignops.timetable.applock.AuthResult
 import com.sovereignops.timetable.core.reminders.ReminderPlanner
+import com.sovereignops.timetable.data.DatabaseEncryption
 import com.sovereignops.timetable.data.Settings
+import com.sovereignops.timetable.data.backup.BackupSession
+import com.sovereignops.timetable.dbcrypto.DatabaseMode
 import com.sovereignops.timetable.reminders.ReminderNotifications
 import com.sovereignops.timetable.reminders.ReminderSettings
 import com.sovereignops.timetable.ui.MainViewModel
@@ -76,6 +79,7 @@ class SettingsFragment : Fragment() {
         binding.noticesButton.setOnClickListener { showNotices() }
         setUpReminders()
         setUpLock()
+        setUpDatabase()
         val prefs = Settings(requireContext())
         binding.secureSwitch.isChecked = prefs.secureWindow
         binding.secureSwitch.setOnCheckedChangeListener { _, on ->
@@ -83,6 +87,50 @@ class SettingsFragment : Fragment() {
             (requireActivity() as MainActivity).applySecureWindow()
         }
         backup.state.observe(viewLifecycleOwner) { render(it) }
+    }
+
+    private fun setUpDatabase() {
+        binding.dbEncryptButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.db_encrypt_title)
+                .setMessage(R.string.db_encrypt_message)
+                .setPositiveButton(R.string.db_encrypt_confirm) { _, _ ->
+                    DatabaseEncryption.requestEncryption(requireContext())
+                    updateDatabaseSection()
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(R.string.db_requested_title)
+                        .setMessage(R.string.db_requested_message)
+                        .setPositiveButton(R.string.db_close_now) { _, _ -> requireActivity().finishAffinity() }
+                        .setNegativeButton(R.string.db_later, null)
+                        .showSecure()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .showSecure()
+        }
+        updateDatabaseSection()
+    }
+
+    /** Status, help text and whether Encrypt is offered (only for plaintext, with a backup made this session). */
+    private fun updateDatabaseSection() {
+        if (_binding == null) return
+        val status = DatabaseEncryption.status(requireContext())
+        val statusText = when {
+            status.requestPending -> getString(R.string.db_status_pending)
+            status.mode == DatabaseMode.PLAINTEXT -> getString(R.string.db_status_plaintext)
+            else -> getString(R.string.db_status_encrypted)
+        }
+        binding.dbStatus.text = status.lastResult?.let { statusText + "\n" + getString(R.string.db_last_result, it) } ?: statusText
+        val plaintext = status.mode == DatabaseMode.PLAINTEXT && !status.requestPending
+        val backedUp = BackupSession.backedUpThisSession
+        binding.dbEncryptButton.visibility = if (plaintext) View.VISIBLE else View.GONE
+        binding.dbEncryptButton.isEnabled = plaintext && backedUp
+        binding.dbHelp.visibility = if (plaintext) View.VISIBLE else View.GONE
+        binding.dbHelp.setText(if (backedUp) R.string.db_help_ready else R.string.db_help_need_backup)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateDatabaseSection()
     }
 
     private fun setUpLock() {
@@ -202,6 +250,7 @@ class SettingsFragment : Fragment() {
                 .setOnCancelListener { backup.cancelPending() }
                 .showSecure()
             is BackupViewModel.State.Done -> {
+                updateDatabaseSection() // a backup may just have unlocked the Encrypt action
                 MaterialAlertDialogBuilder(requireContext())
                     .setMessage(state.message)
                     .setPositiveButton(android.R.string.ok, null)

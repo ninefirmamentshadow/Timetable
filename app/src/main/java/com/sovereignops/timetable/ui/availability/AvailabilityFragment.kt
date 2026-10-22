@@ -1,5 +1,6 @@
 package com.sovereignops.timetable.ui.availability
 
+import com.sovereignops.timetable.ui.showSecure
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -93,7 +94,7 @@ class AvailabilityFragment : Fragment() {
             .setMessage(getString(R.string.confirm_delete_window_message, dayName(window.dayOfWeek), describe(window)))
             .setPositiveButton(R.string.delete) { _, _ -> viewModel.deleteAvailability(window.id) }
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .showSecure()
     }
 
     /** Add a window ([existing] null) or edit one; overlapping another window is refused. */
@@ -120,7 +121,7 @@ class AvailabilityFragment : Fragment() {
                 requireContext(),
                 { _, h, m -> startMinute = h * 60 + m; render() },
                 startMinute / 60, startMinute % 60, is24,
-            ).show()
+            ).showSecure()
         }
         dialogBinding.endButton.setOnClickListener {
             // Picking 12:00 AM as the end means midnight, the end of the day.
@@ -128,7 +129,7 @@ class AvailabilityFragment : Fragment() {
                 requireContext(),
                 { _, h, m -> endMinute = AvailabilityWindow.endMinuteOf(LocalTime.of(h, m)); render() },
                 (endMinute % 1440) / 60, endMinute % 60, is24,
-            ).show()
+            ).showSecure()
         }
 
         val dialog = MaterialAlertDialogBuilder(requireContext())
@@ -148,7 +149,7 @@ class AvailabilityFragment : Fragment() {
                 }
             }
         }
-        dialog.show()
+        dialog.showSecure()
     }
 
     /** Saves and returns null, or returns the message explaining why it was refused. */

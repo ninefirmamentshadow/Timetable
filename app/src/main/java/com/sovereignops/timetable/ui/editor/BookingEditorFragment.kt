@@ -1,5 +1,6 @@
 package com.sovereignops.timetable.ui.editor
 
+import com.sovereignops.timetable.ui.showSecure
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
@@ -22,6 +23,7 @@ import com.sovereignops.timetable.core.model.BookingStatus
 import com.sovereignops.timetable.core.model.DraftError
 import com.sovereignops.timetable.databinding.DialogBookingBinding
 import com.sovereignops.timetable.ui.Formats
+import com.sovereignops.timetable.ui.Privacy
 import com.sovereignops.timetable.ui.MainViewModel
 import java.time.LocalDate
 import java.time.LocalTime
@@ -63,6 +65,7 @@ class BookingEditorFragment : DialogFragment() {
         }
 
         val dialog = builder.create()
+        Privacy.apply(dialog.window, requireContext())
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 if (attemptSave()) dialog.dismiss()
@@ -101,7 +104,7 @@ class BookingEditorFragment : DialogFragment() {
                 dismissAllowingStateLoss()
             }
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .showSecure()
     }
 
     /** Inputs and Save stay disabled until the stored booking has been read. */
@@ -162,7 +165,7 @@ class BookingEditorFragment : DialogFragment() {
             requireContext(),
             { _, y, m, d -> editor.update { it.copy(date = LocalDate.of(y, m + 1, d)) } },
             current.year, current.monthValue - 1, current.dayOfMonth,
-        ).show()
+        ).showSecure()
     }
 
     private fun pickTime() {
@@ -171,7 +174,7 @@ class BookingEditorFragment : DialogFragment() {
             requireContext(),
             { _, h, min -> editor.update { it.copy(time = LocalTime.of(h, min)) } },
             current.hour, current.minute, DateFormat.is24HourFormat(requireContext()),
-        ).show()
+        ).showSecure()
     }
 
     /** Returns true when the booking was saved (dialog may dismiss). */
@@ -202,7 +205,7 @@ class BookingEditorFragment : DialogFragment() {
                             dismiss()
                         }
                         .setNegativeButton(R.string.back, null)
-                        .show()
+                        .showSecure()
                     return false // keep the editor open behind the warning
                 }
                 main.saveBooking(candidate)

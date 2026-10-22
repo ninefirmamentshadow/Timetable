@@ -1,5 +1,6 @@
 package com.sovereignops.timetable.ui.agenda
 
+import com.sovereignops.timetable.ui.showSecure
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -114,7 +115,7 @@ class AgendaFragment : Fragment() {
                 if (which < outcomes.size) viewModel.setBookingStatus(booking.id, outcomes[which]) else openEditor(booking.id)
             }
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .showSecure()
     }
 
     override fun onDestroyView() {

@@ -116,6 +116,14 @@ are not part of the shipped APK; they are listed for completeness.
 
 ## Test only (not shipped)
 
+### AndroidX Room testing
+
+- Version: 2.7.0
+- License: Apache-2.0
+- Upstream: https://developer.android.com/jetpack/androidx
+- License read from: https://dl.google.com/dl/android/maven2/androidx/room/room-testing/2.7.0/room-testing-2.7.0.pom
+- Use: Linked library (not copied)
+
 ### kotlinx.coroutines test
 
 - Version: 1.8.1

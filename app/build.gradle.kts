@@ -114,6 +114,11 @@ android {
         }
     }
 
+    // Committed Room schema JSON (app/schemas) goes into the DEBUG build's assets only, which is
+    // where Robolectric reads assets from, so migration tests can open every released schema.
+    // Release builds do not carry it.
+    sourceSets.getByName("debug").assets.srcDir("$projectDir/schemas")
+
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}")
     }
@@ -172,6 +177,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
+    testImplementation(libs.room.testing)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)

@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        applySecureWindow()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         applySystemBarInsets()
@@ -51,6 +52,9 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
+
+    /** Re-applies FLAG_SECURE from the current settings (also called when the setting changes). */
+    fun applySecureWindow() = Privacy.apply(window, this)
 
     /** A delete shows a snackbar whose Undo puts the item back. */
     private fun observeEvents() {

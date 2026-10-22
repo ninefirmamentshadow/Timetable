@@ -1,5 +1,6 @@
 package com.sovereignops.timetable.ui.settings
 
+import com.sovereignops.timetable.ui.showSecure
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -73,7 +74,7 @@ object PassphraseDialog {
                 }
             }
         }
-        dialog.show()
+        dialog.showSecure()
         return dialog
     }
 }

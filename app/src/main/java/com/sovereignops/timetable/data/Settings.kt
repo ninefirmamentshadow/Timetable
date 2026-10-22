@@ -20,7 +20,13 @@ class Settings(context: Context) {
         get() = prefs.getInt(KEY_DURATION, DEFAULT_DURATION)
         set(value) = prefs.edit().putInt(KEY_DURATION, value.coerceIn(15, 1440)).apply()
 
+    /** FLAG_SECURE on every window (blocks screenshots, blanks the recents thumbnail). Default on. */
+    var secureWindow: Boolean
+        get() = prefs.getBoolean(KEY_SECURE, true)
+        set(value) = prefs.edit().putBoolean(KEY_SECURE, value).apply()
+
     companion object {
+        private const val KEY_SECURE = "secure_window"
         private const val KEY_BUFFER = "travel_buffer_minutes"
         private const val KEY_DURATION = "default_duration_minutes"
         const val DEFAULT_BUFFER = 45

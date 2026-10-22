@@ -1,5 +1,6 @@
 package com.sovereignops.timetable.ui.settings
 
+import com.sovereignops.timetable.ui.showSecure
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,9 @@ import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.databinding.FragmentSettingsBinding
+import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.ui.AppClock
+import com.sovereignops.timetable.ui.MainActivity
 import java.time.format.DateTimeFormatter
 
 /** Backup, export and about. Further sections (privacy, reminders) are added here. */
@@ -48,6 +51,12 @@ class SettingsFragment : Fragment() {
         binding.restoreButton.setOnClickListener { openBackupFile.launch(arrayOf("application/json", "text/plain", "*/*")) }
         binding.exportButton.setOnClickListener { confirmExport() }
         binding.noticesButton.setOnClickListener { showNotices() }
+        val prefs = Settings(requireContext())
+        binding.secureSwitch.isChecked = prefs.secureWindow
+        binding.secureSwitch.setOnCheckedChangeListener { _, on ->
+            prefs.secureWindow = on
+            (requireActivity() as MainActivity).applySecureWindow()
+        }
         backup.state.observe(viewLifecycleOwner) { render(it) }
     }
 
@@ -69,12 +78,12 @@ class SettingsFragment : Fragment() {
                 .setPositiveButton(R.string.restore_confirm_action) { _, _ -> backup.applyRestore() }
                 .setNegativeButton(R.string.cancel) { _, _ -> backup.cancelPending() }
                 .setOnCancelListener { backup.cancelPending() }
-                .show()
+                .showSecure()
             is BackupViewModel.State.Done -> {
                 MaterialAlertDialogBuilder(requireContext())
                     .setMessage(state.message)
                     .setPositiveButton(android.R.string.ok, null)
-                    .show()
+                    .showSecure()
                 backup.consume()
             }
             else -> Unit
@@ -100,7 +109,7 @@ class SettingsFragment : Fragment() {
                 createCalendarFile.launch("timetable-${AppClock.today().format(DateTimeFormatter.ISO_LOCAL_DATE)}.ics")
             }
             .setNegativeButton(R.string.cancel, null)
-            .show()
+            .showSecure()
     }
 
     /** The bundled third-party notices (same text as THIRD_PARTY_NOTICES.md). */
@@ -122,7 +131,7 @@ class SettingsFragment : Fragment() {
             .setTitle(R.string.notices_title)
             .setView(ScrollView(requireContext()).apply { addView(body) })
             .setPositiveButton(R.string.close, null)
-            .show()
+            .showSecure()
     }
 
     override fun onDestroyView() {

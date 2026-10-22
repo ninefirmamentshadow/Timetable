@@ -133,6 +133,22 @@
       ]
     },
     {
+      "name": "AndroidX Room testing",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.7.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/room/room-testing/2.7.0/room-testing-2.7.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "androidx.room:room-testing"
+      ]
+    },
+    {
       "name": "AndroidX Room compiler (KSP processor)",
       "upstream_url": "https://developer.android.com/jetpack/androidx",
       "version_or_commit": "2.7.0",
@@ -141,7 +157,7 @@
       "files": [
         "Linked library (not copied)"
       ],
-      "notices_required": true,
+      "notices_required": false,
       "modified": false,
       "scope": "build",
       "coordinates": [

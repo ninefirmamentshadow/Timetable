@@ -59,6 +59,24 @@
 
         <TextView
             style="@style/SectionLabel"
+            android:text="@string/settings_privacy_section" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/secure_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/secure_window_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp"
+            android:text="@string/secure_window_help" />
+
+        <TextView
+            style="@style/SectionLabel"
             android:text="@string/settings_about_section" />
 
         <com.google.android.material.button.MaterialButton

@@ -12,12 +12,15 @@ import com.sovereignops.timetable.core.schedule.Conflict
 import com.sovereignops.timetable.core.schedule.ConflictDetector
 import com.sovereignops.timetable.data.Repository
 import com.sovereignops.timetable.data.Settings
+import com.sovereignops.timetable.reminders.ReminderScheduler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -54,9 +57,25 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     val snapshots = combine(bookingSnapshot, availabilitySnapshot) { b, a -> b to a }.asLiveData()
 
+    private val reminders = ReminderScheduler(app)
+
     init {
-        viewModelScope.launch { repo.bookings.collect { bookingSnapshot.value = it } }
+        viewModelScope.launch {
+            repo.bookings.collect {
+                bookingSnapshot.value = it
+                rescheduleRemindersNow()
+            }
+        }
         viewModelScope.launch { repo.availability.collect { availabilitySnapshot.value = it } }
+    }
+
+    /** Re-set the reminder alarms from the current bookings and settings. */
+    fun rescheduleReminders() {
+        viewModelScope.launch { rescheduleRemindersNow() }
+    }
+
+    private suspend fun rescheduleRemindersNow() = withContext(Dispatchers.Default) {
+        reminders.reschedule(bookingSnapshot.value, AppClock.now(), settings.travelBufferMinutes)
     }
 
     var travelBufferMinutes: Int

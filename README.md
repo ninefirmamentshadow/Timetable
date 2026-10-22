@@ -11,18 +11,25 @@ checks locally.
 
 ## What it does
 
-**AGENDA** — upcoming bookings grouped by day, each showing alias, time range,
-rate, status, and flags (screened / deposit / location label). The header names
-the next booking. Tap one to edit; tap **+** to add. The editor warns before it
-lets you overbook.
+**AGENDA** — *Needs review*, *Upcoming* and *Past and closed* sections, grouped
+by day, each booking showing alias, time range, rate, status, and flags
+(screened / deposit / location label). The header names the next booking. Tap
+one to edit (or, if it ended without an outcome, to mark it completed, no-show
+or cancelled); tap **+** to add. The editor warns before it lets you overbook,
+keeps what you typed through rotation, and deleting asks first and offers Undo.
+**Month** opens a month overview (days with bookings are marked); **Settings**
+holds backup, export, reminders and privacy options.
 
 **AVAILABILITY** — recurring weekly windows (the days and hours you take
-bookings), plus a **travel buffer**: the minimum gap the app insists on between
+bookings; a window can run to midnight, windows can be edited and cannot
+overlap), plus a **travel buffer**: the minimum gap the app insists on between
 two bookings so you can actually get across town. Both feed the conflict check.
 
 **EARNINGS** — **earned** money (completed bookings) and **projected** money
-(open inquiries and confirmations) shown separately — never summed into one
-misleading total — with an earned-by-week breakdown.
+(open inquiries and confirmations that have not happened yet) shown separately
+— never summed into one misleading total — with an earned-by-week breakdown. An
+open booking whose time has passed is counted as *needs review* until you mark it
+completed, no-show or cancelled on the Agenda.
 
 ## Conflict model
 
@@ -39,11 +46,25 @@ A conflict does not block you — it surfaces, and you decide. The rules live in
 
 ## Privacy posture
 
-- **No permissions at all** — no `INTERNET`, no location, no notifications.
-  Appointment data never leaves the device.
-- Backups and device transfer are disabled.
+- **No `INTERNET` permission and no network code.** Appointment data never
+  leaves the device except in a file you choose to save (below).
+- Only three permissions, each approved by the owner and recorded in
+  `AGENTS.md`: `POST_NOTIFICATIONS` (asked only when you switch reminders on) and
+  `RECEIVE_BOOT_COMPLETED` for booking reminders, and `USE_BIOMETRIC` for the
+  optional app lock. No location, no contacts, no calendar, no storage.
+- Android backup and device transfer are disabled.
 - Clients are recorded as **aliases**, never legal names. The location field is
   a freeform label you type; the app never resolves, geocodes, or transmits it.
+- **Reminders** (off by default) use inexact alarms, so they may arrive a few
+  minutes late. The lock-screen version of a reminder says only "Booking at
+  7:00 PM": no alias, no place. The full text shows once the phone is unlocked.
+- **Screenshots are blocked** and the recent-apps thumbnail is blank
+  (`FLAG_SECURE`), on by default, switchable under Settings.
+- **Backup** is one passphrase-encrypted file (PBKDF2-SHA256 and AES-256-GCM)
+  saved wherever you choose with the system file picker; the format is in
+  `docs/BACKUP_FORMAT.md`. A wrong passphrase or a damaged file changes nothing.
+  **Calendar export (.ics)** is separate and **not encrypted**; the app says so
+  before writing it and leaves rates and notes out.
 
 ## Build
 

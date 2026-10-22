@@ -1,7 +1,10 @@
 package com.sovereignops.timetable.ui.settings
 
 import com.sovereignops.timetable.ui.showSecure
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,14 +12,17 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.databinding.FragmentSettingsBinding
+import com.sovereignops.timetable.core.reminders.ReminderPlanner
 import com.sovereignops.timetable.data.Settings
+import com.sovereignops.timetable.reminders.ReminderNotifications
+import com.sovereignops.timetable.reminders.ReminderSettings
+import com.sovereignops.timetable.ui.MainViewModel
 import com.sovereignops.timetable.ui.AppClock
 import com.sovereignops.timetable.ui.MainActivity
 import java.time.format.DateTimeFormatter
@@ -41,6 +47,20 @@ class SettingsFragment : Fragment() {
             if (uri != null) backup.exportCalendar(uri)
         }
 
+    private val requestNotifications =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (granted) {
+                setReminders(true)
+            } else {
+                binding.remindersSwitch.isChecked = false
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(R.string.reminders_denied)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .showSecure()
+            }
+        }
+    private val main: MainViewModel by activityViewModels()
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         return binding.root
@@ -51,6 +71,7 @@ class SettingsFragment : Fragment() {
         binding.restoreButton.setOnClickListener { openBackupFile.launch(arrayOf("application/json", "text/plain", "*/*")) }
         binding.exportButton.setOnClickListener { confirmExport() }
         binding.noticesButton.setOnClickListener { showNotices() }
+        setUpReminders()
         val prefs = Settings(requireContext())
         binding.secureSwitch.isChecked = prefs.secureWindow
         binding.secureSwitch.setOnCheckedChangeListener { _, on ->
@@ -58,6 +79,54 @@ class SettingsFragment : Fragment() {
             (requireActivity() as MainActivity).applySecureWindow()
         }
         backup.state.observe(viewLifecycleOwner) { render(it) }
+    }
+
+    private fun setUpReminders() {
+        val reminders = ReminderSettings(requireContext())
+        binding.remindersSwitch.isChecked = reminders.enabled
+        binding.leadInput.setText(reminders.leadMinutes.toString())
+        updateRemindersHelp()
+        binding.remindersSwitch.setOnCheckedChangeListener { _, on ->
+            if (on == reminders.enabled) return@setOnCheckedChangeListener
+            if (!on) {
+                setReminders(false)
+            } else if (Build.VERSION.SDK_INT >= 33 &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                // Asked only now, when the operator switches reminders on.
+                requestNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                setReminders(true)
+            }
+        }
+        binding.leadInput.setOnFocusChangeListener { _, focused -> if (!focused) saveLead() }
+        binding.leadInput.setOnEditorActionListener { _, _, _ -> saveLead(); false }
+    }
+
+    private fun setReminders(on: Boolean) {
+        ReminderSettings(requireContext()).enabled = on
+        if (binding.remindersSwitch.isChecked != on) binding.remindersSwitch.isChecked = on
+        if (on) ReminderNotifications.ensureChannel(requireContext())
+        main.rescheduleReminders()
+    }
+
+    private fun saveLead() {
+        val minutes = binding.leadInput.text?.toString()?.trim()?.toIntOrNull()
+        if (minutes == null || minutes !in 0..ReminderPlanner.MAX_LEAD_MINUTES) {
+            binding.leadLayout.error = getString(R.string.reminders_error_lead)
+            return
+        }
+        binding.leadLayout.error = null
+        ReminderSettings(requireContext()).leadMinutes = minutes
+        updateRemindersHelp()
+        main.rescheduleReminders()
+    }
+
+    private fun updateRemindersHelp() {
+        val lead = ReminderSettings(requireContext()).leadMinutes
+        val buffer = Settings(requireContext()).travelBufferMinutes
+        binding.remindersHelp.text = getString(R.string.reminders_help, lead, buffer, lead + buffer)
     }
 
     private fun render(state: BackupViewModel.State) {

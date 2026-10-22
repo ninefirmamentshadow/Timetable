@@ -51,7 +51,7 @@ class CalendarScreenTest {
                 // The selected day starts as today (20 Oct, one booking: Alias D).
                 assertEquals("Tuesday, October 20, 2026", activity.findViewById<TextView>(R.id.day_title).text.toString())
                 val list = activity.findViewById<RecyclerView>(R.id.list)
-                assertEquals(1, list.adapter!!.itemCount)
+                TestSupport.awaitUntil { list.adapter!!.itemCount == 1 } // the diff is computed off the main thread
                 assertEquals(View.GONE, activity.findViewById<View>(R.id.day_empty).visibility)
                 assertTrue(activity.findViewById<CalendarView>(R.id.calendar).childCount > 0)
             }

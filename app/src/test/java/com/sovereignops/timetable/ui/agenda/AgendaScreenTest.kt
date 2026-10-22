@@ -61,6 +61,16 @@ class AgendaScreenTest {
         return out
     }
 
+    /** ListAdapter computes its diff on a background thread, so poll instead of asserting at once. */
+    private fun awaitTexts(activity: MainActivity, expected: List<String>) {
+        var last = emptyList<String>()
+        try {
+            TestSupport.awaitUntil { last = texts(activity); last == expected }
+        } catch (e: IllegalStateException) {
+            assertEquals(expected, last)
+        }
+    }
+
     // Regression: past bookings were never shown on the agenda.
     @Test fun pastAndOverdueBookingsAreShownInTheirSections() {
         insert(1, TestSupport.NOW.minusDays(3), BookingStatus.CONFIRMED) // overdue, unresolved
@@ -72,10 +82,7 @@ class AgendaScreenTest {
             scenario.onActivity { vm = ViewModelProvider(it)[MainViewModel::class.java] }
             TestSupport.awaitUntil { vm.bookings.value?.size == 3 }
             scenario.onActivity { activity ->
-                assertEquals(
-                    listOf("Needs review", "Alias 1", "Upcoming", "Alias 3", "Past and closed", "Alias 2"),
-                    texts(activity),
-                )
+                awaitTexts(activity, listOf("Needs review", "Alias 1", "Upcoming", "Alias 3", "Past and closed", "Alias 2"))
                 assertEquals(
                     "1 booking needs review",
                     activity.findViewById<TextView>(R.id.review_summary).text.toString(),
@@ -95,6 +102,11 @@ class AgendaScreenTest {
 
             scenario.onActivity { activity ->
                 val list = activity.findViewById<RecyclerView>(R.id.list)
+                TestSupport.awaitUntil {
+                    (0 until list.adapter!!.itemCount).any {
+                        list.findViewHolderForAdapterPosition(it)?.itemView?.findViewById<TextView>(R.id.alias_label) != null
+                    }
+                }
                 val item = (0 until list.adapter!!.itemCount)
                     .mapNotNull { list.findViewHolderForAdapterPosition(it) }
                     .first { it.itemView.findViewById<TextView>(R.id.alias_label) != null }
@@ -107,7 +119,7 @@ class AgendaScreenTest {
             TestSupport.awaitUntil { vm.bookings.value?.single()?.status == BookingStatus.COMPLETED }
             scenario.onActivity { activity ->
                 shadowOf(android.os.Looper.getMainLooper()).idle()
-                assertEquals(listOf("Past and closed", "Alias 1"), texts(activity))
+                awaitTexts(activity, listOf("Past and closed", "Alias 1"))
                 assertEquals(android.view.View.GONE, activity.findViewById<TextView>(R.id.review_summary).visibility)
             }
         }
@@ -133,7 +145,7 @@ class AgendaScreenTest {
             scenario.onActivity { vm = ViewModelProvider(it)[MainViewModel::class.java] }
             TestSupport.awaitUntil { vm.bookings.value?.size == 1 && vm.unreadableBookings.value == 2 }
             scenario.onActivity { activity ->
-                assertEquals(listOf("Upcoming", "Alias 1"), texts(activity))
+                awaitTexts(activity, listOf("Upcoming", "Alias 1"))
                 val banner = activity.findViewById<TextView>(R.id.unreadable_banner)
                 assertEquals(android.view.View.VISIBLE, banner.visibility)
                 assertEquals("2 unreadable records are hidden. Nothing was deleted.", banner.text.toString())

@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 class AgendaTest {
 
     private fun booking(id: Long, start: LocalDateTime, minutes: Int = 60, status: BookingStatus = BookingStatus.CONFIRMED) =
-        Booking(id, start, minutes, "client$id", Money.dollars(300), status)
+        Booking(id, start, minutes, "client$id", Money.dollars(125), status)
 
     private val now = LocalDateTime.of(2026, 8, 28, 12, 0)
 

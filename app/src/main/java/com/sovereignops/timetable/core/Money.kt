@@ -2,7 +2,7 @@ package com.sovereignops.timetable.core
 
 /**
  * Money in whole cents. Rates in this workflow are whole-dollar figures
- * (QV 140 / half 200 / hour 300), but storing cents keeps sums exact and lets a
+ * (e.g. 50 / 75 / 125), but storing cents keeps sums exact and lets a
  * non-round figure survive a round trip instead of being silently rounded.
  */
 @JvmInline
@@ -14,7 +14,7 @@ value class Money(val cents: Long) : Comparable<Money> {
 
     override fun compareTo(other: Money): Int = cents.compareTo(other.cents)
 
-    /** "$140", or "$140.50" when there is a cents remainder. */
+    /** "$50", or "$50.50" when there is a cents remainder. */
     fun format(): String {
         val whole = cents / 100
         val rem = (cents % 100).let { if (it < 0) -it else it }
@@ -27,7 +27,7 @@ value class Money(val cents: Long) : Comparable<Money> {
         fun dollars(amount: Long) = Money(amount * 100)
 
         /**
-         * Parse "$140", "140", "140.50", "$1,200" into Money. Returns null on
+         * Parse "$50", "50", "50.50", "$1,200" into Money. Returns null on
          * anything that is not a clean amount rather than guessing — an
          * unparseable rate is a data problem the caller must see, not absorb.
          */

@@ -19,7 +19,7 @@
     <string name="date_label">Date</string>
     <string name="time_label">Time</string>
     <string name="duration_hint">Duration (minutes)</string>
-    <string name="rate_hint">Rate (e.g. 300)</string>
+    <string name="rate_hint">Rate (e.g. 125)</string>
     <string name="location_hint">Location label (optional)</string>
     <string name="notes_hint">Notes (optional)</string>
     <string name="status_label">Status</string>
@@ -33,7 +33,7 @@
     <string name="conflicts_title">Scheduling conflict</string>
     <string name="error_alias_required">An alias is required</string>
     <string name="error_duration">Enter a duration in minutes</string>
-    <string name="error_rate">Enter a rate like 300 or $300</string>
+    <string name="error_rate">Enter a rate like 125 or $125</string>
 
     <!-- Availability -->
     <string name="availability_empty">No availability windows. Add the days and hours you take bookings.</string>

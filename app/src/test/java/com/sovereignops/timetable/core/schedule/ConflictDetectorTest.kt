@@ -25,7 +25,7 @@ class ConflictDetectorTest {
         start = start,
         durationMinutes = minutes,
         clientAlias = alias,
-        rate = Money.dollars(300),
+        rate = Money.dollars(125),
         status = status,
     )
 

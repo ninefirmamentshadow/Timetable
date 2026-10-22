@@ -275,6 +275,14 @@ are not part of the shipped APK; they are listed for completeness.
 - Note: Wrapper files are the unmodified Gradle 8.9 distribution wrapper; they run the build and are not shipped in the APK.
 
 
+## Assets and fonts
+
+No third-party font, icon set, image or sound was added. The app uses the system
+font and the Material Components theme. Icons that predate the open-source
+inventory (launcher and navigation vectors) were authored for this app; their
+provenance was not re-audited here.
+
+
 ## License texts
 
 ### Apache License 2.0

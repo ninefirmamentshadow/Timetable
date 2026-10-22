@@ -23,8 +23,16 @@ saves themselves through the system file picker.
   (`Booking`, `BookingStatus`, `AvailabilityWindow`), `schedule/`
   (`ConflictDetector`, `Agenda`), `earnings/`. **Pure Kotlin, no Android, fully
   unit-tested.** New rules go here with tests.
-- `app/src/main/java/.../data/` — Room entities (primitive rows), DAOs, mappers,
-  database, repository, local settings.
+- `app/src/main/java/.../data/` — Room entities (primitive rows), DAOs, mappers
+  (reading returns a `Result`; unreadable rows are skipped and counted, never
+  deleted), database, repository, local settings; `data/backup/` is the
+  Timetable backup payload and restore.
+- Self-contained packages with no Timetable types, written to be copied as they
+  are: `.../backup/` (passphrase envelope and file IO), `.../applock/` (lock
+  policy, authenticator, lock screen), `.../dbcrypto/` (Keystore-wrapped key,
+  SQLCipher support, safe plaintext-to-encrypted migration). `.../reminders/`
+  and `.../core/reminders/` hold the reminder scheduling (pure planner plus the
+  AlarmManager glue).
 - `app/src/main/java/.../ui/` — single activity, bottom-nav fragments (Agenda,
   Availability, Earnings), the booking editor.
 - `.github/workflows/build.yml` — CI: runs `scripts/verify.sh`, uploads the debug

@@ -12,3 +12,11 @@ local.properties
 *.jks
 *.keystore
 keystore.properties
+
+# OPSEC: local private patterns and secret-bearing files never belong in git.
+.opsec-patterns.local
+.env
+.env.*
+*.pem
+*.p12
+*.pfx

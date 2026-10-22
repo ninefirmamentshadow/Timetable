@@ -1,0 +1,8 @@
+---
+description: Canonical agent instructions live in AGENTS.md
+alwaysApply: true
+---
+
+Pointer file. Follow `/AGENTS.md`. Do not add rules here; this file is checked by `scripts/check-agent-pointers.sh`.
+
+@AGENTS.md

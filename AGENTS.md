@@ -2,7 +2,27 @@
 
 These rules apply to automated coding agents working anywhere in this
 repository. They are the single-app adaptation of the Sovereign-Ops execution
-doctrine; Sovereign-Ops remains the umbrella source of truth.
+doctrine; Sovereign-Ops remains the umbrella source of truth for doctrine; this file is canonical for agents in this repository.
+
+## Canonical source
+
+This file is the **canonical** instruction source for every coding agent (Claude Code, Codex/ChatGPT, Gemini/Jules, Cursor, Copilot, Grok, others). `CLAUDE.md`, `GEMINI.md`, `.cursor/rules/agents.mdc` and `.github/copilot-instructions.md` are thin pointers to it; edit rules here, never there. `sh scripts/check-agent-pointers.sh` enforces this.
+
+## Owner principles (highest priority after an explicit owner instruction)
+
+1. **Source-of-truth order.** Live GitHub for code, CI and deploys; the owner's file storage for source files and masters; any notes hub is only a sanitized index. When they disagree, trust them in that order and report the conflict.
+2. **Fact, inference, speculation.** Label which is which. Never invent test results, build status, or device behaviour. Report the exact commit, tests run, artifact status and blockers (see "Verification report").
+3. **Authorization.** No merging, releasing, or publishing without explicit owner authorization. This repository is public: work on a branch and open a PR; do not push directly to the default branch. Never force-push or rewrite pushed history without owner OK.
+4. **Reversible, high return.** Prefer small reversible changes with high net return on time. Bug fixes are test-first (failing test, then fix). Never retune heuristics or classifiers against known fixtures to raise scores; document held-out misses honestly.
+5. **Data invariants.** No user data is silently discarded. Every transformation is compared against its input, confirmed before it is destructive, and recoverable.
+6. **Privacy.** Never search for, reconstruct, or commit legal identity, residence, contact handles, client info, medical, benefits, or financial amounts. Fixtures are synthetic only (e.g. `MERIDIAN`, `Ashford`, `919-555-0142`, `example.invalid`). Persona or voice material is imported by the user at runtime, never bundled. Identity layers stay distinct.
+7. **No invented biography.** Use `[TK: …]` placeholders for any biographical detail not supplied by the owner.
+8. **Credentials.** Never print or commit secrets, tokens, keystores, or signing passwords. If access is missing, name exactly which access (service, scope, secret name) rather than asking for pasted credentials.
+9. **Phase through 2026-12-31: consolidation and conversion.** At most three active bets; no new lanes, features outside the request, or new projects without the owner's say.
+10. **Advisory tools never block** the user's own writing, saving, or copying. Warn, don't gate.
+11. **Escalate only real, consequential decisions** (irreversible, public, costly, privacy-affecting, posture-changing, or architectural). Proceed on ordinary reversible ones.
+
+Where older text conflicts with these principles, these principles win.
 
 ## What this app is
 
@@ -90,3 +110,16 @@ A successful build is not device validation; distinguish the two.
 - Room schema/migrations stay coherent when entities change.
 - No permission or backup posture was silently added.
 - No protected identity, location, or contact data was exposed.
+
+## Verification report and definition of done
+
+Every handoff or completion report states, as facts with evidence:
+
+- **Commit:** full SHA and branch; whether pushed; PR link.
+- **Tests:** exact commands and results. Never paraphrase a run that did not happen; say NOT_RUN and why (e.g. no Android SDK).
+- **Build:** status per artifact; CI result or "CI not run (reason)". GitHub Actions may be unavailable (billing); then give local results.
+- **Blockers / missing access:** precise, no credentials.
+
+Status labels, each claimed only with its own evidence: `implemented` · `compiled` · `tested` · `device-tested` · `signed` · `delivered` · `merged` · `published`. A higher label never implies a lower one was checked.
+
+**Done** means: requested change implemented; relevant tests added/updated and run; `sh scripts/check-agent-pointers.sh` passes; docs touched by the change updated; nothing private or secret added; report written with `docs/agents/HANDOFF_TEMPLATE.md`. Merge/release only if authorized.

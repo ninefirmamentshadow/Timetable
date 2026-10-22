@@ -141,4 +141,8 @@
         <item quantity="one">%1$s, %2$d booking</item>
         <item quantity="other">%1$s, %2$d bookings</item>
     </plurals>
+
+    <string name="settings_privacy_section">Privacy</string>
+    <string name="secure_window_title">Block screenshots and hide in recent apps</string>
+    <string name="secure_window_help">On by default. Stops screenshots and screen recording of this app and shows a blank thumbnail in the recent-apps list.</string>
 </resources>

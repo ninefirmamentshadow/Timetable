@@ -21,6 +21,15 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun backupDao(): BackupDao
 
     companion object {
+        const val NAME = "timetable.db"
+
+        /**
+         * Migrations, append-only and additive: a new entry is added when the schema
+         * version is raised, an existing one is never edited. Each needs the new
+         * schema JSON committed under app/schemas and a case in MigrationTest.
+         */
+        val MIGRATIONS: Array<androidx.room.migration.Migration> = arrayOf()
+
         @Volatile private var instance: AppDatabase? = null
 
         /** Test hook: use [db] (or the real database again when null) for [get]. */
@@ -34,8 +43,8 @@ abstract class AppDatabase : RoomDatabase() {
                 instance ?: Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "timetable.db",
-                ).build().also { instance = it }
+                    NAME,
+                ).addMigrations(*MIGRATIONS).build().also { instance = it }
             }
     }
 }

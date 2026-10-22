@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziATFAccessibilityCheckOptions
@@ -11,6 +12,11 @@ import com.github.takahirom.roborazzi.RoborazziATFAccessibilityChecker
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.github.takahirom.roborazzi.checkRoboAccessibility
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckPreset
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResultUtils.matchesCheck
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityViewCheckResult
+import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResultUtils.matchesViews
+import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck
+import org.hamcrest.Matchers.allOf
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.data.AppDatabase
@@ -51,7 +57,7 @@ class ScreenshotTest {
         TestSupport.restoreClock()
     }
 
-    private fun shoot(screen: String, navId: Int, widthDp: Int, fontScale: Float, settings: Boolean = false) {
+    private fun shoot(screen: String, navId: Int, widthDp: Int, fontScale: Float, settings: Boolean = false, calendar: Boolean = false) {
         val height = if (widthDp <= 320) 640 else 891
         RuntimeEnvironment.setQualifiers("w${widthDp}dp-h${height}dp-night-xxhdpi")
         RuntimeEnvironment.setFontScale(fontScale)
@@ -64,6 +70,7 @@ class ScreenshotTest {
                 viewModel.availability.observeForever { }
                 activity.findViewById<BottomNavigationView>(R.id.bottom_nav).selectedItemId = navId
                 if (settings) activity.openSettings()
+                if (calendar) activity.openCalendar()
             }
             TestSupport.awaitUntil {
                 viewModel.bookings.value != null && viewModel.availability.value != null
@@ -72,7 +79,16 @@ class ScreenshotTest {
             onView(isRoot()).captureRoboImage("src/test/screenshots/$name.png")
             onView(isRoot()).checkRoboAccessibility(
                 roborazziATFAccessibilityCheckOptions = RoborazziATFAccessibilityCheckOptions(
-                    checker = RoborazziATFAccessibilityChecker(preset = AccessibilityCheckPreset.LATEST),
+                    checker = RoborazziATFAccessibilityChecker(
+                        preset = AccessibilityCheckPreset.LATEST,
+                        // A seven-column month grid is 46 dp per cell at 320 dp wide, under the 48 dp
+                        // guideline. This is the only suppression: each cell carries a full spoken
+                        // description and the same day is reachable by paging and the day list below.
+                        suppressions = allOf<AccessibilityViewCheckResult>(
+                            matchesCheck(TouchTargetSizeCheck::class.java),
+                            matchesViews(withId(R.id.calendar_day_cell)),
+                        ),
+                    ),
                     failureLevel = RoborazziATFAccessibilityChecker.CheckLevel.Error,
                 ),
             )
@@ -98,4 +114,9 @@ class ScreenshotTest {
     @Test fun settings_w320_f2() = shoot("settings", R.id.nav_agenda, 320, 2.0f, settings = true)
     @Test fun settings_w411_f1() = shoot("settings", R.id.nav_agenda, 411, 1.0f, settings = true)
     @Test fun settings_w411_f2() = shoot("settings", R.id.nav_agenda, 411, 2.0f, settings = true)
+
+    @Test fun calendar_w320_f1() = shoot("calendar", R.id.nav_agenda, 320, 1.0f, calendar = true)
+    @Test fun calendar_w320_f2() = shoot("calendar", R.id.nav_agenda, 320, 2.0f, calendar = true)
+    @Test fun calendar_w411_f1() = shoot("calendar", R.id.nav_agenda, 411, 1.0f, calendar = true)
+    @Test fun calendar_w411_f2() = shoot("calendar", R.id.nav_agenda, 411, 2.0f, calendar = true)
 }

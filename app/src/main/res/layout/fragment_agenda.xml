@@ -34,6 +34,13 @@
                 android:paddingEnd="8dp">
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/month_button"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/calendar_month" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/settings_button"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"

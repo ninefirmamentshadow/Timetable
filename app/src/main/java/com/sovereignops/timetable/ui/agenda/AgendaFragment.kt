@@ -44,6 +44,7 @@ class AgendaFragment : Fragment() {
         binding.list.adapter = adapter
 
         binding.addButton.setOnClickListener { openEditor(0L) }
+        binding.monthButton.setOnClickListener { (requireActivity() as MainActivity).openCalendar() }
         binding.settingsButton.setOnClickListener { (requireActivity() as MainActivity).openSettings() }
 
         viewModel.bookings.observe(viewLifecycleOwner) { bookings ->

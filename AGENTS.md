@@ -27,7 +27,7 @@ Where older text conflicts with these principles, these principles win.
 ## What this app is
 
 Timetable is a mobile-first, offline booking scheduler for an independent
-outcall, transit-dependent operator. It manages appointments (alias, time,
+mobile, transit-dependent operator. It manages appointments (alias, time,
 duration, rate, status, screening/deposit flags, freeform location label),
 recurring availability windows, and an earned-vs-projected earnings view. It
 warns about overlaps and about bookings too close together to travel between.
@@ -123,3 +123,7 @@ Every handoff or completion report states, as facts with evidence:
 Status labels, each claimed only with its own evidence: `implemented` · `compiled` · `tested` · `device-tested` · `signed` · `delivered` · `merged` · `published`. A higher label never implies a lower one was checked.
 
 **Done** means: requested change implemented; relevant tests added/updated and run; `sh scripts/check-agent-pointers.sh` passes; docs touched by the change updated; nothing private or secret added; report written with `docs/agents/HANDOFF_TEMPLATE.md`. Merge/release only if authorized.
+
+## OPSEC
+
+Read `SECURITY.md` before any change. It lists what must never appear in this public repository and how to install the local guard (`scripts/pre-commit`).

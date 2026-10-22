@@ -73,6 +73,14 @@ are not part of the shipped APK; they are listed for completeness.
 - License read from: https://dl.google.com/dl/android/maven2/androidx/lifecycle/lifecycle-viewmodel-ktx/2.8.7/lifecycle-viewmodel-ktx-2.8.7.pom
 - Use: Linked library (not copied)
 
+### AndroidX SQLite
+
+- Version: 2.6.2
+- License: Apache-2.0
+- Upstream: https://developer.android.com/jetpack/androidx
+- License read from: https://dl.google.com/dl/android/maven2/androidx/sqlite/sqlite/2.6.2/sqlite-2.6.2.pom
+- Use: Linked library (not copied)
+
 ### AndroidX Biometric
 
 - Version: 1.1.0
@@ -120,6 +128,15 @@ are not part of the shipped APK; they are listed for completeness.
 - Upstream: https://github.com/kizitonwose/Calendar
 - License read from: https://raw.githubusercontent.com/kizitonwose/Calendar/2.6.2/LICENSE.md
 - Use: Linked library (not copied): month view; also brings calendar core and data modules
+
+### SQLCipher for Android (Zetetic)
+
+- Version: 4.17.0
+- License: BSD-3-Clause
+- Upstream: https://github.com/sqlcipher/sqlcipher-android
+- License read from: https://raw.githubusercontent.com/sqlcipher/sqlcipher-android/v4.17.0/LICENSE
+- Use: Linked library (not copied): libsqlcipher.so for arm64-v8a, armeabi-v7a, x86, x86_64, with SQLCipher core, SQLite and LibTomCrypt compiled in
+- Note: License type: Zetetic's BSD-style licence (three conditions plus disclaimer, the BSD-3-Clause text with Zetetic as the named party); the Maven POM names only https://www.zetetic.net/sqlcipher/license/. SQLCipher core licence read from https://raw.githubusercontent.com/sqlcipher/sqlcipher/v4.17.0/LICENSE.md (the release tag matching this version; the Android repository's submodule pointer was not inspected). Bundled LibTomCrypt (the default crypto provider) is public domain or WTFPL, read from https://raw.githubusercontent.com/sqlcipher/libtomcrypt/master/LICENSE; SQLite is public domain.
 
 
 ## Test only (not shipped)
@@ -500,4 +517,44 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+### SQLCipher for Android (Zetetic LLC)
+
+Applies to `net.zetetic:sqlcipher-android` and the SQLCipher core compiled into its
+native library (`libsqlcipher.so`), shipped in the app to encrypt the database.
+Read from https://raw.githubusercontent.com/sqlcipher/sqlcipher-android/v4.17.0/LICENSE
+and https://raw.githubusercontent.com/sqlcipher/sqlcipher/v4.17.0/LICENSE.md
+
+```
+Copyright (c) 2008-2023, ZETETIC LLC
+Copyright (c) 2025, ZETETIC LLC
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the ZETETIC LLC nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY ZETETIC LLC ''AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL ZETETIC LLC BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+The same native library also contains SQLite (public domain) and LibTomCrypt, the
+crypto provider SQLCipher for Android uses by default (public domain, or the WTFPL,
+at the user's choice; read from
+https://raw.githubusercontent.com/sqlcipher/libtomcrypt/master/LICENSE).
 

@@ -116,6 +116,22 @@
       ]
     },
     {
+      "name": "AndroidX SQLite",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.6.2",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/sqlite/sqlite/2.6.2/sqlite-2.6.2.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.sqlite:sqlite"
+      ]
+    },
+    {
       "name": "AndroidX Biometric",
       "upstream_url": "https://developer.android.com/jetpack/androidx",
       "version_or_commit": "1.1.0",
@@ -259,6 +275,23 @@
       "coordinates": [
         "com.kizitonwose.calendar:view"
       ]
+    },
+    {
+      "name": "SQLCipher for Android (Zetetic)",
+      "upstream_url": "https://github.com/sqlcipher/sqlcipher-android",
+      "version_or_commit": "4.17.0",
+      "spdx": "BSD-3-Clause",
+      "license_verified_from": "https://raw.githubusercontent.com/sqlcipher/sqlcipher-android/v4.17.0/LICENSE",
+      "files": [
+        "Linked library (not copied): libsqlcipher.so for arm64-v8a, armeabi-v7a, x86, x86_64, with SQLCipher core, SQLite and LibTomCrypt compiled in"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "net.zetetic:sqlcipher-android"
+      ],
+      "note": "License type: Zetetic's BSD-style licence (three conditions plus disclaimer, the BSD-3-Clause text with Zetetic as the named party); the Maven POM names only https://www.zetetic.net/sqlcipher/license/. SQLCipher core licence read from https://raw.githubusercontent.com/sqlcipher/sqlcipher/v4.17.0/LICENSE.md (the release tag matching this version; the Android repository's submodule pointer was not inspected). Bundled LibTomCrypt (the default crypto provider) is public domain or WTFPL, read from https://raw.githubusercontent.com/sqlcipher/libtomcrypt/master/LICENSE; SQLite is public domain."
     },
     {
       "name": "JUnit 4",

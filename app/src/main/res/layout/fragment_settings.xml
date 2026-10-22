@@ -145,6 +145,33 @@
 
         <TextView
             style="@style/SectionLabel"
+            android:text="@string/settings_database_section" />
+
+        <TextView
+            android:id="@+id/db_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/db_help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/db_encrypt_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/db_encrypt" />
+
+        <TextView
+            style="@style/SectionLabel"
             android:text="@string/settings_about_section" />
 
         <com.google.android.material.button.MaterialButton

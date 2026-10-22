@@ -172,6 +172,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.calendar.view)
     implementation(libs.androidx.biometric)
+    implementation(libs.androidx.sqlite)
+    implementation(libs.sqlcipher.android)
 
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

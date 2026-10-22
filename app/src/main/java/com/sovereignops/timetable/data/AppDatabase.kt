@@ -38,13 +38,23 @@ abstract class AppDatabase : RoomDatabase() {
             synchronized(this) { instance = db }
         }
 
+        /**
+         * The one database. A new install is created encrypted; an existing plaintext
+         * database stays plaintext until the operator asks for encryption (see
+         * DatabaseEncryption). Throws DatabaseKeyUnavailable if an encrypted
+         * database's key is gone.
+         */
         fun get(context: Context): AppDatabase =
             instance ?: synchronized(this) {
-                instance ?: Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    NAME,
-                ).addMigrations(*MIGRATIONS).build().also { instance = it }
+                instance ?: build(context.applicationContext).also { instance = it }
             }
+
+        private fun build(context: Context): AppDatabase {
+            val factory = DatabaseEncryption.prepare(context)
+            return Room.databaseBuilder(context, AppDatabase::class.java, NAME)
+                .apply { if (factory != null) openHelperFactory(factory) }
+                .addMigrations(*MIGRATIONS)
+                .build()
+        }
     }
 }

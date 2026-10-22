@@ -170,4 +170,25 @@
     <string name="lock_prompt_title">Unlock Timetable</string>
     <string name="lock_prompt_subtitle">Use your screen lock</string>
     <string name="lock_turned_off_no_screen_lock">App lock was turned off because this phone has no screen lock.</string>
+
+    <!-- Encrypted database -->
+    <string name="settings_database_section">Database</string>
+    <string name="db_status_encrypted">Database: encrypted (SQLCipher). The key is held by the phone\'s secure storage.</string>
+    <string name="db_status_plaintext">Database: not encrypted. Android\'s own file encryption still protects it, but a copy of the file is readable.</string>
+    <string name="db_status_pending">Encryption will run the next time the app starts. Close the app and open it again.</string>
+    <string name="db_last_result">Last attempt: %1$s</string>
+    <string name="db_help_need_backup">Make an encrypted backup first (Backup and export, above). Encrypting is offered only after one was made in this session.</string>
+    <string name="db_help_ready">An encrypted backup exists from this session. You can encrypt the database now.</string>
+    <string name="db_encrypt">Encrypt database</string>
+    <string name="db_encrypt_title">Encrypt the database?</string>
+    <string name="db_encrypt_message">The database is converted the next time the app starts, in a copy; the old copy is deleted only after the new one has been checked row by row. If anything fails, your data is left exactly as it is and the reason is shown here. Your encrypted backup is the safety net: keep it.</string>
+    <string name="db_encrypt_confirm">Encrypt on next start</string>
+    <string name="db_requested_title">Close the app to finish</string>
+    <string name="db_requested_message">Encryption runs when the app starts again. Close it now, then open it.</string>
+    <string name="db_close_now">Close the app</string>
+    <string name="db_later">Later</string>
+    <string name="db_key_lost_title">The database cannot be opened</string>
+    <string name="db_key_lost_message">The key that unlocks the encrypted database is no longer available on this phone (for example after a factory reset or a phone transfer). The data cannot be recovered from this file. Reset the app\'s database, then restore from an encrypted backup.</string>
+    <string name="db_key_lost_reset">Reset database</string>
+    <string name="db_key_lost_close">Close</string>
 </resources>

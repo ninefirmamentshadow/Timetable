@@ -19,6 +19,10 @@ import kotlinx.coroutines.launch
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.applock.AppLock
 import com.sovereignops.timetable.applock.Authenticator
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.sovereignops.timetable.data.AppDatabase
+import com.sovereignops.timetable.data.DatabaseEncryption
+import com.sovereignops.timetable.data.DatabaseKeyUnavailable
 import com.sovereignops.timetable.databinding.ActivityMainBinding
 import com.sovereignops.timetable.ui.agenda.AgendaFragment
 import com.sovereignops.timetable.ui.availability.AvailabilityFragment
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        if (!databaseOpens()) return
         applySecureWindow()
         authenticator = AppLock.authenticatorFactory.create(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -60,6 +65,28 @@ class MainActivity : AppCompatActivity() {
             show(fragment)
             true
         }
+    }
+
+    /**
+     * Opens the database up front. If it is encrypted and its key is gone, nothing can be read:
+     * say so plainly and offer a reset (then restore from a backup) instead of crashing.
+     */
+    private fun databaseOpens(): Boolean = try {
+        AppDatabase.get(this)
+        true
+    } catch (e: DatabaseKeyUnavailable) {
+        setTheme(R.style.Theme_Timetable)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.db_key_lost_title)
+            .setMessage(R.string.db_key_lost_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.db_key_lost_reset) { _, _ ->
+                DatabaseEncryption.resetEverything(this)
+                finishAffinity()
+            }
+            .setNegativeButton(R.string.db_key_lost_close) { _, _ -> finishAffinity() }
+            .showSecure()
+        false
     }
 
     /** Re-applies FLAG_SECURE from the current settings (also called when the setting changes). */
@@ -105,17 +132,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        if (!::binding.isInitialized) return // the database could not be opened; the dialog is showing
         AppLock.onHostStarted(this)
         updateLockedContent()
     }
 
     override fun onResume() {
         super.onResume()
+        if (!::binding.isInitialized) return
         updateLockedContent()
     }
 
     override fun onStop() {
-        AppLock.onHostStopped(this, isChangingConfigurations)
+        if (::binding.isInitialized) AppLock.onHostStopped(this, isChangingConfigurations)
         super.onStop()
     }
 

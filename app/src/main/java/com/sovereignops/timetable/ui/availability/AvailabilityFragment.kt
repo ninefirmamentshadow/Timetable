@@ -75,6 +75,7 @@ class AvailabilityFragment : Fragment() {
         val minutes = binding.bufferInput.text?.toString()?.trim()?.toIntOrNull()
         if (minutes != null && minutes >= 0) {
             viewModel.travelBufferMinutes = minutes
+            viewModel.rescheduleReminders() // reminders fire lead + buffer before the start
             binding.bufferInput.setText(viewModel.travelBufferMinutes.toString())
             binding.bufferLayout.error = null
         } else {

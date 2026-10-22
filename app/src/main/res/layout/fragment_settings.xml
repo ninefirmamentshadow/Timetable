@@ -59,6 +59,40 @@
 
         <TextView
             style="@style/SectionLabel"
+            android:text="@string/settings_reminders_section" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/reminders_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/reminders_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lead_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/reminders_lead_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lead_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:imeOptions="actionDone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/reminders_help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
+
+        <TextView
+            style="@style/SectionLabel"
             android:text="@string/settings_privacy_section" />
 
         <com.google.android.material.materialswitch.MaterialSwitch

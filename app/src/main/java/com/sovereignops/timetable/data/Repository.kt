@@ -5,6 +5,7 @@ import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
 import com.sovereignops.timetable.core.model.BookingStatus
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
@@ -28,6 +29,9 @@ class Repository(context: Context) {
     val bookings: Flow<List<Booking>> = bookingsLoaded.map { it.items }
 
     val availability: Flow<List<AvailabilityWindow>> = availabilityLoaded.map { it.items }
+
+    /** The readable bookings right now (one read, not a stream). */
+    suspend fun bookingsNow(): List<Booking> = bookingsLoaded.first().items
 
     /** Insert (id == 0) or update. Returns the row id. */
     suspend fun saveBooking(booking: Booking): Long =

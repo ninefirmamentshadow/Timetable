@@ -76,6 +76,10 @@ saves themselves through the system file picker.
   Reminders use inexact `AlarmManager.setAndAllowWhileIdle`, so no exact-alarm
   permission. The lock-screen notification text carries no alias. Backup and
   export go through the system file picker and need no storage permission.
+  (AndroidX core also merges one app-private signature permission,
+  `<applicationId>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`; no other app can
+  hold it and it grants nothing, so it is not an addition. `ReminderTest` asserts
+  the full requested-permission set against this list.)
 - **2026-10-20 — encrypted database.** Approved: SQLCipher
   (`net.zetetic:sqlcipher-android`) through Room's `openHelperFactory`. New
   installs are encrypted; existing installs migrate only when the owner taps

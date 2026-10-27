@@ -231,6 +231,17 @@ class BookingEditorViewModelTest {
         assertTrue(editor.hasChanges)
     }
 
+    @Test fun aRestoredDraftEditedBackToTheStoredValuesHasNothingToLose() = runTest(dispatcher) {
+        val changed = BookingDraft.from(stored).copy(notes = "changed but not saved")
+        val store = FakeEditorStore(listOf(stored), listOf(SavedDraft(5, changed, now)))
+        val editor = vm(handle(5), store)
+        advanceUntilIdle()
+        editor.update { it.copy(notes = stored.notes) }
+        advanceUntilIdle()
+        assertFalse(editor.hasChanges)
+        assertFalse(5L in store.drafts)
+    }
+
     @Test fun aKeptDraftIdenticalToTheStoredBookingIsNotAnnounced() = runTest(dispatcher) {
         val store = FakeEditorStore(listOf(stored), listOf(SavedDraft(5, BookingDraft.from(stored), now)))
         val editor = vm(handle(5), store)

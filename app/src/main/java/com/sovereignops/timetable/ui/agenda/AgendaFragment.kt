@@ -93,7 +93,7 @@ class AgendaFragment : Fragment() {
         binding.nextSummary.text = if (next == null) {
             getString(R.string.no_upcoming)
         } else {
-            "Next: ${next.clientAlias} · ${Formats.nextBooking(requireContext(), next.start)}"
+            getString(R.string.next_booking, next.clientAlias, Formats.nextBooking(requireContext(), next.start))
         }
     }
 

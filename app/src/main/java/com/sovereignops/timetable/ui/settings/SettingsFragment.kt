@@ -78,6 +78,7 @@ class SettingsFragment : Fragment() {
         binding.restoreButton.setOnClickListener { openBackupFile.launch(arrayOf("application/json", "text/plain", "*/*")) }
         binding.exportButton.setOnClickListener { confirmExport() }
         binding.noticesButton.setOnClickListener { showNotices() }
+        binding.appVersion.text = versionText()
         setUpReminders()
         setUpLock()
         setUpDatabase()
@@ -300,6 +301,16 @@ class SettingsFragment : Fragment() {
     }
 
     /** The bundled third-party notices (same text as THIRD_PARTY_NOTICES.md). */
+    /** Which build is installed, so a phone test can be matched to a commit and a changelog entry. */
+    private fun versionText(): String {
+        val info = runCatching {
+            requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+        }.getOrNull() ?: return ""
+        @Suppress("DEPRECATION")
+        val code = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
+        return getString(R.string.app_version, info.versionName ?: "", code)
+    }
+
     private fun showNotices() {
         val text = try {
             requireContext().assets.open("THIRD_PARTY_NOTICES.md").bufferedReader().use { it.readText() }

@@ -136,6 +136,10 @@ placeholder locations only — never a real handle, number, or address.
 - Every confirmed, reproducible defect gets a regression test in the same commit.
 - **Never publish a debug build as an operational release.** The signed release
   path exists for exactly this reason.
+- User-visible changes go in `CHANGELOG.md`; raise `versionCode` for every build
+  handed to the phone (Android refuses a downgrade).
+- The booking editor never discards typed input silently: every change is kept as
+  a draft (`booking_drafts`) until it is saved or the operator discards it.
 - CI scripts must not print secrets.
 
 ## Validation

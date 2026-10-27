@@ -1,0 +1,32 @@
+{
+  "repo": "Timetable",
+  "objective": "Release candidate 1.0.0-rc1: booking drafts never crash or get lost, crash fixes across the app, CI green, release docs",
+  "branch": "ccr-3c98065d-qnvroa",
+  "base_commit": "0cc6e6af17ae919546a4cb72e39e45edf3f5f5a1",
+  "head_commit": "0000000",
+  "owner_agent": "claude",
+  "claimed": [
+    "Merged main (agent pointers, neutral amounts, OPSEC guard) into the feature branch claude/sovereign-execution-protocol-r676ri; removed committed .kotlin daemon logs",
+    "Booking drafts kept on the device: booking_drafts table, schema v2 by AutoMigration (2.json exported by CI KSP), autosave from the editor, restore on reopen, Agenda Resume/Discard banner",
+    "Editor: no close on outside tap; Back/Cancel with changes asks Keep draft / Discard / Keep editing; Save waits for the write (booking + draft removal in one transaction); failed save keeps the form and the draft",
+    "Crash fixes: focus listeners after view teardown (Availability buffer, reminder lead, lock timeout), storage errors in MainViewModel launches, BackupViewModel unexpected errors, reminder/boot receivers, calendar month listener, double-open editor",
+    "verify.sh room-schema step; ScreenshotTest waits for list diffs before capture; CI builds the unsigned R8 release variant as a check (not uploaded)",
+    "versionCode 2 / versionName 1.0.0-rc1; CHANGELOG.md with the owner's on-device acceptance list; README and AGENTS.md updated; Settings shows the installed version"
+  ],
+  "verified": [],
+  "not_run": [
+    "Local Gradle build and Robolectric tests: this environment's network policy blocks dl.google.com (Android SDK and Google Maven); CI is the build of record",
+    "Real-device install and acceptance (CHANGELOG.md, 'Before this becomes 1.0.0')",
+    "Signed release build: no KEYSTORE_BASE64 secret in the repository; scripts/release.sh stops with 'unsigned: not a release'"
+  ],
+  "pending": [
+    "Owner: set the four keystore secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD) so CI signs the release APK, then pin the signer digest",
+    "Owner: run the on-device acceptance list in CHANGELOG.md on the signed APK",
+    "Owner: merge the PR when satisfied"
+  ],
+  "next_action": "Owner device test of the signed 1.0.0-rc1 APK",
+  "next_executor_hint": "owner-device-test",
+  "opened_at": "2026-10-27T22:40:00Z",
+  "closed_at": null,
+  "owner_interventions": 2
+}

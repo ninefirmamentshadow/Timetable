@@ -129,7 +129,8 @@ class BookingEditorViewModel(
     val hasChanges: Boolean
         get() {
             val current = handle.get<BookingDraft>(KEY_DRAFT) ?: return false
-            return current != baseline || handle.get<Restored>(KEY_RESTORED) != null
+            // A kept draft of a deleted booking would be lost on close even if it matches the blank baseline.
+            return current != baseline || handle.get<Restored>(KEY_RESTORED) == Restored.DRAFT_OF_DELETED_BOOKING
         }
 
     /** Set once the session is finished (saved or discarded); later edits are ignored. */

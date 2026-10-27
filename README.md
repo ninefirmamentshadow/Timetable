@@ -16,7 +16,13 @@ by day, each booking showing alias, time range, rate, status, and flags
 (screened / deposit / location label). The header names the next booking. Tap
 one to edit (or, if it ended without an outcome, to mark it completed, no-show
 or cancelled); tap **+** to add. The editor warns before it lets you overbook,
-keeps what you typed through rotation, and deleting asks first and offers Undo.
+and deleting asks first and offers Undo.
+
+**Nothing typed is lost.** Every change in the editor is kept on the device as
+a draft, so a crash, a killed app or closing the editor never drops it; the
+editor picks it up next time and the Agenda offers **Resume** / **Discard**. A
+tap outside the editor does nothing, Back with unsaved changes asks first, and
+Save closes the editor only once the booking is actually written.
 **Month** opens a month overview (days with bookings are marked); **Settings**
 holds backup, export, reminders and privacy options.
 
@@ -82,6 +88,14 @@ A conflict does not block you — it surfaces, and you decide. The rules live in
   `docs/BACKUP_FORMAT.md`. A wrong passphrase or a damaged file changes nothing.
   **Calendar export (.ics)** is separate and **not encrypted**; the app says so
   before writing it and leaves rates and notes out.
+- **Drafts** of unsaved bookings live in the same database (encrypted with it)
+  until you save or discard them. They are not included in a backup.
+
+## Releases
+
+`CHANGELOG.md` lists what each version changed and the on-device checks a
+release candidate needs before it is called final. `scripts/release.sh` builds
+and checks the signed release APK.
 
 ## Build
 

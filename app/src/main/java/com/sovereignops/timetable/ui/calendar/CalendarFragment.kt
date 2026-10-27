@@ -77,8 +77,9 @@ class CalendarFragment : Fragment() {
             override fun create(view: View) = DayContainer(view)
             override fun bind(container: DayContainer, data: CalendarDay) = bindDay(container, data)
         }
+        // A smooth scroll can report its month after the view is gone: never touch a cleared binding.
         binding.calendar.monthScrollListener = { month ->
-            binding.monthTitle.text = month.yearMonth.format(MONTH_TITLE)
+            _binding?.monthTitle?.text = month.yearMonth.format(MONTH_TITLE)
         }
         val current = YearMonth.from(AppClock.today())
         binding.calendar.setup(current.minusMonths(24), current.plusMonths(24), firstDay)

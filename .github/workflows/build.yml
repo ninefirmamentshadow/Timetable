@@ -65,6 +65,13 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      # Without signing secrets, still prove the minified (R8) release variant builds:
+      # release-only shrinking problems surface here, not on the phone. The unsigned
+      # APK is never uploaded; it is not installable and is never a release.
+      - name: Release build check (unsigned, not uploaded)
+        if: ${{ env.KEYSTORE_BASE64 == '' }}
+        run: ./gradlew --no-daemon --console=plain assembleRelease
+
       - name: Decode keystore
         id: keystore
         if: ${{ env.KEYSTORE_BASE64 != '' }}

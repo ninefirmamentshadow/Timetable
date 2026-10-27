@@ -180,5 +180,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/notices_open" />
+
+        <TextView
+            android:id="@+id/app_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
     </LinearLayout>
 </ScrollView>

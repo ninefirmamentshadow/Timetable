@@ -33,14 +33,18 @@ class ConflictDetector(private val travelBufferMinutes: Int = 0) {
     /**
      * All conflicts for [candidate] against [existing], plus an availability
      * check when [availability] is non-empty. A booking is never checked against
-     * itself (matched by id), and cancelled / no-show existing bookings do not
-     * occupy the calendar so they never clash.
+     * itself (matched by id), and cancelled / no-show bookings do not occupy the
+     * calendar, on either side: they never clash, and a cancelled or no-show
+     * candidate raises nothing. The result is ordered by kind (worst first), then
+     * by the other booking's start and id, whatever the order of [existing].
      */
     fun check(
         candidate: Booking,
         existing: List<Booking>,
         availability: List<AvailabilityWindow> = emptyList(),
     ): List<Conflict> {
+        // A slot that is not held cannot clash (editing a cancelled booking's notes is not a conflict).
+        if (!candidate.occupiesCalendar) return emptyList()
         val conflicts = mutableListOf<Conflict>()
 
         for (other in existing) {
@@ -68,7 +72,7 @@ class ConflictDetector(private val travelBufferMinutes: Int = 0) {
             }
         }
 
-        if (availability.isNotEmpty() && candidate.occupiesCalendar) {
+        if (availability.isNotEmpty()) {
             val fits = AvailabilityCoverage.covers(availability, candidate.start, candidate.durationMinutes)
             if (!fits) {
                 conflicts += Conflict(
@@ -79,7 +83,9 @@ class ConflictDetector(private val travelBufferMinutes: Int = 0) {
             }
         }
 
-        return conflicts.sortedBy { it.kind.ordinal }
+        return conflicts.sortedWith(
+            compareBy<Conflict> { it.kind.ordinal }.thenBy { it.other?.start }.thenBy { it.other?.id },
+        )
     }
 
     fun hasHardConflict(

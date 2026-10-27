@@ -125,7 +125,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Delete a booking and offer to put it back ([UiEvent.Deleted]). */
     fun deleteBooking(id: Long) = launchSafely {
-        val booking = repo.bookingById(id) ?: return@launch
+        val booking = repo.bookingById(id) ?: return@launchSafely
         repo.deleteBooking(id)
         val token = rememberUndo { repo.restoreBooking(booking) }
         _events.emit(UiEvent.Deleted(UiEvent.Kind.BOOKING, booking.clientAlias, token))
@@ -136,7 +136,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     /** Delete an availability window and offer to put it back ([UiEvent.Deleted]). */
     fun deleteAvailability(id: Long) = launchSafely {
-        val window = repo.availabilityById(id) ?: return@launch
+        val window = repo.availabilityById(id) ?: return@launchSafely
         repo.deleteAvailability(id)
         val token = rememberUndo { repo.restoreAvailability(window) }
         val day = window.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())

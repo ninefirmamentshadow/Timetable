@@ -79,6 +79,8 @@
     </plurals>
     <string name="discard_draft_title">Discard this draft?</string>
     <string name="discard_draft_message">The unsaved changes in this draft will be deleted. Saved bookings are not affected.</string>
+    <string name="backup_failed_reason">Backup not made: %1$s. Nothing was changed.</string>
+    <string name="export_failed_reason">Calendar export not made: %1$s.</string>
     <string name="error_generic">Something went wrong: %1$s. Nothing you saved earlier was changed.</string>
     <string name="error_alias_required">An alias is required</string>
     <string name="error_duration">Enter a duration in minutes</string>

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.ui.AppClock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,6 +24,11 @@ class BootReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             try {
                 rescheduleFromStorage(context.applicationContext)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A background broadcast must never crash the app (for example a database whose
+                // key is unavailable); the alarms are set again the next time the app runs.
             } finally {
                 pending?.finish()
             }

@@ -13,6 +13,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -58,7 +59,7 @@ class SettingsFragment : Fragment() {
             if (granted) {
                 setReminders(true)
             } else {
-                binding.remindersSwitch.isChecked = false
+                _binding?.remindersSwitch?.isChecked = false
                 MaterialAlertDialogBuilder(requireContext())
                     .setMessage(R.string.reminders_denied)
                     .setPositiveButton(android.R.string.ok, null)
@@ -160,26 +161,33 @@ class SettingsFragment : Fragment() {
                 }
             }
         }
+        binding.lockTimeoutInput.doAfterTextChanged { saveLockTimeout(tidy = false) }
         binding.lockTimeoutInput.setOnFocusChangeListener { _, focused -> if (!focused) saveLockTimeout() }
         binding.lockTimeoutInput.setOnEditorActionListener { _, _, _ -> saveLockTimeout(); false }
     }
 
     private fun setLock(on: Boolean) {
         AppLockSettings(requireContext()).enabled = on
-        if (binding.lockSwitch.isChecked != on) binding.lockSwitch.isChecked = on
+        _binding?.let { if (it.lockSwitch.isChecked != on) it.lockSwitch.isChecked = on }
         AppLock.settingsChanged(requireContext())
         (requireActivity() as MainActivity).applySecureWindow()
     }
 
-    private fun saveLockTimeout() {
-        val seconds = binding.lockTimeoutInput.text?.toString()?.trim()?.toIntOrNull()
+    // Focus listeners can fire while the view is being torn down: never touch a cleared binding.
+    private fun saveLockTimeout(tidy: Boolean = true) {
+        val b = _binding ?: return
+        val context = context ?: return
+        val seconds = b.lockTimeoutInput.text?.toString()?.trim()?.toIntOrNull()
         if (seconds == null || seconds !in 0..AppLockSettings.MAX_TIMEOUT_SECONDS) {
-            binding.lockTimeoutLayout.error = getString(R.string.lock_error_timeout)
+            if (tidy) b.lockTimeoutLayout.error = getString(R.string.lock_error_timeout)
             return
         }
-        binding.lockTimeoutLayout.error = null
-        AppLockSettings(requireContext()).timeoutSeconds = seconds
-        AppLock.settingsChanged(requireContext())
+        b.lockTimeoutLayout.error = null
+        val lock = AppLockSettings(context)
+        if (lock.timeoutSeconds != seconds) {
+            lock.timeoutSeconds = seconds
+            AppLock.settingsChanged(context)
+        }
     }
 
     private fun setUpReminders() {
@@ -201,33 +209,41 @@ class SettingsFragment : Fragment() {
                 setReminders(true)
             }
         }
+        binding.leadInput.doAfterTextChanged { saveLead(tidy = false) }
         binding.leadInput.setOnFocusChangeListener { _, focused -> if (!focused) saveLead() }
         binding.leadInput.setOnEditorActionListener { _, _, _ -> saveLead(); false }
     }
 
     private fun setReminders(on: Boolean) {
         ReminderSettings(requireContext()).enabled = on
-        if (binding.remindersSwitch.isChecked != on) binding.remindersSwitch.isChecked = on
+        _binding?.let { if (it.remindersSwitch.isChecked != on) it.remindersSwitch.isChecked = on }
         if (on) ReminderNotifications.ensureChannel(requireContext())
         main.rescheduleReminders()
     }
 
-    private fun saveLead() {
-        val minutes = binding.leadInput.text?.toString()?.trim()?.toIntOrNull()
+    private fun saveLead(tidy: Boolean = true) {
+        val b = _binding ?: return
+        val context = context ?: return
+        val minutes = b.leadInput.text?.toString()?.trim()?.toIntOrNull()
         if (minutes == null || minutes !in 0..ReminderPlanner.MAX_LEAD_MINUTES) {
-            binding.leadLayout.error = getString(R.string.reminders_error_lead)
+            if (tidy) b.leadLayout.error = getString(R.string.reminders_error_lead)
             return
         }
-        binding.leadLayout.error = null
-        ReminderSettings(requireContext()).leadMinutes = minutes
-        updateRemindersHelp()
-        main.rescheduleReminders()
+        b.leadLayout.error = null
+        val reminders = ReminderSettings(context)
+        if (reminders.leadMinutes != minutes) {
+            reminders.leadMinutes = minutes
+            updateRemindersHelp()
+            main.rescheduleReminders()
+        }
     }
 
     private fun updateRemindersHelp() {
-        val lead = ReminderSettings(requireContext()).leadMinutes
-        val buffer = Settings(requireContext()).travelBufferMinutes
-        binding.remindersHelp.text = getString(R.string.reminders_help, lead, buffer, lead + buffer)
+        val b = _binding ?: return
+        val context = context ?: return
+        val lead = ReminderSettings(context).leadMinutes
+        val buffer = Settings(context).travelBufferMinutes
+        b.remindersHelp.text = getString(R.string.reminders_help, lead, buffer, lead + buffer)
     }
 
     private fun render(state: BackupViewModel.State) {

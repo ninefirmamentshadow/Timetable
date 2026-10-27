@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +52,9 @@ class AvailabilityFragment : Fragment() {
         binding.list.adapter = adapter
 
         binding.bufferInput.setText(viewModel.travelBufferMinutes.toString())
+        // A valid value is kept as it is typed, so leaving the tab never drops it; focus
+        // loss and the button also tidy the field and show any error.
+        binding.bufferInput.doAfterTextChanged { persistBuffer(tidy = false) }
         binding.bufferInput.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) persistBuffer()
         }
@@ -71,15 +75,21 @@ class AvailabilityFragment : Fragment() {
         }
     }
 
-    private fun persistBuffer() {
-        val minutes = binding.bufferInput.text?.toString()?.trim()?.toIntOrNull()
+    // Regression: switching tabs with this field focused ran the focus listener after the
+    // view was destroyed and crashed on the cleared binding.
+    private fun persistBuffer(tidy: Boolean = true) {
+        val b = _binding ?: return
+        val minutes = b.bufferInput.text?.toString()?.trim()?.toIntOrNull()
         if (minutes != null && minutes >= 0) {
-            viewModel.travelBufferMinutes = minutes
-            viewModel.rescheduleReminders() // reminders fire lead + buffer before the start
-            binding.bufferInput.setText(viewModel.travelBufferMinutes.toString())
-            binding.bufferLayout.error = null
-        } else {
-            binding.bufferLayout.error = getString(R.string.error_buffer)
+            if (minutes != viewModel.travelBufferMinutes) {
+                viewModel.travelBufferMinutes = minutes
+                viewModel.rescheduleReminders() // reminders fire lead + buffer before the start
+            }
+            b.bufferLayout.error = null
+            val stored = viewModel.travelBufferMinutes.toString()
+            if (tidy && b.bufferInput.text?.toString() != stored) b.bufferInput.setText(stored)
+        } else if (tidy) {
+            b.bufferLayout.error = getString(R.string.error_buffer)
         }
     }
 

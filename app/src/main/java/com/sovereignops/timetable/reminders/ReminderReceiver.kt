@@ -6,6 +6,7 @@ import android.content.Intent
 import com.sovereignops.timetable.core.model.BookingStatus
 import com.sovereignops.timetable.data.Repository
 import com.sovereignops.timetable.ui.AppClock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,6 +23,11 @@ class ReminderReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             try {
                 deliver(context.applicationContext, bookingId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // A background broadcast must never crash the app (for example a database whose
+                // key is unavailable); the alarms are set again the next time the app runs.
             } finally {
                 pending?.finish()
             }

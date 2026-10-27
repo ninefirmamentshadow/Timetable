@@ -18,6 +18,7 @@ import com.sovereignops.timetable.data.backup.InvalidBackup
 import com.sovereignops.timetable.data.backup.RestorePlan
 import com.sovereignops.timetable.data.toModelResult
 import com.sovereignops.timetable.ui.AppClock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -57,6 +58,8 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun text(id: Int, vararg args: Any) = getApplication<Application>().getString(id, *args)
 
+    private fun reason(e: Exception) = e.message ?: e.javaClass.simpleName
+
     fun consume() {
         if (_state.value is State.Done) _state.value = State.Idle
     }
@@ -92,6 +95,10 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 State.Done(e.message ?: text(R.string.backup_failed), true)
             } catch (e: IOException) {
                 State.Done(text(R.string.backup_write_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.backup_failed_reason, reason(e)), true)
             }
         }
     }
@@ -109,6 +116,11 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 State.Done(e.message ?: text(R.string.restore_failed), true)
             } catch (e: IOException) {
                 State.Done(text(R.string.restore_read_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Anything unexpected in a chosen file is "not a backup", never a crash.
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
             }
         }
     }
@@ -131,6 +143,11 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: InvalidBackup) {
                 pendingText = null
                 State.Done(text(R.string.restore_invalid, e.message ?: ""), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pendingText = null
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
             }
         }
     }
@@ -142,6 +159,8 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
             _state.value = try {
                 service().apply(plan)
                 State.Done(text(R.string.restore_done, plan.bookings.size, plan.availability.size), false)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // The replace is one transaction: a failure leaves the old data in place.
                 State.Done(text(R.string.restore_failed_unchanged), true)
@@ -163,6 +182,10 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 State.Done(text(R.string.export_saved, bookings.size), false)
             } catch (e: IOException) {
                 State.Done(text(R.string.backup_write_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.export_failed_reason, reason(e)), true)
             }
         }
     }

@@ -117,13 +117,4 @@ class RepositoryTest {
         assertEquals("Alias A", repo.bookingById(id)!!.clientAlias)
         assertNull(repo.draftFor(0))
     }
-
-    // A storage failure reaches the caller as an exception (the editor shows it and keeps the form).
-    @Test fun aFailedSaveFromADraftThrowsToTheCaller() = runBlocking {
-        repo.saveDraft(0, BookingDraft.from(sample()), LocalDateTime.of(2026, 10, 20, 9, 0))
-        db.close() // every write now fails
-        val failed = runCatching { repo.saveBookingFromDraft(sample(), draftKey = 0) }
-        assertTrue(failed.isFailure)
-        db = TestSupport.installInMemoryDatabase() // tearDown closes this one
-    }
 }

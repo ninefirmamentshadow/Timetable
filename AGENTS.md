@@ -146,7 +146,8 @@ placeholder locations only — never a real handle, number, or address.
 
 ```bash
 scripts/verify.sh [--handoff]   # unit tests, lint, assembleDebug, third-party inventory, git diff --check
-./gradlew recordRoborazziDebug  # re-record golden screenshots after an intended UI change
+# re-record golden screenshots after an intended UI change: push a commit whose message
+# contains [record-screenshots]; CI (JDK 17) records and commits them. Never record locally.
 scripts/release.sh              # signed release; stops with "unsigned: not a release" without a keystore
 ```
 

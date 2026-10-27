@@ -319,7 +319,8 @@ class BookingEditorFragment : DialogFragment() {
          */
         fun show(manager: FragmentManager, id: Long) {
             if (manager.isStateSaved || manager.findFragmentByTag(TAG) != null) return
-            newInstance(id).show(manager, TAG)
+            // showNow commits at once, so a second tap already finds this one by its tag.
+            newInstance(id).showNow(manager, TAG)
         }
     }
 }

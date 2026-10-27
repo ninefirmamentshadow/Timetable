@@ -1,32 +1,39 @@
 package com.sovereignops.timetable.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.sovereignops.timetable.data.dao.AvailabilityDao
 import com.sovereignops.timetable.data.dao.BackupDao
 import com.sovereignops.timetable.data.dao.BookingDao
+import com.sovereignops.timetable.data.dao.BookingDraftDao
 import com.sovereignops.timetable.data.entity.AvailabilityEntity
+import com.sovereignops.timetable.data.entity.BookingDraftEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
 
 @Database(
-    entities = [BookingEntity::class, AvailabilityEntity::class],
-    version = 1,
+    entities = [BookingEntity::class, AvailabilityEntity::class, BookingDraftEntity::class],
+    version = 2,
     exportSchema = true,
+    // 1 -> 2 only adds the booking_drafts table; Room generates that from the committed schemas.
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao
     abstract fun availabilityDao(): AvailabilityDao
     abstract fun backupDao(): BackupDao
+    abstract fun draftDao(): BookingDraftDao
 
     companion object {
         const val NAME = "timetable.db"
 
         /**
-         * Migrations, append-only and additive: a new entry is added when the schema
+         * Manual migrations, append-only and additive: a new entry is added when the schema
          * version is raised, an existing one is never edited. Each needs the new
-         * schema JSON committed under app/schemas and a case in MigrationTest.
+         * schema JSON committed under app/schemas and a case in MigrationTest. Purely
+         * additive steps (1 -> 2) are AutoMigrations declared on @Database instead.
          */
         val MIGRATIONS: Array<androidx.room.migration.Migration> = arrayOf()
 

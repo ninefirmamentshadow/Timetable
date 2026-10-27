@@ -87,6 +87,37 @@ object TestSupport {
         ).forEach { a.insert(it.toEntity()) }
     }
 
+    /**
+     * Wait until [root] has finished drawing its data: no RecyclerView has a list diff
+     * pending (ListAdapter diffs off the main thread) or a layout outstanding, three
+     * polls in a row. The looper clock moves forward between polls so item animations
+     * run to their end. Screenshots taken before that race the data.
+     */
+    fun awaitSettled(root: android.view.View, timeoutMs: Long = 20_000) {
+        val looper = shadowOf(Looper.getMainLooper())
+        val deadline = System.currentTimeMillis() + timeoutMs
+        var calm = 0
+        while (calm < 3) {
+            check(System.currentTimeMillis() < deadline) { "the screen did not settle within ${timeoutMs}ms" }
+            looper.idleFor(java.time.Duration.ofMillis(100))
+            calm = if (anyRecyclerBusy(root)) 0 else calm + 1
+            if (calm == 0) Thread.sleep(20) // a diff may still be running on its background thread
+        }
+        looper.idleFor(java.time.Duration.ofMillis(500)) // let any add/change animation finish
+    }
+
+    private fun anyRecyclerBusy(view: android.view.View): Boolean {
+        if (view is androidx.recyclerview.widget.RecyclerView && view.isShown &&
+            (view.hasPendingAdapterUpdates() || view.isLayoutRequested)
+        ) {
+            return true
+        }
+        if (view is android.view.ViewGroup) {
+            for (i in 0 until view.childCount) if (anyRecyclerBusy(view.getChildAt(i))) return true
+        }
+        return false
+    }
+
     /** Idle the main looper until [condition] holds or [timeoutMs] passes. */
     fun awaitUntil(timeoutMs: Long = 20_000, condition: () -> Boolean) {
         val deadline = System.currentTimeMillis() + timeoutMs

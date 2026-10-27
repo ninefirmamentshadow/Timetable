@@ -1,12 +1,16 @@
 package com.sovereignops.timetable.data
 
 import android.content.Context
+import androidx.room.withTransaction
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingDraft
 import com.sovereignops.timetable.core.model.BookingStatus
+import com.sovereignops.timetable.core.model.SavedDraft
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 
 /**
  * The single data entry point for the UI. Exposes domain models (not storage
@@ -18,6 +22,7 @@ class Repository(context: Context) {
     private val db = AppDatabase.get(context)
     private val bookingDao = db.bookingDao()
     private val availabilityDao = db.availabilityDao()
+    private val draftDao = db.draftDao()
 
     /** Readable bookings plus the count of rows that could not be read (never deleted). */
     val bookingsLoaded: Flow<Loaded<Booking>> =
@@ -72,4 +77,26 @@ class Repository(context: Context) {
 
     suspend fun availabilityById(id: Long): AvailabilityWindow? =
         availabilityDao.getById(id)?.toModelResult()?.getOrNull()
+
+    /** Unsaved editor drafts, most recently changed first. */
+    val drafts: Flow<List<SavedDraft>> = draftDao.observeAll().map { rows -> rows.map { it.toSavedDraft() } }
+
+    suspend fun draftFor(bookingId: Long): SavedDraft? = draftDao.get(bookingId)?.toSavedDraft()
+
+    suspend fun saveDraft(bookingId: Long, draft: BookingDraft, at: LocalDateTime) =
+        draftDao.upsert(SavedDraft(bookingId, draft, at).toEntity())
+
+    suspend fun clearDraft(bookingId: Long) = draftDao.delete(bookingId)
+
+    /**
+     * Save [booking] and drop the editor draft it came from, in one transaction:
+     * either the booking is stored and the draft gone, or (on any failure) neither
+     * changed and the draft is still there to retry from.
+     */
+    suspend fun saveBookingFromDraft(booking: Booking, draftKey: Long): Long =
+        db.withTransaction {
+            val id = saveBooking(booking)
+            draftDao.delete(draftKey)
+            id
+        }
 }

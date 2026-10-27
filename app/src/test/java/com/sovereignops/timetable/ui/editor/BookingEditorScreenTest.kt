@@ -16,6 +16,7 @@ import com.sovereignops.timetable.data.toModel
 import com.sovereignops.timetable.ui.MainActivity
 import com.sovereignops.timetable.ui.MainViewModel
 import com.sovereignops.timetable.ui.TestSupport
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -26,6 +27,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowDialog
+import android.view.KeyEvent
+import android.view.View
 import org.robolectric.annotation.Config
 import java.time.LocalDateTime
 
@@ -130,4 +134,114 @@ class BookingEditorScreenTest {
             TestSupport.awaitUntil { runBlocking { db.bookingDao().getById(1) }?.toModel() == stored }
         }
     }
+
+    private fun pressBack(dialog: android.app.Dialog) {
+        dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+        dialog.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+    }
+
+    private fun typeNewBooking(activity: MainActivity, alias: String): AlertDialog {
+        TestSupport.awaitUntil { editorDialog(activity)?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled == true }
+        val dialog = editorDialog(activity)!!
+        dialog.findViewById<EditText>(R.id.alias_input)!!.setText(alias)
+        dialog.findViewById<EditText>(R.id.rate_input)!!.setText("50")
+        shadowOf(android.os.Looper.getMainLooper()).idle()
+        return dialog
+    }
+
+    // Regression: a tap outside the editor or Back closed it and threw away what was typed.
+    @Test fun backWithUnsavedChangesAsksInsteadOfClosing() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            open(scenario, 0)
+            scenario.onActivity { activity ->
+                val dialog = typeNewBooking(activity, "Alias Back")
+                val fragment = activity.supportFragmentManager.findFragmentByTag("editor") as BookingEditorFragment
+                assertTrue(!fragment.isCancelable) // outside taps and Back never cancel it directly
+                pressBack(dialog)
+                assertNotNull(activity.supportFragmentManager.findFragmentByTag("editor"))
+                val prompt = ShadowDialog.getLatestDialog() as AlertDialog
+                assertEquals(activity.getString(R.string.keep_draft), prompt.getButton(AlertDialog.BUTTON_POSITIVE).text)
+                // Keep editing: nothing closes, nothing is lost.
+                prompt.getButton(AlertDialog.BUTTON_NEUTRAL).performClick()
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                assertEquals("Alias Back", editorDialog(activity)!!.findViewById<EditText>(R.id.alias_input)!!.text.toString())
+            }
+        }
+    }
+
+    @Test fun backWithNothingTypedClosesAtOnce() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            open(scenario, 0)
+            scenario.onActivity { activity ->
+                TestSupport.awaitUntil { editorDialog(activity)?.getButton(AlertDialog.BUTTON_POSITIVE)?.isEnabled == true }
+                pressBack(editorDialog(activity)!!)
+                assertNull(activity.supportFragmentManager.findFragmentByTag("editor"))
+            }
+        }
+    }
+
+    // A kept draft survives closing the editor and comes back through the Agenda banner.
+    @Test fun aKeptDraftIsOfferedOnTheAgendaAndResumes() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            open(scenario, 0)
+            scenario.onActivity { activity ->
+                val dialog = typeNewBooking(activity, "Alias Later")
+                TestSupport.awaitUntil { runBlocking { db.draftDao().get(0) }?.alias == "Alias Later" }
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                (ShadowDialog.getLatestDialog() as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                assertNull(activity.supportFragmentManager.findFragmentByTag("editor"))
+
+                TestSupport.awaitUntil { activity.findViewById<View>(R.id.draft_banner)?.visibility == View.VISIBLE }
+                activity.findViewById<View>(R.id.draft_resume_button).performClick()
+                TestSupport.awaitUntil {
+                    editorDialog(activity)?.findViewById<EditText>(R.id.alias_input)?.text.toString() == "Alias Later"
+                }
+                assertEquals(View.VISIBLE, editorDialog(activity)!!.findViewById<View>(R.id.restored_note)!!.visibility)
+            }
+        }
+    }
+
+    @Test fun discardingRemovesTheKeptDraft() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            open(scenario, 0)
+            scenario.onActivity { activity ->
+                val dialog = typeNewBooking(activity, "Alias Gone")
+                TestSupport.awaitUntil { runBlocking { db.draftDao().get(0) } != null }
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                (ShadowDialog.getLatestDialog() as AlertDialog).getButton(AlertDialog.BUTTON_NEGATIVE).performClick()
+            }
+            TestSupport.awaitUntil { runBlocking { db.draftDao().get(0) } == null }
+        }
+    }
+
+    @Test fun savingANewBookingClosesOnlyAfterTheWriteAndLeavesNoDraft() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            open(scenario, 0)
+            scenario.onActivity { activity ->
+                val dialog = typeNewBooking(activity, "Alias Saved")
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                TestSupport.awaitUntil { activity.supportFragmentManager.findFragmentByTag("editor") == null }
+            }
+            assertTrue(runBlocking { db.bookingDao().observeAllOnce() }.any { it.clientAlias == "Alias Saved" })
+            TestSupport.awaitUntil { runBlocking { db.draftDao().get(0) } == null }
+        }
+    }
+
+    // Regression: a double tap on + opened two editors on top of each other.
+    @Test fun openingTheEditorTwiceShowsOne() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                BookingEditorFragment.show(activity.supportFragmentManager, 0)
+                BookingEditorFragment.show(activity.supportFragmentManager, 0)
+                shadowOf(android.os.Looper.getMainLooper()).idle()
+                assertEquals(1, activity.supportFragmentManager.fragments.count { it is BookingEditorFragment })
+            }
+        }
+    }
 }
+
+private suspend fun com.sovereignops.timetable.data.dao.BookingDao.observeAllOnce() = observeAll().first()

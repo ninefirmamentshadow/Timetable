@@ -3,11 +3,16 @@ package com.sovereignops.timetable.data
 import com.sovereignops.timetable.core.Money
 import com.sovereignops.timetable.core.model.AvailabilityWindow
 import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingDraft
 import com.sovereignops.timetable.core.model.BookingStatus
+import com.sovereignops.timetable.core.model.SavedDraft
 import com.sovereignops.timetable.data.entity.AvailabilityEntity
+import com.sovereignops.timetable.data.entity.BookingDraftEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 
 /**
@@ -77,6 +82,54 @@ fun AvailabilityWindow.toEntity(): AvailabilityEntity = AvailabilityEntity(
     startMinuteOfDay = startMinute,
     endMinuteOfDay = endMinute,
 )
+
+fun SavedDraft.toEntity(): BookingDraftEntity = BookingDraftEntity(
+    bookingId = bookingId,
+    alias = draft.alias,
+    dateEpochDay = draft.date.toEpochDay(),
+    minuteOfDay = draft.time.hour * 60 + draft.time.minute,
+    durationText = draft.durationText,
+    rateText = draft.rateText,
+    status = draft.status.name,
+    locationLabel = draft.locationLabel,
+    notes = draft.notes,
+    screened = draft.screened,
+    depositReceived = draft.depositReceived,
+    updatedAtEpochSecond = updatedAt.toEpochSecond(ZoneOffset.UTC),
+)
+
+/**
+ * A draft row always reads back: it holds text the operator typed, so a damaged
+ * field falls back to a safe value (status INQUIRY, a clamped date or time) rather
+ * than losing the whole draft.
+ */
+fun BookingDraftEntity.toSavedDraft(): SavedDraft {
+    val minute = minuteOfDay.coerceIn(0, 24 * 60 - 1)
+    return SavedDraft(
+        bookingId = bookingId,
+        draft = BookingDraft(
+            alias = alias,
+            date = LocalDate.ofEpochDay(dateEpochDay.coerceIn(MIN_EPOCH_DAY, MAX_EPOCH_DAY)),
+            time = LocalTime.of(minute / 60, minute % 60),
+            durationText = durationText,
+            rateText = rateText,
+            status = BookingStatus.entries.firstOrNull { it.name == status } ?: BookingStatus.INQUIRY,
+            locationLabel = locationLabel,
+            notes = notes,
+            screened = screened,
+            depositReceived = depositReceived,
+        ),
+        updatedAt = LocalDateTime.ofEpochSecond(
+            updatedAtEpochSecond.coerceIn(MIN_EPOCH_SECOND, MAX_EPOCH_SECOND), 0, ZoneOffset.UTC,
+        ),
+    )
+}
+
+// Years 1..9999: wide enough for any real date, small enough that every java.time call stays in range.
+private val MIN_EPOCH_DAY = LocalDate.of(1, 1, 1).toEpochDay()
+private val MAX_EPOCH_DAY = LocalDate.of(9999, 12, 31).toEpochDay()
+private val MIN_EPOCH_SECOND = MIN_EPOCH_DAY * 86_400
+private val MAX_EPOCH_SECOND = MAX_EPOCH_DAY * 86_400
 
 /** The readable items of a table plus how many rows were skipped as unreadable. */
 data class Loaded<T>(val items: List<T>, val unreadable: Int) {

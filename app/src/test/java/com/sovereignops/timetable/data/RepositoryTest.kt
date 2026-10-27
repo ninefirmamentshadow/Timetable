@@ -4,6 +4,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sovereignops.timetable.core.Money
 import com.sovereignops.timetable.core.model.Booking
+import com.sovereignops.timetable.core.model.BookingDraft
 import com.sovereignops.timetable.core.model.BookingStatus
 import com.sovereignops.timetable.data.entity.AvailabilityEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
@@ -95,5 +96,34 @@ class RepositoryTest {
         assertEquals(1, loaded.items.size)
         assertEquals(1, loaded.unreadable)
         assertEquals(2, count("availability"))
+    }
+
+    @Test fun draftsAreKeptPerBookingAndListedNewestFirst() = runBlocking {
+        val older = LocalDateTime.of(2026, 10, 20, 9, 0)
+        val newer = older.plusMinutes(5)
+        repo.saveDraft(0, BookingDraft.from(sample()).copy(alias = "New"), older)
+        repo.saveDraft(3, BookingDraft.from(sample()).copy(alias = "Edit"), newer)
+        assertEquals(listOf(3L, 0L), repo.drafts.first().map { it.bookingId })
+        repo.saveDraft(0, BookingDraft.from(sample()).copy(alias = "New again"), newer.plusMinutes(1))
+        assertEquals("New again", repo.draftFor(0)!!.draft.alias)
+        repo.clearDraft(3)
+        assertNull(repo.draftFor(3))
+        assertEquals(1, repo.drafts.first().size)
+    }
+
+    @Test fun savingFromADraftStoresTheBookingAndDropsTheDraftTogether() = runBlocking {
+        repo.saveDraft(0, BookingDraft.from(sample()), LocalDateTime.of(2026, 10, 20, 9, 0))
+        val id = repo.saveBookingFromDraft(sample(), draftKey = 0)
+        assertEquals("Alias A", repo.bookingById(id)!!.clientAlias)
+        assertNull(repo.draftFor(0))
+    }
+
+    // A storage failure reaches the caller as an exception (the editor shows it and keeps the form).
+    @Test fun aFailedSaveFromADraftThrowsToTheCaller() = runBlocking {
+        repo.saveDraft(0, BookingDraft.from(sample()), LocalDateTime.of(2026, 10, 20, 9, 0))
+        db.close() // every write now fails
+        val failed = runCatching { repo.saveBookingFromDraft(sample(), draftKey = 0) }
+        assertTrue(failed.isFailure)
+        db = TestSupport.installInMemoryDatabase() // tearDown closes this one
     }
 }

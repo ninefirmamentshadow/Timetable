@@ -13,6 +13,30 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp">
 
+        <!-- Shown when unsaved changes from an earlier session were put back. -->
+        <TextView
+            android:id="@+id/restored_note"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/surface_raised"
+            android:padding="10dp"
+            android:textColor="@color/projected"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- Shown when a save or a draft write failed; the form is still intact. -->
+        <TextView
+            android:id="@+id/save_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/surface_raised"
+            android:padding="10dp"
+            android:textColor="@color/block"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/alias_layout"
             android:layout_width="match_parent"

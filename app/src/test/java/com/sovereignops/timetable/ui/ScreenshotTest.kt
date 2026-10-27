@@ -75,6 +75,9 @@ class ScreenshotTest {
             TestSupport.awaitUntil {
                 viewModel.bookings.value != null && viewModel.availability.value != null
             }
+            // The data has arrived; now wait for the screen to finish drawing it (list diffs
+            // run off the main thread), so the capture never races the rows.
+            scenario.onActivity { activity -> TestSupport.awaitSettled(activity.window.decorView) }
             val name = "${screen}_w${widthDp}_f${fontScale}"
             onView(isRoot()).captureRoboImage("src/test/screenshots/$name.png")
             onView(isRoot()).checkRoboAccessibility(

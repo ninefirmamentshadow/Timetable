@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     /** Re-applies FLAG_SECURE from the current settings (also called when the setting changes). */
     fun applySecureWindow() = Privacy.apply(window, this)
 
-    /** A delete shows a snackbar whose Undo puts the item back. */
+    /** A delete shows a snackbar whose Undo puts the item back; a failed write says so. */
     private fun observeEvents() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -108,6 +108,10 @@ class MainActivity : AppCompatActivity() {
                                 .setAction(R.string.undo) { viewModel.undo(event.undoToken) }
                                 .show()
                         }
+                        is UiEvent.Failed ->
+                            Snackbar.make(binding.container, getString(R.string.error_generic, event.reason), Snackbar.LENGTH_LONG)
+                                .setAnchorView(binding.bottomNav)
+                                .show()
                     }
                 }
             }

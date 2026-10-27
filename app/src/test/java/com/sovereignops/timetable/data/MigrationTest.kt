@@ -83,6 +83,35 @@ class MigrationTest {
         }
     }
 
+    // 1 -> 2 adds the booking_drafts table and must leave every booking and window as it was.
+    @Test fun versionOneMigratesToTwoKeepingEveryRowAndAddsAnEmptyDraftTable() {
+        helper.createDatabase("$dbName-1to2", 1).apply {
+            execSQL(
+                "INSERT INTO bookings (id, startEpochSecond, durationMinutes, clientAlias, rateCents, status, " +
+                    "locationLabel, screened, depositReceived, notes) VALUES (7, 1792000000, 45, 'Alias B', 5000, " +
+                    "'INQUIRY', '', 0, 1, '')",
+            )
+            execSQL("INSERT INTO availability (id, dayOfWeek, startMinuteOfDay, endMinuteOfDay) VALUES (3, 6, 1080, 1380)")
+            close()
+        }
+        helper.runMigrationsAndValidate("$dbName-1to2", 2, true, *AppDatabase.MIGRATIONS).use { db ->
+            db.query("SELECT clientAlias, rateCents, depositReceived FROM bookings WHERE id = 7").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("Alias B", c.getString(0))
+                assertEquals(5000, c.getLong(1))
+                assertEquals(1, c.getInt(2))
+            }
+            db.query("SELECT endMinuteOfDay FROM availability WHERE id = 3").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(1380, c.getInt(0))
+            }
+            db.query("SELECT COUNT(*) FROM booking_drafts").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals(0, c.getInt(0))
+            }
+        }
+    }
+
     /** Every older committed version must migrate to the current one without losing its tables. */
     @Test fun everyCommittedVersionMigratesToTheCurrentOne() {
         for (from in committedVersions().filter { it < CURRENT_VERSION }) {
@@ -92,6 +121,6 @@ class MigrationTest {
     }
 
     private companion object {
-        const val CURRENT_VERSION = 1
+        const val CURRENT_VERSION = 2
     }
 }

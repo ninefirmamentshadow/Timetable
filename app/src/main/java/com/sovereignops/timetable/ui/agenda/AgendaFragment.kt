@@ -12,6 +12,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sovereignops.timetable.R
 import com.sovereignops.timetable.core.model.Booking
 import com.sovereignops.timetable.core.model.BookingStatus
+import com.sovereignops.timetable.core.model.SavedDraft
 import com.sovereignops.timetable.core.schedule.Agenda
 import com.sovereignops.timetable.databinding.FragmentAgendaBinding
 import com.sovereignops.timetable.ui.AppClock
@@ -52,6 +53,7 @@ class AgendaFragment : Fragment() {
             latest = bookings
             render()
         }
+        viewModel.drafts.observe(viewLifecycleOwner) { drafts -> renderDrafts(drafts.orEmpty()) }
         viewModel.unreadableBookings.observe(viewLifecycleOwner) { count ->
             binding.unreadableBanner.visibility = if (count > 0) View.VISIBLE else View.GONE
             if (count > 0) {
@@ -95,8 +97,34 @@ class AgendaFragment : Fragment() {
         }
     }
 
+    /** The most recent kept draft, with Resume and Discard; older ones are counted. */
+    private fun renderDrafts(drafts: List<SavedDraft>) {
+        val latest = drafts.firstOrNull()
+        binding.draftBanner.visibility = if (latest == null) View.GONE else View.VISIBLE
+        if (latest == null) return
+        val alias = latest.draft.alias.trim().takeIf { it.isNotEmpty() }?.let { " · $it" }.orEmpty()
+        val changed = Formats.nextBooking(requireContext(), latest.updatedAt)
+        val text = getString(
+            if (latest.bookingId == 0L) R.string.draft_banner_new else R.string.draft_banner_edit,
+            alias,
+            changed,
+        )
+        val more = drafts.size - 1
+        binding.draftBannerText.text =
+            if (more > 0) "$text ${resources.getQuantityString(R.plurals.draft_banner_more, more, more)}" else text
+        binding.draftResumeButton.setOnClickListener { openEditor(latest.bookingId) }
+        binding.draftDiscardButton.setOnClickListener {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.discard_draft_title)
+                .setMessage(R.string.discard_draft_message)
+                .setPositiveButton(R.string.discard) { _, _ -> viewModel.discardDraft(latest) }
+                .setNegativeButton(R.string.cancel, null)
+                .showSecure()
+        }
+    }
+
     private fun openEditor(id: Long) {
-        BookingEditorFragment.newInstance(id).show(parentFragmentManager, "editor")
+        BookingEditorFragment.show(parentFragmentManager, id)
     }
 
     /** An open booking whose time has passed: record how it ended. */

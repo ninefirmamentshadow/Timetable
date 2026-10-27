@@ -5,6 +5,7 @@
 #
 # Steps (each prints PASS, FAIL or NOT_RUN):
 #   unit-tests, lint, assembleDebug   one Gradle run: test lintDebug assembleDebug
+#   room-schema                       exported app/schemas matches what is committed
 #   third-party                       scripts/check_third_party.py
 #   diff-check                        git diff --check HEAD
 #
@@ -98,6 +99,28 @@ else
     record unit-tests "./gradlew test" NOT_RUN "$msg"
     record lint "./gradlew lintDebug" NOT_RUN "$msg"
     record assembleDebug "./gradlew assembleDebug" NOT_RUN "$msg"
+fi
+
+# ---------------------------------------------------------------- room schema
+# The build exports the Room schema to app/schemas. A file it created or changed
+# that is not committed means a schema change without its tracked JSON (which the
+# migration tests and every later migration depend on). The exported file is
+# printed so it can be reviewed and committed.
+if [ -n "${SDK:-}" ] && [ -d app/schemas ]; then
+    echo "== room schema"
+    schema_changes="$(git status --porcelain --untracked-files=all -- app/schemas)"
+    if [ -z "$schema_changes" ]; then
+        record room-schema "git status app/schemas" PASS ""
+    else
+        echo "$schema_changes"
+        git diff -- app/schemas || true
+        for f in $(git ls-files --others --exclude-standard -- app/schemas); do
+            echo "---- untracked $f"; cat "$f"; echo
+        done
+        record room-schema "git status app/schemas" FAIL "exported schema differs from the committed one; review and commit it"
+    fi
+else
+    record room-schema "git status app/schemas" NOT_RUN "no Gradle build ran"
 fi
 
 # --------------------------------------------------------------- third-party

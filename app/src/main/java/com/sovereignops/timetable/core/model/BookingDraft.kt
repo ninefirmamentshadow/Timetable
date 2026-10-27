@@ -6,6 +6,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 
+/** A draft kept on the device: [bookingId] is the booking it edits, 0 for a new one. */
+data class SavedDraft(val bookingId: Long, val draft: BookingDraft, val updatedAt: LocalDateTime)
+
 /** Why a draft cannot become a [Booking]. */
 enum class DraftError { ALIAS_REQUIRED, DURATION_INVALID, RATE_INVALID }
 

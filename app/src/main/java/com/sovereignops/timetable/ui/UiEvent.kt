@@ -10,4 +10,7 @@ sealed interface UiEvent {
      * [label] is what to name it in the message (an alias or a weekday).
      */
     data class Deleted(val kind: Kind, val label: String, val undoToken: Long) : UiEvent
+
+    /** A storage operation failed; [reason] is shown to the operator. Nothing is retried silently. */
+    data class Failed(val reason: String) : UiEvent
 }

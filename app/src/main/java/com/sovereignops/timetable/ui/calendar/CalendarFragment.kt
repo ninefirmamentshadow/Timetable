@@ -55,7 +55,7 @@ class CalendarFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         savedInstanceState?.getString(KEY_SELECTED)?.let { selected = LocalDate.parse(it) }
 
-        adapter = AgendaAdapter { row -> BookingEditorFragment.newInstance(row.booking.id).show(parentFragmentManager, "editor") }
+        adapter = AgendaAdapter { row -> BookingEditorFragment.show(parentFragmentManager, row.booking.id) }
         binding.list.layoutManager = LinearLayoutManager(requireContext())
         binding.list.adapter = adapter
 

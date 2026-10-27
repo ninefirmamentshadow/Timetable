@@ -32,6 +32,9 @@ object DatabaseEncryption {
     private const val REQUEST_FILE = "db.encrypt-request"
     private const val RESULT_FILE = "db.encrypt-result"
     private const val KEYSTORE_ALIAS = "timetable_database_key"
+    // Tables whose row counts must match before the encrypted copy replaces the original.
+    // sqlcipher_export copies every table; booking_drafts (schema v2) is left out of the
+    // check because a database still at v1 when it is converted does not have it yet.
     private val TABLES = listOf("bookings", "availability", "room_master_table")
 
     /** For tests: replaces the native conversion and key handling. Null in production. */

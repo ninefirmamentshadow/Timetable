@@ -112,12 +112,12 @@ class EarningsTest {
         val s = Earnings.summarize(
             listOf(
                 booking(1, 24, 125, BookingStatus.COMPLETED),
-                booking(2, 30, 80, BookingStatus.CONFIRMED),
+                booking(2, 30, 75, BookingStatus.CONFIRMED),
             ),
             now,
         )
         assertEquals(Money.dollars(125), s.earned)
-        assertEquals(Money.dollars(80), s.projected) // not 205
+        assertEquals(Money.dollars(75), s.projected) // not 200
     }
 
     @Test fun bookingInProgressIsStillProjected() {

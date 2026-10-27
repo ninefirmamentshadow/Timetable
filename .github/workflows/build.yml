@@ -100,9 +100,9 @@ jobs:
         if: always()
         run: rm -f "$GITHUB_WORKSPACE/release.jks"
 
-  # Screenshot goldens are recorded here, on CI's JDK 17, never on a workstation:
-  # goldens recorded elsewhere did not match CI's rendering (12 compare failures
-  # on 2026-10-22). A push whose head commit message contains [record-screenshots]
+  # Screenshot goldens are recorded here, from the committed fixtures, never on a
+  # workstation: goldens recorded elsewhere went stale (on 2026-10-22 they showed
+  # amounts the committed fixtures never used, and 12 compares failed). A push whose head commit message contains [record-screenshots]
   # re-records them and commits the images back to the same branch; review the
   # images in that commit before merging. The build job above still compares.
   record-screenshots:

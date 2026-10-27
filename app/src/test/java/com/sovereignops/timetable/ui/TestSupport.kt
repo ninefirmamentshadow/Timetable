@@ -73,7 +73,7 @@ object TestSupport {
         listOf(
             Booking(0, at(14, 19), 60, "Alias A", Money.dollars(125), BookingStatus.COMPLETED,
                 locationLabel = "Place 1", screened = true, depositReceived = true),
-            Booking(0, at(17, 20), 30, "Alias B", Money.dollars(80), BookingStatus.NO_SHOW),
+            Booking(0, at(17, 20), 30, "Alias B", Money.dollars(75), BookingStatus.NO_SHOW),
             Booking(0, at(19, 18), 60, "Alias C", Money.dollars(125), BookingStatus.CONFIRMED,
                 locationLabel = "Place 2", screened = true),
             Booking(0, at(20, 19), 60, "Alias D", Money.dollars(125), BookingStatus.CONFIRMED,

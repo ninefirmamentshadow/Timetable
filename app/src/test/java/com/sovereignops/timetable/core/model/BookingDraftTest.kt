@@ -49,7 +49,7 @@ class BookingDraftTest {
 
     @Test fun roundTripFromBookingKeepsEveryField() {
         val booking = Booking(
-            3, LocalDateTime.of(2026, 10, 19, 19, 0), 45, "Alias B", Money(15050), BookingStatus.NO_SHOW,
+            3, LocalDateTime.of(2026, 10, 19, 19, 0), 45, "Alias B", Money(12550), BookingStatus.NO_SHOW,
             "Place 2", true, true, "note",
         )
         assertEquals(booking, ok(BookingDraft.from(booking), 3))

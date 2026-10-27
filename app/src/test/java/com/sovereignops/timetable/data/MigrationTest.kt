@@ -62,7 +62,7 @@ class MigrationTest {
         helper.createDatabase(dbName, 1).apply {
             execSQL(
                 "INSERT INTO bookings (id, startEpochSecond, durationMinutes, clientAlias, rateCents, status, " +
-                    "locationLabel, screened, depositReceived, notes) VALUES (1, 1792000000, 60, 'Alias A', 30000, " +
+                    "locationLabel, screened, depositReceived, notes) VALUES (1, 1792000000, 60, 'Alias A', 10000, " +
                     "'CONFIRMED', 'Place 1', 1, 0, 'n')",
             )
             execSQL("INSERT INTO availability (id, dayOfWeek, startMinuteOfDay, endMinuteOfDay) VALUES (1, 5, 1080, 1440)")
@@ -76,7 +76,7 @@ class MigrationTest {
         try {
             val booking = db.bookingDao().let { dao -> kotlinx.coroutines.runBlocking { dao.getById(1) } }!!
             assertEquals("Alias A", booking.clientAlias)
-            assertEquals(30000, booking.rateCents)
+            assertEquals(10000, booking.rateCents)
             assertEquals(1440, kotlinx.coroutines.runBlocking { db.availabilityDao().getById(1) }!!.endMinuteOfDay)
         } finally {
             db.close()

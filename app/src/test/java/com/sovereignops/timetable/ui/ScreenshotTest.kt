@@ -35,7 +35,7 @@ import org.robolectric.annotation.GraphicsMode
  * Goldens live in app/src/test/screenshots. scripts/verify.sh compares against
  * them. After an intended UI change, push a commit whose message contains
  * [record-screenshots]: CI records them on its JDK 17 and commits the images to
- * the branch (goldens recorded outside CI did not match it). Review them before merging.
+ * the branch (goldens recorded outside CI went stale). Review them before merging.
  */
 @OptIn(ExperimentalRoborazziApi::class)
 @RunWith(AndroidJUnit4::class)

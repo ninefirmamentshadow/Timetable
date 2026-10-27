@@ -62,7 +62,7 @@ The decrypted bytes are UTF-8 JSON:
   "settings": { "travelBufferMinutes": 45, "defaultDurationMinutes": 60 },
   "bookings": [
     { "id": 1, "start": "2026-10-21T19:00", "durationMinutes": 60, "alias": "Alias A",
-      "rateCents": 30000, "status": "CONFIRMED", "location": "", "screened": true,
+      "rateCents": 10000, "status": "CONFIRMED", "location": "", "screened": true,
       "depositReceived": false, "notes": "" }
   ],
   "availability": [

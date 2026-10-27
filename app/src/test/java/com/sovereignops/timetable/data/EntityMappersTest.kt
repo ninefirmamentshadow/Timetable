@@ -28,7 +28,7 @@ class EntityMappersTest {
     private fun row(
         status: String = "CONFIRMED",
         duration: Int = 60,
-        rateCents: Long = 30000,
+        rateCents: Long = 10000,
         start: Long = 1_792_000_000,
     ) = BookingEntity(1, start, duration, "Alias A", rateCents, status, "", false, false, "")
 

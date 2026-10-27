@@ -77,6 +77,10 @@ The decrypted bytes are UTF-8 JSON:
 }
 ```
 
+Schema 2 also allows an optional `receivedCents` on a booking (cash actually
+received; absent or `null` means not recorded, which is not the same as 0) and
+`receivedText` on a draft.
+
 Schema 2 adds `bookingDrafts`: the editor's unsaved forms, exactly as typed
 (text fields are not validated as a booking would be). `bookingId` is the
 booking the draft edits, 0 for a new booking. A schema 1 file has no

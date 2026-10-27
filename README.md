@@ -31,9 +31,12 @@ bookings; a window can run to midnight, windows can be edited and cannot
 overlap), plus a **travel buffer**: the minimum gap the app insists on between
 two bookings so you can actually get across town. Both feed the conflict check.
 
-**EARNINGS** — **earned** money (completed bookings) and **projected** money
-(open inquiries and confirmations that have not happened yet) shown separately
-— never summed into one misleading total — with an earned-by-week breakdown. An
+**EARNINGS** — three figures that are never summed into one: **completed**
+(the booked value of completed bookings), **cash recorded** (what you entered as
+actually received, on any booking), and **projected** (open inquiries and
+confirmations that have not happened yet). A completed booking is not cash: it
+counts as cash only once its amount received is recorded, and the screen says how
+many completed bookings have none. There is a completed-value-by-week breakdown. An
 open booking whose time has passed is counted as *needs review* until you mark it
 completed, no-show or cancelled on the Agenda.
 

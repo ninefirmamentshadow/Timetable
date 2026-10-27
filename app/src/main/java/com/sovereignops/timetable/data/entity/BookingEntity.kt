@@ -24,4 +24,6 @@ data class BookingEntity(
     val screened: Boolean,
     val depositReceived: Boolean,
     val notes: String,
+    /** Cents actually received, or null when not recorded (schema 3). */
+    val receivedCents: Long? = null,
 )

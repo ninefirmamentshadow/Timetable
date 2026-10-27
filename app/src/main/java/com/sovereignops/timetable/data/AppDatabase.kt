@@ -15,10 +15,12 @@ import com.sovereignops.timetable.data.entity.BookingEntity
 
 @Database(
     entities = [BookingEntity::class, AvailabilityEntity::class, BookingDraftEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
-    // 1 -> 2 only adds the booking_drafts table; Room generates that from the committed schemas.
-    autoMigrations = [AutoMigration(from = 1, to = 2)],
+    // Both steps are purely additive; Room generates them from the committed schemas.
+    // 1 -> 2 adds the booking_drafts table; 2 -> 3 adds the nullable amount-received
+    // columns (bookings.receivedCents, booking_drafts.receivedText).
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun bookingDao(): BookingDao

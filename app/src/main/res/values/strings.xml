@@ -102,12 +102,24 @@
     <string name="remove">Remove</string>
 
     <!-- Earnings -->
-    <string name="earned_label">Earned</string>
+    <string name="earned_label">Completed</string>
+    <string name="cash_label">Cash recorded</string>
     <string name="projected_label">Projected</string>
-    <string name="by_week_label">Earned by week</string>
+    <string name="by_week_label">Completed value by week (booked, not cash)</string>
     <string name="no_earnings">No completed bookings yet</string>
 
-    <string name="needs_review_note">Needs review: %1$d. Open the Agenda and mark each one completed, no-show or cancelled; until then it counts as neither earned nor projected.</string>
+    <string name="needs_review_note">Needs review: %1$d. Open the Agenda and mark each one completed, no-show or cancelled; until then it counts as neither completed nor projected.</string>
+    <plurals name="cash_count">
+        <item quantity="one">Received on %d booking, as you recorded it</item>
+        <item quantity="other">Received on %d bookings, as you recorded it</item>
+    </plurals>
+    <plurals name="unpaid_note">
+        <item quantity="one">%d completed booking has no payment recorded. Completed shows its booked value; it is not counted as cash until you enter the amount received.</item>
+        <item quantity="other">%d completed bookings have no payment recorded. Completed shows their booked value; they are not counted as cash until you enter the amount received.</item>
+    </plurals>
+    <string name="received_hint">Received (optional)</string>
+    <string name="received_help">Cash actually received. Leave empty until paid.</string>
+    <string name="error_received">Enter an amount like 50 or $50, or leave it empty</string>
 
     <plurals name="completed_count">
         <item quantity="one">%d completed booking</item>

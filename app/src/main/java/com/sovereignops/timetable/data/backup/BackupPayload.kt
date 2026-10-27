@@ -45,6 +45,8 @@ data class BackupBooking(
     val screened: Boolean = false,
     val depositReceived: Boolean = false,
     val notes: String = "",
+    /** Cents actually received; absent or null when not recorded. */
+    val receivedCents: Long? = null,
 )
 
 @Serializable
@@ -74,6 +76,8 @@ data class BackupDraft(
     val depositReceived: Boolean = false,
     /** Local date-time of the last change. */
     val updatedAt: String,
+    /** Amount received as typed, or null. */
+    val receivedText: String? = null,
 )
 
 /** A backup that decrypted but is not acceptable data. Nothing was changed. */
@@ -130,6 +134,7 @@ object BackupPayloadCodec {
                 screened = it.screened,
                 depositReceived = it.depositReceived,
                 notes = it.notes,
+                receivedCents = it.receivedCents,
             )
         },
         availability = availability.map { BackupWindow(it.id, it.dayOfWeek, it.startMinuteOfDay, it.endMinuteOfDay) },
@@ -147,6 +152,7 @@ object BackupPayloadCodec {
                 screened = it.screened,
                 depositReceived = it.depositReceived,
                 updatedAt = LocalDateTime.ofEpochSecond(it.updatedAtEpochSecond, 0, ZoneOffset.UTC).toString(),
+                receivedText = it.receivedText,
             )
         },
     )
@@ -192,6 +198,7 @@ object BackupPayloadCodec {
                 screened = b.screened,
                 depositReceived = b.depositReceived,
                 notes = b.notes,
+                receivedCents = b.receivedCents,
             )
             row.toModelResult().getOrElse { throw InvalidBackup("Booking ${index + 1} is not valid", it) }
             row
@@ -207,7 +214,7 @@ object BackupPayloadCodec {
         val draftIds = HashSet<Long>()
         val drafts = payload.bookingDrafts.mapIndexed { index, d ->
             if (d.bookingId < 0 || !draftIds.add(d.bookingId)) throw InvalidBackup("Draft ${index + 1} has a repeated booking id")
-            if (listOf(d.alias, d.durationText, d.rateText, d.location, d.notes).any { it.length > MAX_TEXT }) {
+            if (listOf(d.alias, d.durationText, d.rateText, d.location, d.notes, d.receivedText.orEmpty()).any { it.length > MAX_TEXT }) {
                 throw InvalidBackup("Draft ${index + 1} has text that is too long")
             }
             if (BookingStatus.entries.none { it.name == d.status }) throw InvalidBackup("Draft ${index + 1} has an unknown status")
@@ -229,6 +236,7 @@ object BackupPayloadCodec {
                 screened = d.screened,
                 depositReceived = d.depositReceived,
                 updatedAtEpochSecond = updated.toEpochSecond(ZoneOffset.UTC),
+                receivedText = d.receivedText,
             )
         }
         return RestorePlan(

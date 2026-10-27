@@ -40,6 +40,14 @@ class EarningsFragment : Fragment() {
                 R.plurals.projected_count, summary.projectedCount, summary.projectedCount,
             )
 
+            binding.cashValue.text = summary.cashRecorded.format()
+            binding.cashCount.text = resources.getQuantityString(
+                R.plurals.cash_count, summary.cashRecordedCount, summary.cashRecordedCount,
+            )
+            val unpaid = summary.completedWithoutPaymentCount
+            binding.unpaidNote.visibility = if (unpaid > 0) View.VISIBLE else View.GONE
+            if (unpaid > 0) binding.unpaidNote.text = resources.getQuantityString(R.plurals.unpaid_note, unpaid, unpaid)
+
             binding.reviewNote.visibility = if (summary.needsReviewCount > 0) View.VISIBLE else View.GONE
             binding.reviewNote.text = getString(R.string.needs_review_note, summary.needsReviewCount)
 

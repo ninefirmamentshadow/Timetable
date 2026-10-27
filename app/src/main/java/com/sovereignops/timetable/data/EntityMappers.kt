@@ -34,6 +34,7 @@ fun BookingEntity.toModelResult(): Result<Booking> = runCatching {
         ?: throw UnreadableRow("unknown status")
     if (durationMinutes <= 0) throw UnreadableRow("duration must be positive")
     if (rateCents < 0) throw UnreadableRow("rate must not be negative")
+    if (receivedCents != null && receivedCents < 0) throw UnreadableRow("amount received must not be negative")
     Booking(
         id = id,
         start = LocalDateTime.ofEpochSecond(startEpochSecond, 0, ZoneOffset.UTC),
@@ -45,6 +46,7 @@ fun BookingEntity.toModelResult(): Result<Booking> = runCatching {
         screened = screened,
         depositReceived = depositReceived,
         notes = notes,
+        amountReceived = receivedCents?.let { Money(it) },
     )
 }.recoverCatching { throw if (it is UnreadableRow) it else UnreadableRow("unreadable booking row", it) }
 
@@ -62,6 +64,7 @@ fun Booking.toEntity(): BookingEntity = BookingEntity(
     screened = screened,
     depositReceived = depositReceived,
     notes = notes,
+    receivedCents = amountReceived?.cents,
 )
 
 fun AvailabilityEntity.toModelResult(): Result<AvailabilityWindow> = runCatching {
@@ -96,6 +99,7 @@ fun SavedDraft.toEntity(): BookingDraftEntity = BookingDraftEntity(
     screened = draft.screened,
     depositReceived = draft.depositReceived,
     updatedAtEpochSecond = updatedAt.toEpochSecond(ZoneOffset.UTC),
+    receivedText = draft.receivedText,
 )
 
 /**
@@ -118,6 +122,7 @@ fun BookingDraftEntity.toSavedDraft(): SavedDraft {
             notes = notes,
             screened = screened,
             depositReceived = depositReceived,
+            receivedText = receivedText,
         ),
         updatedAt = LocalDateTime.ofEpochSecond(
             updatedAtEpochSecond.coerceIn(MIN_EPOCH_SECOND, MAX_EPOCH_SECOND), 0, ZoneOffset.UTC,

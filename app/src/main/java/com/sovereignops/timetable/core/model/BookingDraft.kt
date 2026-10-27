@@ -10,7 +10,7 @@ import java.time.LocalTime
 data class SavedDraft(val bookingId: Long, val draft: BookingDraft, val updatedAt: LocalDateTime)
 
 /** Why a draft cannot become a [Booking]. */
-enum class DraftError { ALIAS_REQUIRED, DURATION_INVALID, RATE_INVALID }
+enum class DraftError { ALIAS_REQUIRED, DURATION_INVALID, RATE_INVALID, RECEIVED_INVALID }
 
 sealed interface DraftResult {
     data class Ok(val booking: Booking) : DraftResult
@@ -34,6 +34,8 @@ data class BookingDraft(
     val notes: String = "",
     val screened: Boolean = false,
     val depositReceived: Boolean = false,
+    /** Amount received, as typed; null or blank means not recorded (not zero). */
+    val receivedText: String? = null,
 ) : Serializable {
 
     /** Validate and build the booking with [id] (0 inserts a new one). */
@@ -45,6 +47,8 @@ data class BookingDraft(
         if (duration == null || duration <= 0) errors += DraftError.DURATION_INVALID
         val rate = Money.parse(rateText)
         if (rate == null || rate.cents < 0) errors += DraftError.RATE_INVALID
+        val received = receivedText?.takeIf { it.isNotBlank() }?.let { Money.parse(it) }
+        if (!receivedText.isNullOrBlank() && (received == null || received.cents < 0)) errors += DraftError.RECEIVED_INVALID
         if (errors.isNotEmpty()) return DraftResult.Invalid(errors)
         return DraftResult.Ok(
             Booking(
@@ -58,6 +62,7 @@ data class BookingDraft(
                 screened = screened,
                 depositReceived = depositReceived,
                 notes = notes.trim(),
+                amountReceived = received,
             ),
         )
     }
@@ -76,6 +81,7 @@ data class BookingDraft(
             notes = booking.notes,
             screened = booking.screened,
             depositReceived = booking.depositReceived,
+            receivedText = booking.amountReceived?.format(),
         )
 
         /** A blank draft for a new booking. */

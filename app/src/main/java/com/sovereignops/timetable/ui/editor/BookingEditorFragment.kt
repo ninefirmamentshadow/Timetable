@@ -203,7 +203,7 @@ class BookingEditorFragment : DialogFragment() {
         // Deleting a booking that was already deleted (a kept draft of it) means nothing.
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.isEnabled = loaded && !saving && editor.bookingId != 0L
         listOf(
-            b.aliasInput, b.durationInput, b.rateInput, b.locationInput,
+            b.aliasInput, b.durationInput, b.rateInput, b.receivedInput, b.locationInput,
             b.notesInput, b.dateButton, b.timeButton, b.statusSpinner,
             b.screenedCheck, b.depositCheck,
         ).forEach { it.isEnabled = loaded && !saving }
@@ -215,6 +215,8 @@ class BookingEditorFragment : DialogFragment() {
         binding.aliasInput.bind { d, v -> d.copy(alias = v) }
         binding.durationInput.bind { d, v -> d.copy(durationText = v) }
         binding.rateInput.bind { d, v -> d.copy(rateText = v) }
+        // Blank means "not recorded", the same as never typed, so clearing the field is not a change.
+        binding.receivedInput.bind { d, v -> d.copy(receivedText = v.ifBlank { null }) }
         binding.locationInput.bind { d, v -> d.copy(locationLabel = v) }
         binding.notesInput.bind { d, v -> d.copy(notes = v) }
         binding.screenedCheck.setOnCheckedChangeListener { _, on -> editor.update { it.copy(screened = on) } }
@@ -239,6 +241,7 @@ class BookingEditorFragment : DialogFragment() {
         binding.aliasInput.show(draft.alias)
         binding.durationInput.show(draft.durationText)
         binding.rateInput.show(draft.rateText)
+        binding.receivedInput.show(draft.receivedText.orEmpty())
         binding.locationInput.show(draft.locationLabel)
         binding.notesInput.show(draft.notes)
         if (binding.screenedCheck.isChecked != draft.screened) binding.screenedCheck.isChecked = draft.screened
@@ -279,11 +282,14 @@ class BookingEditorFragment : DialogFragment() {
                     if (DraftError.DURATION_INVALID in built.errors) getString(R.string.error_duration) else null
                 b.rateLayout.error =
                     if (DraftError.RATE_INVALID in built.errors) getString(R.string.error_rate) else null
+                b.receivedLayout.error =
+                    if (DraftError.RECEIVED_INVALID in built.errors) getString(R.string.error_received) else null
             }
             is BookingEditorViewModel.Result.Ready -> {
                 b.aliasLayout.error = null
                 b.durationLayout.error = null
                 b.rateLayout.error = null
+                b.receivedLayout.error = null
                 b.saveError.visibility = View.GONE
                 val candidate = built.booking
                 val conflicts = main.conflictsFor(candidate)

@@ -101,6 +101,22 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Cash actually received; empty until paid. Not the same as the rate or a completed status. -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/received_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/received_hint"
+            app:helperText="@string/received_help">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/received_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <TextView
             style="@style/SectionLabel"
             android:text="@string/status_label" />

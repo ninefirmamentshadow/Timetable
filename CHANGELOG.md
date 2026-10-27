@@ -36,6 +36,24 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
   loaded, so a blank form can never overwrite a stored booking. Rotation keeps
   every field.
 
+### Money that is true
+
+- **Completed is not cash.** A booking gets an optional **Received** amount.
+  Earnings shows **Completed** (booked value of completed bookings), **Cash
+  recorded** (only amounts entered as received, on any booking, a no-show fee
+  included) and **Projected**, never added together, and says how many
+  completed bookings have no payment recorded. Existing bookings read as "not
+  recorded"; nothing is assumed paid.
+
+### Scheduling checks
+
+- A cancelled or no-show booking no longer raises conflict warnings when you
+  edit it (it holds no slot).
+- Conflict warnings come out in a fixed order (worst first, then by time).
+- New tests for touching and nested bookings, zero and exact buffers, buffers
+  across midnight, overnight bookings, daylight-saving nights (wall-clock),
+  changed availability and invalid input.
+
 ### Crash fixes
 
 - Leaving the Availability tab or Settings while a number field had focus
@@ -67,10 +85,11 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
 
 ### Data and upgrade
 
-- Database schema 1 → 2 adds the `booking_drafts` table only. Bookings,
-  availability and settings are untouched (checked by `MigrationTest`).
-- Backup payload schema 1 → 2 adds `bookingDrafts`; schema 1 files are still
-  read. A pre-restore safety copy is kept (last three, app-private).
+- Database schema 1 → 2 adds the `booking_drafts` table; 2 → 3 adds the
+  nullable amount-received columns. Bookings, availability and settings are
+  otherwise untouched (checked by `MigrationTest`, from every committed version).
+- Backup payload schema 1 → 2 adds `bookingDrafts` and the optional amount
+  received; schema 1 files are still read. A pre-restore safety copy is kept (last three, app-private).
 
 ### Before this becomes 1.0.0 (owner, on the phone)
 

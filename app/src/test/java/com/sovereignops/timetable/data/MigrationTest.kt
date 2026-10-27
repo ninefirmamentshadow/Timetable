@@ -112,6 +112,37 @@ class MigrationTest {
         }
     }
 
+    // 2 -> 3 adds the nullable amount-received columns; existing bookings and drafts read as "not recorded".
+    @Test fun versionTwoMigratesToThreeWithAmountsNotRecorded() {
+        helper.createDatabase("$dbName-2to3", 2).apply {
+            execSQL(
+                "INSERT INTO bookings (id, startEpochSecond, durationMinutes, clientAlias, rateCents, status, " +
+                    "locationLabel, screened, depositReceived, notes) VALUES (4, 1792000000, 60, 'Alias C', 12500, " +
+                    "'COMPLETED', '', 1, 0, 'n')",
+            )
+            execSQL(
+                "INSERT INTO booking_drafts (bookingId, alias, dateEpochDay, minuteOfDay, durationText, rateText, status, " +
+                    "locationLabel, notes, screened, depositReceived, updatedAtEpochSecond) VALUES (0, 'Alias D', 20750, 1140, " +
+                    "'60', '50', 'INQUIRY', '', '', 0, 0, 1792000000)",
+            )
+            close()
+        }
+        helper.runMigrationsAndValidate("$dbName-2to3", 3, true, *AppDatabase.MIGRATIONS).use { db ->
+            db.query("SELECT clientAlias, rateCents, status, receivedCents FROM bookings WHERE id = 4").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("Alias C", c.getString(0))
+                assertEquals(12500, c.getLong(1))
+                assertEquals("COMPLETED", c.getString(2))
+                assertTrue("a completed booking is not silently marked paid", c.isNull(3))
+            }
+            db.query("SELECT alias, receivedText FROM booking_drafts WHERE bookingId = 0").use { c ->
+                assertTrue(c.moveToFirst())
+                assertEquals("Alias D", c.getString(0))
+                assertTrue(c.isNull(1))
+            }
+        }
+    }
+
     /** Every older committed version must migrate to the current one without losing its tables. */
     @Test fun everyCommittedVersionMigratesToTheCurrentOne() {
         for (from in committedVersions().filter { it < CURRENT_VERSION }) {
@@ -121,6 +152,6 @@ class MigrationTest {
     }
 
     private companion object {
-        const val CURRENT_VERSION = 2
+        const val CURRENT_VERSION = 3
     }
 }

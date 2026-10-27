@@ -8,10 +8,13 @@ import java.time.temporal.WeekFields
 import java.util.Locale
 
 /**
- * Earned vs. projected money over a booking list. Earned is real (COMPLETED);
- * projected is open commitments (INQUIRY / CONFIRMED) that have not ended yet.
- * They are never summed together into one misleading total — a confirmed
- * booking is not money in hand.
+ * Completed vs. projected booking value, and cash recorded, over a booking list.
+ * [earned] is the booked value of COMPLETED bookings; it is NOT cash — a
+ * completed booking may be unpaid or paid a different amount. Cash is only what
+ * the operator recorded as received ([cashRecorded]). Projected is open
+ * commitments (INQUIRY / CONFIRMED) that have not ended yet. None of the three is
+ * ever summed into another: a confirmed booking is not money in hand, and
+ * neither is a completed one until its payment is recorded.
  *
  * An open booking whose time has already passed is neither: nobody recorded how
  * it ended, so it is counted in [needsReviewCount] and contributes no money to
@@ -23,6 +26,12 @@ data class EarningsSummary(
     val completedCount: Int,
     val projectedCount: Int,
     val needsReviewCount: Int = 0,
+    /** Sum of recorded amounts received, over every booking whatever its status. */
+    val cashRecorded: Money = Money.ZERO,
+    /** Bookings with a recorded amount received. */
+    val cashRecordedCount: Int = 0,
+    /** COMPLETED bookings with no amount received recorded yet. */
+    val completedWithoutPaymentCount: Int = 0,
 )
 
 object Earnings {
@@ -34,7 +43,12 @@ object Earnings {
         var earnedN = 0
         var projectedN = 0
         var reviewN = 0
+        var cash = Money.ZERO
+        var cashN = 0
+        var unpaidN = 0
         for (b in bookings) {
+            b.amountReceived?.let { cash += it; cashN++ }
+            if (b.status.isEarned && b.amountReceived == null) unpaidN++
             when {
                 b.status.isEarned -> {
                     earned += b.rate; earnedN++
@@ -48,7 +62,7 @@ object Earnings {
                 }
             }
         }
-        return EarningsSummary(earned, projected, earnedN, projectedN, reviewN)
+        return EarningsSummary(earned, projected, earnedN, projectedN, reviewN, cash, cashN, unpaidN)
     }
 
     /** Summary over bookings whose start date falls in [from]..[to] inclusive. */

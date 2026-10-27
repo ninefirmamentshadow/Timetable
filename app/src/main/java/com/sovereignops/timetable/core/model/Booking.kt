@@ -21,9 +21,16 @@ data class Booking(
     val screened: Boolean = false,
     val depositReceived: Boolean = false,
     val notes: String = "",
+    /**
+     * Money actually received for this booking, as the operator recorded it; null
+     * until recorded. This, not [rate] or a COMPLETED status, is cash: a completed
+     * booking's nominal rate is not money in hand.
+     */
+    val amountReceived: Money? = null,
 ) {
     init {
         require(durationMinutes > 0) { "durationMinutes must be positive" }
+        require(amountReceived == null || amountReceived.cents >= 0) { "amountReceived must not be negative" }
     }
 
     val end: LocalDateTime

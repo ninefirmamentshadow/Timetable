@@ -24,4 +24,6 @@ data class BookingDraftEntity(
     val screened: Boolean,
     val depositReceived: Boolean,
     val updatedAtEpochSecond: Long,
+    /** Amount received as typed, or null (schema 3). */
+    val receivedText: String? = null,
 )

@@ -89,7 +89,12 @@ A conflict does not block you — it surfaces, and you decide. The rules live in
   **Calendar export (.ics)** is separate and **not encrypted**; the app says so
   before writing it and leaves rates and notes out.
 - **Drafts** of unsaved bookings live in the same database (encrypted with it)
-  until you save or discard them. They are not included in a backup.
+  until you save or discard them, and are included in the encrypted backup.
+- **Safety copy before restore.** A restore first seals the current data with
+  the backup's passphrase and keeps it on the phone (last three); **Restore a
+  safety copy** in Settings brings it back. Timetable and Drafts share this
+  convention, the autosave timing and the backup envelope (see
+  `docs/BACKUP_FORMAT.md`).
 
 ## Releases
 

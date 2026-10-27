@@ -42,7 +42,7 @@ android {
         targetSdk = 35
         // Raise versionCode with every build handed to the phone; Android refuses a downgrade.
         versionCode = 2
-        versionName = "1.0.0-rc1"
+        versionName = "1.0.0-rc.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

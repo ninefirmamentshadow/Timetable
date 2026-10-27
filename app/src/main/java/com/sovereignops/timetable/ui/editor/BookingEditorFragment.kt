@@ -301,6 +301,12 @@ class BookingEditorFragment : DialogFragment() {
         }
     }
 
+    // As in Drafts: whatever was typed inside the autosave window is written when the screen goes away.
+    override fun onPause() {
+        super.onPause()
+        editor.flush()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

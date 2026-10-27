@@ -146,7 +146,16 @@
     <string name="restore_invalid">The backup is damaged or not valid, so nothing was changed. (%1$s)</string>
     <string name="restore_failed_unchanged">The restore failed. Your existing data was not changed.</string>
     <string name="restore_confirm_title">Replace everything?</string>
-    <string name="restore_confirm_message">This backup (made %3$s) has %1$d bookings and %2$d availability windows. Restoring replaces ALL current bookings, availability and the travel buffer with them. This cannot be undone.</string>
+    <string name="restore_confirm_message">This backup (made %3$s) has %1$d bookings and %2$d availability windows. Restoring replaces ALL current bookings, availability, unsaved drafts and the travel buffer with them.</string>
+    <plurals name="restore_confirm_drafts">
+        <item quantity="one">It also holds %d unsaved booking draft.</item>
+        <item quantity="other">It also holds %d unsaved booking drafts.</item>
+    </plurals>
+    <string name="restore_confirm_safety">Your current data is first kept on this phone as a safety copy, sealed with this backup\'s passphrase (Settings → Restore a safety copy). The last three are kept.</string>
+    <string name="safety_restore">Restore a safety copy</string>
+    <string name="safety_choose">Safety copies made before a restore</string>
+    <string name="safety_none">There are no safety copies yet. One is made each time you restore a backup.</string>
+    <string name="safety_copy_failed">The safety copy of your current data could not be written (%1$s), so nothing was restored or changed.</string>
     <string name="restore_confirm_action">Replace and restore</string>
     <string name="restore_done">Restored %1$d bookings and %2$d availability windows.</string>
     <string name="export_warning_title">Export unencrypted calendar?</string>

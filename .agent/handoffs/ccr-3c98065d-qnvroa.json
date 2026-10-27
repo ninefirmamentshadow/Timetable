@@ -1,6 +1,6 @@
 {
   "repo": "Timetable",
-  "objective": "Release candidate 1.0.0-rc1: booking drafts never crash or get lost, crash fixes across the app, CI green, release docs",
+  "objective": "Release candidate 1.0.0-rc.1: booking drafts never crash or get lost, crash fixes across the app, CI green, release docs",
   "branch": "ccr-3c98065d-qnvroa",
   "base_commit": "0cc6e6af17ae919546a4cb72e39e45edf3f5f5a1",
   "head_commit": "cb45ca3024aae3ccb45962bcf39550457e9f9cc2",
@@ -11,7 +11,7 @@
     "Editor: no close on outside tap; Back/Cancel with changes asks Keep draft / Discard / Keep editing; Save waits for the write (booking + draft removal in one transaction); failed save keeps the form and the draft",
     "Crash fixes: focus listeners after view teardown (Availability buffer, reminder lead, lock timeout), storage errors in MainViewModel launches, BackupViewModel unexpected errors, reminder/boot receivers, calendar month listener, double-open editor",
     "verify.sh room-schema step; ScreenshotTest waits for list diffs, captures at a fixed simulated time and without scroll bars; goldens recorded by the CI record-screenshots job from the committed (neutral-amount) fixtures; CI builds the unsigned R8 release variant as a check (not uploaded)",
-    "versionCode 2 / versionName 1.0.0-rc1; CHANGELOG.md with the owner's on-device acceptance list; README and AGENTS.md updated; Settings shows the installed version",
+    "versionCode 2 / versionName 1.0.0-rc.1; CHANGELOG.md with the owner's on-device acceptance list; README and AGENTS.md updated; Settings shows the installed version",
     "Old goldens showed a $300 amount that no committed fixture produced; replaced. Fixture amounts 80/150.50/300 changed to the neutral set"
   ],
   "verified": [
@@ -68,7 +68,7 @@
     "Owner: run the on-device acceptance list in CHANGELOG.md on the signed APK",
     "Owner: merge the PR when satisfied"
   ],
-  "next_action": "Owner device test of the signed 1.0.0-rc1 APK",
+  "next_action": "Owner device test of the signed 1.0.0-rc.1 APK",
   "next_executor_hint": "owner-device-test",
   "opened_at": "2026-10-27T22:40:00Z",
   "closed_at": null,

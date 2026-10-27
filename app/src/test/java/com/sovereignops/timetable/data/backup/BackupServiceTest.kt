@@ -4,7 +4,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.sovereignops.timetable.backup.BackupEnvelope
 import com.sovereignops.timetable.backup.BackupException
+import com.sovereignops.timetable.core.model.BookingDraft
+import com.sovereignops.timetable.core.model.SavedDraft
 import com.sovereignops.timetable.data.AppDatabase
+import com.sovereignops.timetable.data.toEntity
 import com.sovereignops.timetable.data.Settings
 import com.sovereignops.timetable.data.entity.AvailabilityEntity
 import com.sovereignops.timetable.data.entity.BookingEntity
@@ -22,6 +25,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Base64
 
@@ -112,12 +116,12 @@ class BackupServiceTest {
     }
 
     @Test fun aNewerPayloadSchemaIsRefused() = blocking {
-        val newer = BackupEnvelope(BackupService.APP_ID).seal("{}".toByteArray(), 2, passphrase, BackupEnvelope.MIN_ITERATIONS)
+        val newer = BackupEnvelope(BackupService.APP_ID).seal("{}".toByteArray(), BackupPayloadCodec.SCHEMA + 1, passphrase, BackupEnvelope.MIN_ITERATIONS)
         assertThrows(BackupException.Unsupported::class.java) { runBlocking { service.prepareRestore(newer, passphrase) } }
     }
 
-    private fun sealed(payloadJson: String) =
-        BackupEnvelope(BackupService.APP_ID).seal(payloadJson.toByteArray(), 1, passphrase, BackupEnvelope.MIN_ITERATIONS)
+    private fun sealed(payloadJson: String, schema: Int = 1) =
+        BackupEnvelope(BackupService.APP_ID).seal(payloadJson.toByteArray(), schema, passphrase, BackupEnvelope.MIN_ITERATIONS)
 
     private fun payload(bookings: String = "[]", windows: String = "[]", settings: String = """{"travelBufferMinutes":45,"defaultDurationMinutes":60}""") =
         """{"exportedAt":"2026-10-21T09:30","settings":$settings,"bookings":$bookings,"availability":$windows}"""
@@ -187,7 +191,51 @@ class BackupServiceTest {
 
     @Test fun inspectNeedsNoPassphraseAndRejectsNonBackups() = blocking {
         val text = service.create(passphrase).text
-        assertEquals(BackupEnvelope.Header(1, BackupEnvelope.MIN_ITERATIONS), service.inspect(text))
+        assertEquals(BackupEnvelope.Header(BackupPayloadCodec.SCHEMA, BackupEnvelope.MIN_ITERATIONS), service.inspect(text))
         assertThrows(BackupException.NotABackup::class.java) { service.inspect("hello") }
+    }
+
+    // ------------------------------------------------------ drafts (schema 2)
+
+    private suspend fun keepDraft(id: Long, alias: String) {
+        db.draftDao().upsert(
+            SavedDraft(id, BookingDraft.blank(LocalDate.of(2026, 10, 22), 45).copy(alias = alias, rateText = "abc", notes = "typed"), LocalDateTime.of(2026, 10, 21, 9, 0)).toEntity(),
+        )
+    }
+
+    @Test fun unsavedDraftsAreInTheBackupAndRestoreExactlyAsTyped() = blocking {
+        keepDraft(0, "New one")
+        keepDraft(3, "Edit of 3")
+        val drafts = db.backupDao().allDrafts()
+        val created = service.create(passphrase)
+        assertEquals(2, created.drafts)
+        assertEquals(BackupEnvelope.Header(2, BackupEnvelope.MIN_ITERATIONS), service.inspect(created.text))
+        db.backupDao().replaceAll(emptyList(), emptyList())
+        assertTrue(db.backupDao().allDrafts().isEmpty())
+        service.apply(service.prepareRestore(created.text, passphrase))
+        assertEquals(drafts, db.backupDao().allDrafts())
+    }
+
+    // A schema 1 file (made before drafts were backed up) still restores; it replaces the drafts by none.
+    @Test fun aSchemaOneBackupStillRestoresAndLeavesNoStaleDrafts() = blocking {
+        keepDraft(5, "Points at an old booking 5")
+        service.apply(service.prepareRestore(sealed(payload(bookings = "[${bookingJson(5)}]")), passphrase))
+        assertEquals(listOf(5L), snapshot().first.map { it.id })
+        assertTrue("a draft of the replaced booking 5 must not attach to the restored one", db.backupDao().allDrafts().isEmpty())
+    }
+
+    private fun draftJson(id: Int = 0, status: String = "INQUIRY", date: String = "2026-10-22", time: String = "19:00") =
+        """{"bookingId":$id,"date":"$date","time":"$time","status":"$status","updatedAt":"2026-10-21T09:00"}"""
+
+    @Test fun anInvalidDraftRejectsTheWholeBackup() {
+        val before = snapshot()
+        for (drafts in listOf("[${draftJson(status = "BOGUS")}]", "[${draftJson(date = "soon")}]", "[${draftJson(time = "25:00")}]",
+            "[${draftJson(1)},${draftJson(1)}]", "[${draftJson(-1)}]")) {
+            val json = payload().dropLast(1) + ",\"bookingDrafts\":$drafts}"
+            assertThrows("should reject: $drafts", InvalidBackup::class.java) {
+                runBlocking { service.prepareRestore(sealed(json, schema = 2), passphrase) }
+            }
+        }
+        assertEquals(before, snapshot())
     }
 }

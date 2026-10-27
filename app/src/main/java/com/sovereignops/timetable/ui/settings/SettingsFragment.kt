@@ -76,6 +76,7 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.backupButton.setOnClickListener { askPassphraseThenPickFile() }
         binding.restoreButton.setOnClickListener { openBackupFile.launch(arrayOf("application/json", "text/plain", "*/*")) }
+        binding.safetyRestoreButton.setOnClickListener { chooseSafetyCopy() }
         binding.exportButton.setOnClickListener { confirmExport() }
         binding.noticesButton.setOnClickListener { showNotices() }
         binding.appVersion.text = versionText()
@@ -251,7 +252,8 @@ class SettingsFragment : Fragment() {
         val working = state as? BackupViewModel.State.Working
         binding.workingLabel.visibility = if (working != null) View.VISIBLE else View.GONE
         if (working != null) binding.workingLabel.setText(working.label)
-        listOf(binding.backupButton, binding.restoreButton, binding.exportButton).forEach { it.isEnabled = working == null }
+        listOf(binding.backupButton, binding.restoreButton, binding.safetyRestoreButton, binding.exportButton)
+            .forEach { it.isEnabled = working == null }
 
         when (state) {
             is BackupViewModel.State.NeedPassphrase -> PassphraseDialog.show(
@@ -261,7 +263,11 @@ class SettingsFragment : Fragment() {
             )
             is BackupViewModel.State.ConfirmRestore -> MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.restore_confirm_title)
-                .setMessage(getString(R.string.restore_confirm_message, state.bookings, state.windows, state.exportedAt))
+                .setMessage(
+                    getString(R.string.restore_confirm_message, state.bookings, state.windows, state.exportedAt) +
+                        (if (state.drafts > 0) "\n\n" + resources.getQuantityString(R.plurals.restore_confirm_drafts, state.drafts, state.drafts) else "") +
+                        "\n\n" + getString(R.string.restore_confirm_safety),
+                )
                 .setPositiveButton(R.string.restore_confirm_action) { _, _ -> backup.applyRestore() }
                 .setNegativeButton(R.string.cancel) { _, _ -> backup.cancelPending() }
                 .setOnCancelListener { backup.cancelPending() }
@@ -276,6 +282,27 @@ class SettingsFragment : Fragment() {
             }
             else -> Unit
         }
+    }
+
+    /** Pre-restore safety copies (newest first), restored through the normal passphrase and confirm steps. */
+    private fun chooseSafetyCopy() {
+        val copies = backup.safetyCopies()
+        if (copies.isEmpty()) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setMessage(R.string.safety_none)
+                .setPositiveButton(android.R.string.ok, null)
+                .showSecure()
+            return
+        }
+        val stamp = DateTimeFormatter.ofPattern("EEE d MMM yyyy, HH:mm", java.util.Locale.getDefault())
+        val labels = copies.map { f ->
+            java.time.Instant.ofEpochMilli(f.lastModified()).atZone(java.time.ZoneId.systemDefault()).format(stamp)
+        }.toTypedArray()
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.safety_choose)
+            .setItems(labels) { _, which -> backup.openSafetyCopy(copies[which]) }
+            .setNegativeButton(R.string.cancel, null)
+            .showSecure()
     }
 
     private fun askPassphraseThenPickFile() {

@@ -16,12 +16,14 @@ import com.sovereignops.timetable.data.backup.BackupService
 import com.sovereignops.timetable.data.backup.BackupSession
 import com.sovereignops.timetable.data.backup.InvalidBackup
 import com.sovereignops.timetable.data.backup.RestorePlan
+import com.sovereignops.timetable.data.backup.SafetyCopies
 import com.sovereignops.timetable.data.toModelResult
 import com.sovereignops.timetable.ui.AppClock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 
 /**
@@ -43,7 +45,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         data object NeedPassphrase : State
 
         /** Decrypted and valid: ask the user to confirm replacing everything. */
-        data class ConfirmRestore(val bookings: Int, val windows: Int, val exportedAt: String) : State
+        data class ConfirmRestore(val bookings: Int, val windows: Int, val exportedAt: String, val drafts: Int = 0) : State
     }
 
     private val _state = MutableLiveData<State>(State.Idle)
@@ -52,6 +54,14 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     private var pendingText: String? = null
     private var pendingPlan: RestorePlan? = null
     private var pendingBackupPassphrase: String? = null
+
+    /** The passphrase of the backup being restored; it also seals the pre-restore safety copy. Memory only. */
+    private var pendingRestorePassphrase: String? = null
+
+    private fun safety() = SafetyCopies(File(getApplication<Application>().noBackupFilesDir, "pre-restore"))
+
+    /** Pre-restore safety copies on this phone, newest first. */
+    fun safetyCopies(): List<File> = safety().list()
 
     private fun service(): BackupService =
         BackupService(AppDatabase.get(getApplication()), Settings(getApplication()), AppClock::now)
@@ -71,6 +81,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     fun cancelPending() {
         pendingBackupPassphrase = null
+        pendingRestorePassphrase = null
         pendingText = null
         pendingPlan = null
         _state.value = State.Idle
@@ -125,6 +136,27 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Open a pre-restore safety copy; from here on it is restored like any backup file. */
+    fun openSafetyCopy(file: File) {
+        _state.value = State.Working(R.string.working_reading)
+        viewModelScope.launch {
+            _state.value = try {
+                val read = withContext(Dispatchers.IO) { file.readText() }
+                service().inspect(read)
+                pendingText = read
+                State.NeedPassphrase
+            } catch (e: BackupException) {
+                State.Done(e.message ?: text(R.string.restore_failed), true)
+            } catch (e: IOException) {
+                State.Done(text(R.string.restore_read_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
+            }
+        }
+    }
+
     /** Decrypt and validate. On success ask for confirmation; on any failure nothing changed. */
     fun decrypt(passphrase: String) {
         val fileText = pendingText ?: return
@@ -133,7 +165,8 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
             _state.value = try {
                 val plan = service().prepareRestore(fileText, passphrase)
                 pendingPlan = plan
-                State.ConfirmRestore(plan.bookings.size, plan.availability.size, plan.exportedAt)
+                pendingRestorePassphrase = passphrase
+                State.ConfirmRestore(plan.bookings.size, plan.availability.size, plan.exportedAt, plan.drafts.size)
             } catch (e: BackupException.AuthenticationFailed) {
                 // Keep the file so the user can try the passphrase again.
                 State.Done(e.message ?: text(R.string.restore_failed), true)
@@ -152,21 +185,36 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /**
+     * Seal the current data (bookings, availability, drafts) as a safety copy with the
+     * restore's passphrase, then replace. If the safety copy cannot be written, nothing
+     * is replaced. Same order as Drafts: copy first, then restore.
+     */
     fun applyRestore() {
         val plan = pendingPlan ?: return
+        val passphrase = pendingRestorePassphrase ?: return
         _state.value = State.Working(R.string.working_restore)
         viewModelScope.launch {
             _state.value = try {
-                service().apply(plan)
-                State.Done(text(R.string.restore_done, plan.bookings.size, plan.availability.size), false)
+                val current = service().create(passphrase)
+                withContext(Dispatchers.IO) { safety().write(current.text, System.currentTimeMillis()) }
+                try {
+                    service().apply(plan)
+                    State.Done(text(R.string.restore_done, plan.bookings.size, plan.availability.size), false)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // The replace is one transaction: a failure leaves the old data in place.
+                    State.Done(text(R.string.restore_failed_unchanged), true)
+                }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                // The replace is one transaction: a failure leaves the old data in place.
-                State.Done(text(R.string.restore_failed_unchanged), true)
+                State.Done(text(R.string.safety_copy_failed, reason(e)), true)
             } finally {
                 pendingPlan = null
                 pendingText = null
+                pendingRestorePassphrase = null
             }
         }
     }

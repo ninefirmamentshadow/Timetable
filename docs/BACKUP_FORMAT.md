@@ -52,7 +52,7 @@ written to the database until decryption and validation have succeeded.
 
 Files up to 32 MiB are read; anything larger is refused unread.
 
-## Timetable payload (schema 1)
+## Timetable payload (schema 2; schema 1 is still read)
 
 The decrypted bytes are UTF-8 JSON:
 
@@ -67,15 +67,29 @@ The decrypted bytes are UTF-8 JSON:
   ],
   "availability": [
     { "id": 1, "day": 5, "startMinute": 1080, "endMinute": 1440 }
+  ],
+  "bookingDrafts": [
+    { "bookingId": 0, "alias": "Alias B", "date": "2026-10-22", "time": "19:00",
+      "durationText": "60", "rateText": "", "status": "INQUIRY", "location": "",
+      "notes": "", "screened": false, "depositReceived": false,
+      "updatedAt": "2026-10-21T09:12:40" }
   ]
 }
 ```
+
+Schema 2 adds `bookingDrafts`: the editor's unsaved forms, exactly as typed
+(text fields are not validated as a booking would be). `bookingId` is the
+booking the draft edits, 0 for a new booking. A schema 1 file has no
+`bookingDrafts` and restores as before. A file with a schema newer than the app
+knows is refused with "made by a newer version of the app".
 
 * `start` is a local date-time with no zone; the app never converts time zones.
 * `status` is one of `INQUIRY`, `CONFIRMED`, `COMPLETED`, `CANCELLED`, `NO_SHOW`.
 * `day` is the ISO weekday, 1 (Monday) to 7 (Sunday). `startMinute` and
   `endMinute` are minutes since midnight; `endMinute` 1440 means a window that
   runs to midnight.
+* Draft `date` is an ISO date, `time` a local `HH:mm`, `status` one of the
+  booking statuses; `updatedAt` a local date-time.
 * Unknown fields are rejected.
 
 **Validation before restore.** Every booking and window must be one the app can
@@ -84,10 +98,17 @@ minutes in range, ids positive and unique), text fields are bounded, and the two
 settings must be in range (travel buffer 0 to 480, default duration 15 to 1440).
 One bad row rejects the whole backup.
 
-**Restore.** The caller is asked to confirm first. Bookings and availability are
-then replaced in a single database transaction (all or nothing), and the two
-settings are applied afterwards. A failure at any step, including a wrong
-passphrase, leaves the existing data exactly as it was.
+**Restore.** The caller is asked to confirm first. The app then seals the
+current data (bookings, availability and drafts) with the same passphrase as a
+**pre-restore safety copy** in its private no-backup storage, keeping the last
+three; if that copy cannot be written, nothing is replaced. Bookings,
+availability and drafts are then replaced in a single database transaction (all
+or nothing), and the two settings are applied afterwards. A schema 1 backup has
+no drafts, so it leaves none (they are in the safety copy). A failure at any
+step, including a wrong passphrase, leaves the existing data exactly as it was.
+A safety copy is an ordinary backup file: Settings, **Restore a safety copy**,
+restores it through the same steps (and keeps a new safety copy first). This is
+the same convention as the Drafts app.
 
 **Unreadable rows.** A stored row the app cannot read (see the "unreadable
 records" banner) is left out of a backup, and the count is reported when the

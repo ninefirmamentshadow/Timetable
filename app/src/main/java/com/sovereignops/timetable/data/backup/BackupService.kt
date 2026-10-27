@@ -22,22 +22,23 @@ class BackupService(
 ) {
     private val envelope = BackupEnvelope(APP_ID)
 
-    class Created(val text: String, val bookings: Int, val windows: Int, val unreadableSkipped: Int)
+    class Created(val text: String, val bookings: Int, val windows: Int, val unreadableSkipped: Int, val drafts: Int = 0)
 
     /** Build the encrypted text for the current data. Reads only. */
     suspend fun create(passphrase: String): Created {
         val bookingRows = db.backupDao().allBookings()
         val windowRows = db.backupDao().allAvailability()
+        val drafts = db.backupDao().allDrafts()
         val goodBookings = bookingRows.filter { it.toModelResult().isSuccess }
         val goodWindows = windowRows.filter { it.toModelResult().isSuccess }
         val payload = BackupPayloadCodec.toPayload(
-            goodBookings, goodWindows, settings.travelBufferMinutes, settings.defaultDurationMinutes, now(),
+            goodBookings, goodWindows, settings.travelBufferMinutes, settings.defaultDurationMinutes, now(), drafts,
         )
         val text = withContext(Dispatchers.Default) {
             envelope.seal(BackupPayloadCodec.encode(payload), BackupPayloadCodec.SCHEMA, passphrase, iterations)
         }
         val skipped = (bookingRows.size - goodBookings.size) + (windowRows.size - goodWindows.size)
-        return Created(text, goodBookings.size, goodWindows.size, skipped)
+        return Created(text, goodBookings.size, goodWindows.size, skipped, drafts.size)
     }
 
     /** Check the file's identity without a passphrase (cheap, no key derivation). */
@@ -49,15 +50,19 @@ class BackupService(
      */
     suspend fun prepareRestore(text: String, passphrase: String): RestorePlan {
         val opened = withContext(Dispatchers.Default) { envelope.open(text, passphrase) }
-        if (opened.schema != BackupPayloadCodec.SCHEMA) {
+        if (opened.schema !in 1..BackupPayloadCodec.SCHEMA) {
             throw BackupException.Unsupported("This backup was made by a newer version of the app")
         }
         return BackupPayloadCodec.decode(opened.plaintext)
     }
 
-    /** Replace everything with [plan] in one transaction, then apply the two settings. */
+    /**
+     * Replace everything (bookings, availability, drafts) with [plan] in one
+     * transaction, then apply the two settings. A schema 1 backup has no drafts, so
+     * the drafts on the device are replaced by none; the safety copy keeps them.
+     */
     suspend fun apply(plan: RestorePlan) {
-        db.backupDao().replaceAll(plan.bookings, plan.availability)
+        db.backupDao().replaceAll(plan.bookings, plan.availability, plan.drafts)
         settings.travelBufferMinutes = plan.travelBufferMinutes
         settings.defaultDurationMinutes = plan.defaultDurationMinutes
     }

@@ -23,6 +23,7 @@ import com.sovereignops.timetable.ui.AppScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -194,18 +195,34 @@ class BookingEditorViewModel(
         persist(next)
     }
 
-    /** Write [form] as this session's draft, or remove the draft when nothing would be lost without it. */
-    private fun persist(form: BookingDraft) {
+    /**
+     * Write [form] as this session's draft, or remove the draft when nothing would be
+     * lost without it. Coalesced like Drafts' autosave: every change reschedules and
+     * the write happens once typing pauses for [SAVE_DEBOUNCE_MS], or at once on [flush].
+     */
+    private fun persist(form: BookingDraft, immediately: Boolean = false) {
         val seq = writeSeq.incrementAndGet()
         val keep = form != baseline || handle.get<Restored>(KEY_RESTORED) == Restored.DRAFT_OF_DELETED_BOOKING
         val key = draftKey
         writer.launch {
+            if (!immediately) {
+                delay(SAVE_DEBOUNCE_MS)
+                if (seq != writeSeq.get()) return@launch // typing went on; a later write covers it
+            }
             writes.withLock {
                 if (seq != writeSeq.get()) return@withLock // a newer form is queued behind this one
                 val ok = attempt { if (keep) store.saveDraft(key, form, now()) else store.clearDraft(key) }
                 withContext(Dispatchers.Main) { _draftWriteFailed.value = !ok }
             }
         }
+    }
+
+    /** Write any pending change now (the editor pauses or closes). */
+    fun flush() {
+        if (finished) return
+        val current = handle.get<BookingDraft>(KEY_DRAFT) ?: return
+        if (writeSeq.get() == 0L) return // nothing was ever changed in this session
+        persist(current, immediately = true)
     }
 
     /** Validate and build the booking to save, or say why it cannot be saved. */
@@ -225,6 +242,7 @@ class BookingEditorViewModel(
     fun save(booking: Booking) {
         if (finished || _saveState.value == SaveState.Saving) return
         _saveState.value = SaveState.Saving
+        writeSeq.incrementAndGet() // a pending draft write must not bring the draft back after the save
         val key = draftKey
         writer.launch {
             val failure = writes.withLock {
@@ -243,8 +261,8 @@ class BookingEditorViewModel(
                     _saveState.value = SaveState.Saved
                 } else {
                     _saveState.value = SaveState.Failed(failure.message ?: failure.javaClass.simpleName)
-                    // Make sure the latest form is kept even if a draft write was skipped meanwhile.
-                    handle.get<BookingDraft>(KEY_DRAFT)?.let { persist(it) }
+                    // The save superseded any pending draft write: keep the latest form now.
+                    handle.get<BookingDraft>(KEY_DRAFT)?.let { persist(it, immediately = true) }
                 }
             }
         }
@@ -258,8 +276,9 @@ class BookingEditorViewModel(
         writer.launch { writes.withLock { attempt { store.clearDraft(key) } } }
     }
 
-    /** Close without discarding: the draft stays on the device to finish later. */
+    /** Close without discarding: the draft stays on the device to finish later (pending changes are written now). */
     fun keepForLater() {
+        flush()
         finished = true
     }
 
@@ -288,6 +307,9 @@ class BookingEditorViewModel(
 
     companion object {
         const val ARG_ID = "booking_id"
+
+        /** The same coalescing delay as Drafts' autosave. */
+        const val SAVE_DEBOUNCE_MS = 400L
         private const val KEY_DRAFT = "draft"
         private const val KEY_BASELINE = "baseline"
         private const val KEY_RESTORED = "restored"

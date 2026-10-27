@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0-rc1 (versionCode 2) — 2026-10-27
+## 1.0.0-rc.1 (versionCode 2) — 2026-10-27
 
 First release candidate. Everything since v1 (`versionCode 1`, `main` at
 `451a71e`).
@@ -20,6 +20,18 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
   write fails, the editor stays open with everything still typed and says why.
 - A draft of a booking that was deleted meanwhile is kept and saves as a new
   booking.
+- **Works like Drafts.** Typing is autosaved the way the Drafts app does it:
+  coalesced 400 ms after you stop, and written at once when the editor goes to
+  the background or closes.
+- **Drafts are in the backup.** The encrypted backup (payload schema 2) carries
+  unsaved drafts too, and a restore replaces them together with the bookings, so
+  a kept draft can never attach to a different booking. Schema 1 backups still
+  restore.
+- **Safety copy before every restore.** As in Drafts, the current data
+  (drafts included) is sealed with the backup's passphrase and kept on the phone
+  before a restore replaces it; the last three are kept, and **Settings → Restore
+  a safety copy** brings one back. If the copy cannot be written, nothing is
+  restored.
 - The editor reads an existing booking by id and cannot save before it has
   loaded, so a blank form can never overwrite a stored booking. Rotation keeps
   every field.
@@ -57,8 +69,8 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
 
 - Database schema 1 → 2 adds the `booking_drafts` table only. Bookings,
   availability and settings are untouched (checked by `MigrationTest`).
-- Drafts are not part of a backup; a backup holds saved bookings, availability
-  and the two scheduling settings.
+- Backup payload schema 1 → 2 adds `bookingDrafts`; schema 1 files are still
+  read. A pre-restore safety copy is kept (last three, app-private).
 
 ### Before this becomes 1.0.0 (owner, on the phone)
 
@@ -70,6 +82,9 @@ Each line is `NOT_RUN` until done on a real device with the signed APK:
    offers the draft and **Resume** restores every field.
 3. Back with changes asks; **Discard** removes the draft; **Save** closes and
    the booking appears.
+3a. Make a backup with a draft open, restore it: the confirm dialog names the
+   draft; afterwards **Restore a safety copy** lists one copy and restores the
+   data from before.
 4. Reminders on: a confirmed booking's reminder arrives; the lock-screen text
    names no alias.
 5. App lock on and off; the prompt appears after the timeout.

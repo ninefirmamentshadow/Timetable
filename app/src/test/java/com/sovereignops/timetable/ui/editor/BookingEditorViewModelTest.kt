@@ -15,7 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -367,6 +369,59 @@ class BookingEditorViewModelTest {
         editor.save(booking)
         advanceUntilIdle()
         assertEquals(1, store.bookings.size)
+    }
+
+    // ----------------------------------------------- autosave, as in Drafts
+
+    @Test fun typingIsCoalescedIntoOneWriteAfterThePause() = runTest(dispatcher) {
+        val store = FakeEditorStore()
+        val editor = vm(handle(0), store)
+        advanceUntilIdle()
+        editor.update { it.copy(alias = "A") }
+        advanceTimeBy(BookingEditorViewModel.SAVE_DEBOUNCE_MS - 1)
+        editor.update { it.copy(alias = "Al") }
+        advanceTimeBy(BookingEditorViewModel.SAVE_DEBOUNCE_MS - 1)
+        runCurrent()
+        assertTrue("nothing written while typing goes on", store.drafts.isEmpty())
+        advanceTimeBy(2)
+        runCurrent()
+        assertEquals("Al", store.drafts[0L]!!.draft.alias)
+        assertEquals(1, store.draftWrites)
+    }
+
+    @Test fun flushWritesThePendingChangeAtOnce() = runTest(dispatcher) {
+        val store = FakeEditorStore()
+        val editor = vm(handle(0), store)
+        advanceUntilIdle()
+        editor.update { it.copy(alias = "Alias P") }
+        editor.flush()
+        runCurrent()
+        assertEquals("Alias P", store.drafts[0L]!!.draft.alias)
+        advanceUntilIdle()
+        assertEquals("the debounced write was superseded, not repeated", 1, store.draftWrites)
+    }
+
+    @Test fun flushWithNothingTypedWritesNothing() = runTest(dispatcher) {
+        val store = FakeEditorStore(listOf(stored))
+        val editor = vm(handle(5), store)
+        advanceUntilIdle()
+        editor.flush()
+        advanceUntilIdle()
+        assertEquals(0, store.draftWrites)
+        assertTrue(store.drafts.isEmpty())
+    }
+
+    // A debounced write still waiting when Save succeeds must not bring the draft back.
+    @Test fun aPendingDraftWriteNeverResurrectsTheDraftAfterASave() = runTest(dispatcher) {
+        val store = FakeEditorStore()
+        val editor = vm(handle(0), store)
+        advanceUntilIdle()
+        editor.update { it.copy(alias = "Alias S", rateText = "50") }
+        editor.save((editor.build() as BookingEditorViewModel.Result.Ready).booking)
+        advanceUntilIdle()
+        assertEquals(SaveState.Saved, editor.saveState.value)
+        assertTrue(store.drafts.isEmpty())
+        assertEquals(0, store.draftWrites)
     }
 
     // --------------------------------------------------------------- closing

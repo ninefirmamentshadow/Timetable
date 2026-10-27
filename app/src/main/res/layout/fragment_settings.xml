@@ -41,6 +41,13 @@
             android:text="@string/backup_restore" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/safety_restore_button"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/safety_restore" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/export_button"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"

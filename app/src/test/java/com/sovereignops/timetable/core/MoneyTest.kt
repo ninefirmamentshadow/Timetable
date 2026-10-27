@@ -21,7 +21,7 @@ class MoneyTest {
 
     @Test fun addsAndMultiplies() {
         assertEquals(Money.dollars(125), Money.dollars(50) + Money.dollars(75))
-        assertEquals(Money.dollars(150), Money.dollars(50) * 3)
+        assertEquals(Money.dollars(75), Money.dollars(25) * 3)
     }
 
     @Test fun parsesPlainAndPrefixed() {

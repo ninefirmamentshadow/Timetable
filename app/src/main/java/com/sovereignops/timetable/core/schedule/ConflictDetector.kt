@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 /**
  * A reason a candidate booking is problematic. Ordered by severity so a UI can
  * show the worst first. OVERLAP is a hard clash; BUFFER is a travel-time
- * warning (this is an outcall, transit-dependent workflow — two bookings across
+ * warning (this is a mobile, transit-dependent workflow — two bookings across
  * town with ten minutes between them is a real problem the calendar alone hides);
  * OUTSIDE_AVAILABILITY means the slot is outside every declared working window.
  */

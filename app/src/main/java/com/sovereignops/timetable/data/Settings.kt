@@ -3,7 +3,7 @@ package com.sovereignops.timetable.data
 import android.content.Context
 
 /**
- * Small local preferences: the travel buffer that drives the outcall gap warning
+ * Small local preferences: the travel buffer that drives the travel-gap warning
  * and the default booking length. Stored in a private SharedPreferences file;
  * nothing here leaves the device.
  */

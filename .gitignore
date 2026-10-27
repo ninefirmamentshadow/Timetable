@@ -17,3 +17,12 @@ keystore.properties
 release/release-manifest.json
 release/CHANGELOG.md
 *.p12
+# OPSEC: local private patterns and secret-bearing files never belong in git.
+.opsec-patterns.local
+.env
+.env.*
+*.pem
+*.pfx
+
+# Kotlin compiler daemon logs
+.kotlin/

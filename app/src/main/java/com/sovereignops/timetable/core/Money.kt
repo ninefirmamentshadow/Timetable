@@ -2,7 +2,7 @@ package com.sovereignops.timetable.core
 
 /**
  * Money in whole cents. Rates in this workflow are whole-dollar figures
- * (e.g. 50 / 80 / 125), but storing cents keeps sums exact and lets a
+ * (e.g. 50 / 75 / 125), but storing cents keeps sums exact and lets a
  * non-round figure survive a round trip instead of being silently rounded.
  */
 @JvmInline

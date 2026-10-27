@@ -1,8 +1,8 @@
 # Timetable
 
-A mobile-first, **offline** booking scheduler for an independent outcall,
-transit-dependent operator. Built in Kotlin / Android with Room,
-CI-built and sideloaded.
+A mobile-first, **offline** booking scheduler for an independent mobile,
+transit-dependent operator. Built on the Sovereign-Ops infrastructure base
+(Kotlin / Android, Room, CI-built and sideloaded).
 
 Public repository. Sideloaded. Built in CI; `scripts/verify.sh` runs the same
 checks locally.
@@ -38,7 +38,7 @@ calendar and reports, worst first:
 
 - **Overlap** — a hard clash with an existing booking.
 - **Travel buffer** — a warning that two bookings are closer than your buffer
-  allows; this is an outcall workflow, and the calendar alone hides that.
+  allows; this is a travel-to-client workflow, and the calendar alone hides that.
 - **Outside availability** — the slot falls outside every declared window.
 
 A conflict does not block you — it surfaces, and you decide. The rules live in
@@ -88,8 +88,8 @@ A conflict does not block you — it surfaces, and you decide. The rules live in
 Phone-only workflow:
 
 1. Push a branch or open a PR.
-2. GitHub Actions installs JDK 17 and Gradle, runs `./gradlew test`, and builds
-   `assembleDebug`.
+2. GitHub Actions installs JDK 17 and Gradle and runs `scripts/verify.sh` (unit
+   and screen tests, lint, `assembleDebug`, the third-party inventory check).
 3. Download the `timetable-debug` artifact and sideload it.
 
 ### Out of debug — signed release

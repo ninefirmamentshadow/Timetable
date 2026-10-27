@@ -88,22 +88,28 @@ object TestSupport {
     }
 
     /**
-     * Wait until [root] has finished drawing its data: no RecyclerView has a list diff
-     * pending (ListAdapter diffs off the main thread) or a layout outstanding, three
-     * polls in a row. The looper clock moves forward between polls so item animations
-     * run to their end. Screenshots taken before that race the data.
+     * Wait until [root] has finished drawing its data: no shown RecyclerView has a list
+     * diff pending (ListAdapter diffs off the main thread) or a layout outstanding, three
+     * polls in a row. The looper clock moves in fixed frame steps while polling and is
+     * then topped up to exactly [settleMs], so the capture always happens at the same
+     * simulated time: item animations and scroll-bar fades end in the same state however
+     * many polls the background diff needed. Screenshots taken before that race the data.
      */
-    fun awaitSettled(root: android.view.View, timeoutMs: Long = 20_000) {
+    fun awaitSettled(root: android.view.View, timeoutMs: Long = 20_000, settleMs: Long = 2_000) {
         val looper = shadowOf(Looper.getMainLooper())
         val deadline = System.currentTimeMillis() + timeoutMs
+        val step = 16L
+        var advanced = 0L
         var calm = 0
         while (calm < 3) {
             check(System.currentTimeMillis() < deadline) { "the screen did not settle within ${timeoutMs}ms" }
-            looper.idleFor(java.time.Duration.ofMillis(100))
+            looper.idleFor(java.time.Duration.ofMillis(step))
+            advanced += step
             calm = if (anyRecyclerBusy(root)) 0 else calm + 1
             if (calm == 0) Thread.sleep(20) // a diff may still be running on its background thread
         }
-        looper.idleFor(java.time.Duration.ofMillis(500)) // let any add/change animation finish
+        check(advanced <= settleMs) { "settling took ${advanced}ms of looper time, more than ${settleMs}ms" }
+        looper.idleFor(java.time.Duration.ofMillis(settleMs - advanced))
     }
 
     private fun anyRecyclerBusy(view: android.view.View): Boolean {

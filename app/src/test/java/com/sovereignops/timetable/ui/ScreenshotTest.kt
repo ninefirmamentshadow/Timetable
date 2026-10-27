@@ -78,7 +78,13 @@ class ScreenshotTest {
             }
             // The data has arrived; now wait for the screen to finish drawing it (list diffs
             // run off the main thread), so the capture never races the rows.
-            scenario.onActivity { activity -> TestSupport.awaitSettled(activity.window.decorView) }
+            scenario.onActivity { activity ->
+                TestSupport.awaitSettled(activity.window.decorView)
+                // Scroll bars are a transient overlay whose thumb size depends on content below the
+                // fold (the version line wraps differently in the debug and release variants), so
+                // they are left out of the goldens.
+                hideScrollBars(activity.window.decorView)
+            }
             val name = "${screen}_w${widthDp}_f${fontScale}"
             onView(isRoot()).captureRoboImage("src/test/screenshots/$name.png")
             onView(isRoot()).checkRoboAccessibility(
@@ -97,6 +103,12 @@ class ScreenshotTest {
                 ),
             )
         }
+    }
+
+    private fun hideScrollBars(view: android.view.View) {
+        view.isVerticalScrollBarEnabled = false
+        view.isHorizontalScrollBarEnabled = false
+        if (view is android.view.ViewGroup) for (i in 0 until view.childCount) hideScrollBars(view.getChildAt(i))
     }
 
     @Test fun agenda_w320_f1() = shoot("agenda", R.id.nav_agenda, 320, 1.0f)

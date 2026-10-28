@@ -36,6 +36,14 @@ android {
     // auto-download its own default build-tools into the SDK.
     buildToolsVersion = "35.0.0"
 
+    // Leave out the dependency-metadata block AGP otherwise signs into the APK and
+    // bundle: it is encrypted to a Google key, readable by nobody else, and
+    // F-Droid's scanner rejects it.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     defaultConfig {
         applicationId = "com.sovereignops.timetable"
         minSdk = 26

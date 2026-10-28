@@ -31,7 +31,7 @@ object TestSupport {
     }
 
     fun restoreClock() {
-        AppClock.clock = Clock.systemDefaultZone()
+        AppClock.clock = null
     }
 
     /**

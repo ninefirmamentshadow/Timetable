@@ -68,6 +68,8 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun text(id: Int, vararg args: Any) = getApplication<Application>().getString(id, *args)
 
+    private fun plural(id: Int, n: Int) = getApplication<Application>().resources.getQuantityString(id, n, n)
+
     private fun reason(e: Exception) = e.message ?: e.javaClass.simpleName
 
     fun consume() {
@@ -223,11 +225,18 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         _state.value = State.Working(R.string.working_export)
         viewModelScope.launch {
             _state.value = try {
-                val bookings = AppDatabase.get(getApplication()).backupDao().allBookings()
-                    .mapNotNull { it.toModelResult().getOrNull() }
-                val ics = IcsWriter.write(bookings, AppClock.now())
-                withContext(Dispatchers.IO) { BackupFileIo.writeText(getApplication(), uri, ics) }
-                State.Done(text(R.string.export_saved, bookings.size), false)
+                val rows = AppDatabase.get(getApplication()).backupDao().allBookings()
+                val bookings = rows.mapNotNull { it.toModelResult().getOrNull() }
+                val skipped = rows.size - bookings.size
+                if (bookings.isEmpty()) {
+                    // A calendar file with no event is not valid; write nothing.
+                    State.Done(text(R.string.export_nothing), true)
+                } else {
+                    val ics = IcsWriter.write(bookings, AppClock.instant(), Settings(getApplication()).exportId)
+                    withContext(Dispatchers.IO) { BackupFileIo.writeText(getApplication(), uri, ics) }
+                    val saved = text(R.string.export_saved, bookings.size)
+                    State.Done(if (skipped == 0) saved else saved + " " + plural(R.plurals.export_skipped, skipped), false)
+                }
             } catch (e: IOException) {
                 State.Done(text(R.string.backup_write_failed), true)
             } catch (e: CancellationException) {

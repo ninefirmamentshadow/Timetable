@@ -54,6 +54,22 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
   across midnight, overnight bookings, daylight-saving nights (wall-clock),
   changed availability and invalid input.
 
+### Correctness fixes
+
+- **Reminders keep their lead on daylight-saving nights.** The lead and travel
+  buffer are now real time before the booking; on a spring-forward night a
+  60-minute reminder used to arrive at the booking time.
+- **Reminders follow a time-zone change** without restarting the app.
+- **Calendar export follows RFC 5545:** the export time (DTSTAMP) is UTC; no
+  `METHOD:PUBLISH` (it would need an organizer, which is an identity); event ids
+  carry a random per-install id, so a calendar app cannot replace one install's
+  event with another's; tabs in text are kept; with no bookings nothing is
+  written (a calendar with no event is not a valid file); bookings that could
+  not be read are counted in the message.
+- **A minus sign is no longer dropped:** "-0.50" was read as $0.50 and accepted
+  as a rate or amount received; it is now rejected like any negative amount,
+  and negative amounts display with their sign.
+
 ### Crash fixes
 
 - Leaving the Availability tab or Settings while a number field had focus
@@ -82,6 +98,14 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
   database is converted only when you ask, after an encrypted backup.
 - Screenshots blocked by default (`FLAG_SECURE`), switchable in Settings.
 - Third-party notices in the app (Settings).
+
+### Build and release
+
+- CI actions are pinned to commit SHAs, the workflow token is read-only except
+  for the screenshot-recording job, and the signing keystore reaches only the
+  step that decodes it, outside the workspace.
+- The APK no longer carries AGP's encrypted dependency-metadata block (F-Droid's
+  scanner rejects it).
 
 ### Data and upgrade
 

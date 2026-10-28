@@ -45,6 +45,26 @@ class MoneyTest {
         assertNull(Money.parse("$"))
     }
 
+    @Test fun aMinusSignIsKeptInsteadOfDropped() {
+        // "-0.50" used to parse as +$0.50, so a negative amount passed the "not negative" checks.
+        assertEquals(Money(-50), Money.parse("-0.50"))
+        assertEquals(Money(-50), Money.parse("-$0.50"))
+        assertEquals(Money(-50), Money.parse("$-0.50"))
+        assertEquals(Money(-500), Money.parse("-5"))
+        assertEquals(Money(-5050), Money.parse("-50.50"))
+        assertNull(Money.parse("--5"))
+        assertNull(Money.parse("-"))
+        assertNull(Money.parse("+5"))
+        assertNull(Money.parse("5-"))
+        assertNull(Money.parse("1.-5"))
+    }
+
+    @Test fun aNegativeAmountFormatsWithItsSign() {
+        assertEquals("-$0.50", Money(-50).format())
+        assertEquals("-$1.50", Money(-150).format())
+        assertEquals("-$5", Money(-500).format())
+    }
+
     @Test fun ordersByValue() {
         assertEquals(Money.dollars(50), minOf(Money.dollars(125), Money.dollars(50)))
     }

@@ -17,11 +17,13 @@ import java.time.ZoneId
  * ([AlarmManager.setAndAllowWhileIdle]), so no exact-alarm permission is needed;
  * a reminder may arrive a few minutes after its nominal time. Call [reschedule]
  * whenever bookings, settings, the time or the time zone change: it cancels
- * alarms that are no longer wanted and (re)sets the wanted ones.
+ * alarms that are no longer wanted and (re)sets the wanted ones. Without a
+ * [fixedZone] it reads the device's zone on every run, so a long-lived instance
+ * follows a time-zone change.
  */
 class ReminderScheduler(
     private val context: Context,
-    private val zone: ZoneId = ZoneId.systemDefault(),
+    private val fixedZone: ZoneId? = null,
 ) {
     private val alarms get() = context.getSystemService(AlarmManager::class.java)
 
@@ -42,15 +44,14 @@ class ReminderScheduler(
     private fun apply(bookings: List<Booking>, now: LocalDateTime, travelBufferMinutes: Int) {
         val settings = ReminderSettings(context)
         val wanted = if (settings.enabled) {
-            ReminderPlanner.plan(bookings, now, settings.leadMinutes, travelBufferMinutes)
+            ReminderPlanner.plan(bookings, now, settings.leadMinutes, travelBufferMinutes, fixedZone ?: ZoneId.systemDefault())
         } else {
             emptyList()
         }
         val wantedIds = wanted.map { it.bookingId }.toSet()
         for (stale in settings.scheduledIds - wantedIds) alarms.cancel(pendingIntent(stale))
         for (reminder in wanted) {
-            val at = reminder.fireAt.atZone(zone).toInstant().toEpochMilli()
-            alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pendingIntent(reminder.bookingId))
+            alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminder.fireAt.toEpochMilli(), pendingIntent(reminder.bookingId))
         }
         settings.scheduledIds = wantedIds
     }

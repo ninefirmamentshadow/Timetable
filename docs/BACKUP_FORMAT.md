@@ -121,10 +121,14 @@ backup is made. A restore replaces everything, so such rows are removed by it.
 ## Calendar export (`.ics`)
 
 Separate from the backup and **not encrypted**. A standard iCalendar (RFC 5545)
-file with one `VEVENT` per booking: `UID`, `DTSTAMP`, `DTSTART` and `DTEND` as
-floating local times, `SUMMARY` (the alias), `LOCATION` (the location label, if
-any), `STATUS` and `DESCRIPTION` (the status label). Rates, notes and the
+file with one `VEVENT` per booking: `UID` (`booking-<row id>-<install id>@timetable.invalid`,
+where the install id is 16 random hex digits kept on the phone so ids from two
+installs never collide), `DTSTAMP` (the export time, UTC), `DTSTART` and `DTEND`
+as floating local times, `SUMMARY` (the alias), `LOCATION` (the location label,
+if any), `STATUS` and `DESCRIPTION` (the status label). There is no `METHOD`
+line, because `METHOD:PUBLISH` would need an `ORGANIZER`. Rates, notes and the
 screening and deposit flags are not exported. Text values are escaped (`\\`,
-`\;`, `\,`, line breaks as `\n`) and lines are folded at 75 octets without
-splitting a character. The app warns that the file is unencrypted before it is
-written.
+`\;`, `\,`, line breaks as `\n`; tabs are kept) and lines are folded at 75
+octets without splitting a character. With no bookings nothing is written (a
+calendar with no event is not valid). The app warns that the file is
+unencrypted before it is written.

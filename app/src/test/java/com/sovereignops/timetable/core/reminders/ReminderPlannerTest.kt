@@ -5,7 +5,10 @@ import com.sovereignops.timetable.core.model.Booking
 import com.sovereignops.timetable.core.model.BookingStatus
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.Duration
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class ReminderPlannerTest {
 
@@ -14,14 +17,36 @@ class ReminderPlannerTest {
     private fun booking(id: Long, start: LocalDateTime, status: BookingStatus = BookingStatus.CONFIRMED) =
         Booking(id, start, 60, "alias$id", Money.dollars(100), status)
 
-    private fun plan(vararg b: Booking, lead: Int = 60, buffer: Int = 45, nowAt: LocalDateTime = now) =
-        ReminderPlanner.plan(b.toList(), nowAt, lead, buffer)
+    private fun plan(
+        vararg b: Booking, lead: Int = 60, buffer: Int = 45, nowAt: LocalDateTime = now, zone: ZoneId = ZoneOffset.UTC,
+    ) = ReminderPlanner.plan(b.toList(), nowAt, lead, buffer, zone)
+
+    /** The reminder time as wall-clock time in UTC, which is how the cases below are written. */
+    private fun wall(r: PlannedReminder): LocalDateTime = LocalDateTime.ofInstant(r.fireAt, ZoneOffset.UTC)
+
+    @Test fun theLeadIsRealTimeOnASpringForwardNight() {
+        // 2026-03-08 in New York: 02:00 jumps to 03:00. A 03:30 booking with a 60-minute lead
+        // is reminded at 01:30 EST, a real hour before; wall-clock subtraction gave 02:30, which
+        // does not exist and resolved to 03:30, a lead of zero.
+        val zone = ZoneId.of("America/New_York")
+        val start = LocalDateTime.of(2026, 3, 8, 3, 30)
+        val p = plan(booking(1, start), lead = 60, buffer = 0, nowAt = LocalDateTime.of(2026, 3, 7, 12, 0), zone = zone)
+        assertEquals(Duration.ofMinutes(60), Duration.between(p[0].fireAt, start.atZone(zone).toInstant()))
+    }
+
+    @Test fun theLeadIsRealTimeOnAFallBackNight() {
+        // 2026-11-01 in New York: 02:00 EDT falls back to 01:00 EST.
+        val zone = ZoneId.of("America/New_York")
+        val start = LocalDateTime.of(2026, 11, 1, 2, 30)
+        val p = plan(booking(1, start), lead = 90, buffer = 0, nowAt = LocalDateTime.of(2026, 10, 31, 12, 0), zone = zone)
+        assertEquals(Duration.ofMinutes(90), Duration.between(p[0].fireAt, start.atZone(zone).toInstant()))
+    }
 
     @Test fun firesLeadPlusTravelBufferBeforeTheStart() {
         val p = plan(booking(1, now.plusDays(1).withHour(19).withMinute(0)))
         assertEquals(1, p.size)
         // 19:00 minus 60 lead minus 45 buffer = 17:15
-        assertEquals(now.plusDays(1).withHour(17).withMinute(15), p[0].fireAt)
+        assertEquals(now.plusDays(1).withHour(17).withMinute(15), wall(p[0]))
         assertEquals(1L, p[0].bookingId)
     }
 
@@ -60,19 +85,19 @@ class ReminderPlannerTest {
 
     @Test fun resultIsSortedAndCapped() {
         val bookings = (1L..60L).map { booking(it, now.plusHours(3 + it)) }.reversed()
-        val p = ReminderPlanner.plan(bookings, now, 60, 0, maxCount = 40)
+        val p = ReminderPlanner.plan(bookings, now, 60, 0, ZoneOffset.UTC, maxCount = 40)
         assertEquals(40, p.size)
         assertEquals((1L..40L).toList(), p.map { it.bookingId })
     }
 
     @Test fun zeroLeadAndBufferFiresAtTheStart() {
         val start = now.plusHours(5)
-        assertEquals(start, plan(booking(1, start), lead = 0, buffer = 0)[0].fireAt)
+        assertEquals(start, wall(plan(booking(1, start), lead = 0, buffer = 0)[0]))
     }
 
     @Test fun leadIsClampedAndNegativeBufferIgnored() {
         val start = now.plusDays(3)
-        assertEquals(start.minusMinutes(1440), plan(booking(1, start), lead = 99999, buffer = -30)[0].fireAt)
+        assertEquals(start.minusMinutes(1440), wall(plan(booking(1, start), lead = 99999, buffer = -30)[0]))
     }
 
     @Test fun publicLineCarriesOnlyTheTime() {

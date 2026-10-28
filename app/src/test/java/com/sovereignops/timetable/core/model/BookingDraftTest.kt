@@ -34,6 +34,14 @@ class BookingDraftTest {
         )
     }
 
+    @Test fun aNegativeRateOrReceivedAmountBelowOneDollarIsRejected() {
+        val base = BookingDraft.blank(today, 60).copy(alias = "A", rateText = "100")
+        val rate = base.copy(rateText = "-0.50").toBooking(0) as DraftResult.Invalid
+        assertEquals(setOf(DraftError.RATE_INVALID), rate.errors)
+        val received = base.copy(receivedText = "-0.50").toBooking(0) as DraftResult.Invalid
+        assertEquals(setOf(DraftError.RECEIVED_INVALID), received.errors)
+    }
+
     @Test fun durationMustBePositiveWholeMinutes() {
         val base = BookingDraft.blank(today, 60).copy(alias = "A", rateText = "100")
         for (bad in listOf("", "0", "-5", "abc", "1.5")) {

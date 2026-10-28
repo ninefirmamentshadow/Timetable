@@ -154,6 +154,29 @@ class BackupViewModelTest {
         assertTrue(text.contains("SUMMARY:Alias A"))
     }
 
+    @Test fun calendarExportUidsCarryOneStableInstallId() {
+        val (first, firstUri) = newFile("one.ics")
+        vm.exportCalendar(firstUri)
+        waitFor { it is BackupViewModel.State.Done }
+        vm.consume()
+        val (second, secondUri) = newFile("two.ics")
+        vm.exportCalendar(secondUri)
+        waitFor { it is BackupViewModel.State.Done }
+        val uids = { f: File -> Regex("UID:booking-\\d+-([0-9a-f]{16})@timetable.invalid").findAll(f.readText()).map { it.groupValues[1] }.toSet() }
+        assertEquals(1, uids(first).size)
+        assertEquals(uids(first), uids(second))
+        assertTrue(first.readText().contains(Regex("DTSTAMP:\\d{8}T\\d{6}Z")))
+    }
+
+    @Test fun calendarExportWithNoBookingsWritesNothing() {
+        runBlocking { db.backupDao().replaceAll(emptyList(), emptyList()) }
+        val (file, uri) = newFile("empty.ics")
+        vm.exportCalendar(uri)
+        val done = waitFor { it is BackupViewModel.State.Done } as BackupViewModel.State.Done
+        assertTrue(done.isError)
+        assertEquals(0L, file.length())
+    }
+
     @Test fun backupFromAnEmptyPassphraseIsNotStartedWithoutOne() {
         val (file, uri) = newFile("never.json")
         vm.createBackup(uri) // no passphrase was held

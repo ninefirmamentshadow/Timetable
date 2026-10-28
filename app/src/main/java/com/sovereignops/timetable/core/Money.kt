@@ -14,11 +14,12 @@ value class Money(val cents: Long) : Comparable<Money> {
 
     override fun compareTo(other: Money): Int = cents.compareTo(other.cents)
 
-    /** "$50", or "$50.50" when there is a cents remainder. */
+    /** "$50", or "$50.50" when there is a cents remainder; "-$0.50" below zero. */
     fun format(): String {
-        val whole = cents / 100
-        val rem = (cents % 100).let { if (it < 0) -it else it }
-        return if (rem == 0L) "$$whole" else "$$whole.${rem.toString().padStart(2, '0')}"
+        val sign = if (cents < 0) "-" else ""
+        val abs = if (cents < 0) -cents else cents
+        val rem = abs % 100
+        return if (rem == 0L) "$sign$${abs / 100}" else "$sign$${abs / 100}.${rem.toString().padStart(2, '0')}"
     }
 
     companion object {
@@ -26,26 +27,30 @@ value class Money(val cents: Long) : Comparable<Money> {
 
         fun dollars(amount: Long) = Money(amount * 100)
 
+        private val AMOUNT = Regex("\\d+(\\.\\d{1,2})?|\\.\\d{1,2}")
+
         /**
-         * Parse "$50", "50", "50.50", "$1,200" into Money. Returns null on
-         * anything that is not a clean amount rather than guessing — an
-         * unparseable rate is a data problem the caller must see, not absorb.
+         * Parse "$50", "50", "50.50", "$1,200" into Money, and "-0.50", "-$5" or
+         * "$-5" into a negative amount (callers that need a non-negative one
+         * reject it). Returns null on anything that is not a clean amount rather
+         * than guessing — an unparseable rate is a data problem the caller must
+         * see, not absorb.
          */
         fun parse(raw: String): Money? {
-            val cleaned = raw.trim().removePrefix("$").replace(",", "").trim()
-            if (cleaned.isEmpty()) return null
-            val parts = cleaned.split(".")
-            return when (parts.size) {
-                1 -> parts[0].toLongOrNull()?.let { Money(it * 100) }
-                2 -> {
-                    val whole = parts[0].ifEmpty { "0" }.toLongOrNull() ?: return null
-                    val fracRaw = parts[1]
-                    if (fracRaw.length !in 1..2 || fracRaw.any { !it.isDigit() }) return null
-                    val frac = fracRaw.padEnd(2, '0').toLong()
-                    Money(whole * 100 + frac)
-                }
-                else -> null
+            var text = raw.trim()
+            var negative = text.startsWith("-")
+            if (negative) text = text.substring(1).trimStart()
+            text = text.removePrefix("$").trimStart()
+            if (!negative && text.startsWith("-")) {
+                negative = true
+                text = text.substring(1).trimStart()
             }
+            val cleaned = text.replace(",", "")
+            if (!AMOUNT.matches(cleaned)) return null
+            val whole = cleaned.substringBefore('.').ifEmpty { "0" }.toLongOrNull() ?: return null
+            val frac = cleaned.substringAfter('.', "").padEnd(2, '0').toLong()
+            val cents = whole * 100 + frac
+            return Money(if (negative) -cents else cents)
         }
     }
 }

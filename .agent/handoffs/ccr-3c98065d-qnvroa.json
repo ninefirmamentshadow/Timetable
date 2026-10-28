@@ -3,7 +3,7 @@
   "objective": "Release candidate 1.0.0-rc.1: booking drafts never crash or get lost and work the way Drafts' drafts do; truthful payment categories; crash fixes; CI green; release docs",
   "branch": "ccr-3c98065d-qnvroa",
   "base_commit": "0cc6e6af17ae919546a4cb72e39e45edf3f5f5a1",
-  "head_commit": "b158ff9b078f3a1cf3b722a36474a322541b9cde",
+  "head_commit": "ccae49b103a4c09869027dbc0556bb701565c14c",
   "owner_agent": "claude",
   "claimed": [
     "Merged main (agent pointers, neutral amounts, OPSEC guard) into the feature branch claude/sovereign-execution-protocol-r676ri; removed committed .kotlin daemon logs",
@@ -16,7 +16,10 @@
     "Drafts parity (same suite as Drafts in Sovereign-Ops compose/): autosave coalesced 400 ms after the last change and flushed on pause/close; drafts in the encrypted backup (payload schema 2, schema 1 still restores); a sealed pre-restore safety copy (last three, app-private) with Settings > Restore a safety copy; restore refuses to run if the copy cannot be written",
     "Conflict check: a cancelled or no-show candidate raises nothing; conflicts sorted worst first, then by time; ConflictEdgeCaseTest (21) for touching, nested, zero and exact buffers, midnight, overnight, DST and invalid input",
     "Completed is not cash: optional amount received per booking (null = not recorded); Earnings shows Completed, Cash recorded and Projected, never summed, and counts completed bookings with no payment recorded; DB v3 by AutoMigration(2, 3) with MigrationTest 2 -> 3; CashRecordedTest (8)",
-    "CI on b158ff9: push run 40606751363 and pull_request run 40606754823 both success; verify.sh table unit-tests, lint, assembleDebug, room-schema, third-party, diff-check all PASS; unsigned assembleRelease (R8) BUILD SUCCESSFUL"
+    "CI on b158ff9: push run 40606751363 and pull_request run 40606754823 both success; verify.sh table unit-tests, lint, assembleDebug, room-schema, third-party, diff-check all PASS; unsigned assembleRelease (R8) BUILD SUCCESSFUL",
+    "Correctness fixes (8738b96): .ics export is RFC 5545 valid (UTC DTSTAMP, no METHOD, per-install UID, no empty calendar, tabs kept, skipped rows reported); reminder lead is real time across DST; reminder zone read at schedule time; Money.parse keeps a minus sign",
+    "CI hardening (e0802e8): actions pinned to commit SHAs, read-only workflow token, signing keystore decoded to RUNNER_TEMP and exposed to one step only; dependenciesInfo off in APK and bundle",
+    "Phase 2 (5c2d0fc, goldens ccae49b): depositReceived kept as a stored field but shown as an optional advance-payment note (no deposit policy; nothing reads it, tests added); received help says unrestricted cash only and to enter what was kept after a refund; docs/PAYMENT_MODEL.md; RepositoryTest proves a deleted booking keeps its draft and ids are never reused"
   ],
   "verified": [
     {
@@ -70,7 +73,8 @@
   "pending": [
     "Owner: set the four keystore secrets (KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD) so CI signs the release APK, then pin the signer digest",
     "Owner: run the on-device acceptance list in CHANGELOG.md on the signed APK",
-    "Owner: merge the PR when satisfied"
+    "Owner: merge the PR when satisfied",
+    "Dependabot #9 (actions v7/v6, incl. gradle/actions setup-gradle v6, which is not the MIT-only line this PR pins) and #10 (15-package group: Kotlin 2.4, AGP 8.13, Room 2.8) conflict with this branch and are not release-candidate work: hold; re-run them one at a time after the owner merges this PR"
   ],
   "next_action": "Owner device test of the signed 1.0.0-rc.1 APK",
   "next_executor_hint": "owner-device-test",

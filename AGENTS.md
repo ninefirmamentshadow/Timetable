@@ -28,7 +28,9 @@ Where older text conflicts with these principles, these principles win.
 
 Timetable is a mobile-first, offline booking scheduler for an independent
 mobile, transit-dependent operator. It manages appointments (alias, time,
-duration, rate, status, screening/deposit flags, freeform location label),
+duration, rate, status, a screening flag, an optional advance-payment note
+(historical field `depositReceived`; the app has no deposit policy), freeform
+location label),
 recurring availability windows, and an earned-vs-projected earnings view. It
 warns about overlaps and about bookings too close together to travel between.
 

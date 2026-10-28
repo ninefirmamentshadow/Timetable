@@ -42,6 +42,16 @@ class BookingDraftTest {
         assertEquals(setOf(DraftError.RECEIVED_INVALID), received.errors)
     }
 
+    @Test fun theAdvancePaymentNoteIsOptionalAndNeverBlocksOrChangesAValidation() {
+        val base = BookingDraft.blank(today, 60).copy(alias = "A", rateText = "100")
+        val without = ok(base)
+        val with = ok(base.copy(depositReceived = true))
+        assertEquals(false, without.depositReceived) // off by default: no deposit policy is implied
+        assertEquals(without.copy(depositReceived = true), with) // it changes only itself
+        // a booking with no note can be confirmed and completed like any other
+        assertEquals(BookingStatus.COMPLETED, ok(base.copy(status = BookingStatus.COMPLETED)).status)
+    }
+
     @Test fun durationMustBePositiveWholeMinutes() {
         val base = BookingDraft.blank(today, 60).copy(alias = "A", rateText = "100")
         for (bad in listOf("", "0", "-5", "abc", "1.5")) {

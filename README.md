@@ -13,7 +13,7 @@ checks locally.
 
 **AGENDA** — *Needs review*, *Upcoming* and *Past and closed* sections, grouped
 by day, each booking showing alias, time range, rate, status, and flags
-(screened / deposit / location label). The header names the next booking. Tap
+(screened / advance noted / location label). The header names the next booking. Tap
 one to edit (or, if it ended without an outcome, to mark it completed, no-show
 or cancelled); tap **+** to add. The editor warns before it lets you overbook,
 and deleting asks first and offers Undo.

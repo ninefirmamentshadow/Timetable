@@ -90,7 +90,7 @@ class AgendaAdapter(
             binding.statusLabel.text = booking.status.label
             val flags = buildList {
                 if (booking.screened) add("screened")
-                if (booking.depositReceived) add("deposit")
+                if (booking.depositReceived) add("advance noted")
                 if (booking.locationLabel.isNotBlank()) add(booking.locationLabel)
             }
             binding.metaLabel.text = flags.joinToString(" · ")

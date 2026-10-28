@@ -44,6 +44,19 @@ First release candidate. Everything since v1 (`versionCode 1`, `main` at
   included) and **Projected**, never added together, and says how many
   completed bookings have no payment recorded. Existing bookings read as "not
   recorded"; nothing is assumed paid.
+- **The received-amount help says what counts:** unrestricted cash actually
+  received, not platform credit or a balance you cannot withdraw; after a
+  refund enter what you kept. The payment model and its limits (no separate
+  refund, credit, expense or labor-hour fields; those live in the Weekly
+  Scorecard) are written down in `docs/PAYMENT_MODEL.md`.
+- **No deposit policy is implied.** The old "Deposit received" checkbox is now
+  "Advance payment received (optional note)" and the agenda flag reads
+  "advance noted". The stored field keeps its name and every stored row and
+  backup keeps working. It is off by default and nothing reads it: it does not
+  affect any figure, validation, status change or conflict check (tests added).
+- A deleted booking keeps its draft, ids are never reused so no other booking
+  can inherit it, and Undo puts the booking back where the draft belongs
+  (test added).
 
 ### Scheduling checks
 

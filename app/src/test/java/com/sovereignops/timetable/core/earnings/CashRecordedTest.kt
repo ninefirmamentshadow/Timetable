@@ -24,6 +24,16 @@ class CashRecordedTest {
         amountReceived = received?.let { Money.dollars(it) },
     )
 
+    /** The advance-payment note (historical field depositReceived) is a note, not a rule or a figure. */
+    @Test fun theAdvancePaymentNoteChangesNoFigure() {
+        fun list(note: Boolean) = listOf(
+            booking(1, 20, 125, BookingStatus.COMPLETED).copy(depositReceived = note),
+            booking(2, 28, 100, BookingStatus.CONFIRMED).copy(depositReceived = note),
+            booking(3, 22, 100, BookingStatus.COMPLETED, received = 75).copy(depositReceived = note),
+        )
+        assertEquals(Earnings.summarize(list(false), now), Earnings.summarize(list(true), now))
+    }
+
     @Test fun completedValueAndCashAreSeparateFigures() {
         val s = Earnings.summarize(
             listOf(

@@ -111,6 +111,20 @@ class RepositoryTest {
         assertEquals(1, repo.drafts.first().size)
     }
 
+    @Test fun deletingABookingKeepsItsDraftAndAnIdIsNeverReusedSoNoOtherBookingInheritsIt() = runBlocking {
+        val id = repo.saveBooking(sample())
+        repo.saveDraft(id, BookingDraft.from(sample()).copy(alias = "Edited"), LocalDateTime.of(2026, 10, 20, 9, 0))
+        repo.deleteBooking(id)
+        assertNull(repo.bookingById(id))
+        assertEquals("Edited", repo.draftFor(id)!!.draft.alias) // what was typed is still there
+        val next = repo.saveBooking(sample().copy(clientAlias = "Alias B"))
+        assertTrue(next > id) // AUTOINCREMENT: the deleted id is never handed out again
+        assertNull(repo.draftFor(next))
+        repo.restoreBooking(sample().copy(id = id)) // Undo puts it back where the draft still belongs
+        assertEquals("Alias A", repo.bookingById(id)!!.clientAlias)
+        assertEquals("Edited", repo.draftFor(id)!!.draft.alias)
+    }
+
     @Test fun savingFromADraftStoresTheBookingAndDropsTheDraftTogether() = runBlocking {
         repo.saveDraft(0, BookingDraft.from(sample()), LocalDateTime.of(2026, 10, 20, 9, 0))
         val id = repo.saveBookingFromDraft(sample(), draftKey = 0)

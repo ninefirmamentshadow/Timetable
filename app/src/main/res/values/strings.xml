@@ -37,7 +37,8 @@
     <string name="notes_hint">Notes (optional)</string>
     <string name="status_label">Status</string>
     <string name="screened">Screened</string>
-    <string name="deposit">Deposit received</string>
+    <!-- Legacy field name depositReceived. An optional per-booking note only: the app has no deposit policy and nothing requires, defaults or computes from it. -->
+    <string name="deposit">Advance payment received (optional note)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
@@ -118,7 +119,7 @@
         <item quantity="other">%d completed bookings have no payment recorded. Completed shows their booked value; they are not counted as cash until you enter the amount received.</item>
     </plurals>
     <string name="received_hint">Received (optional)</string>
-    <string name="received_help">Cash actually received. Leave empty until paid.</string>
+    <string name="received_help">Cash actually received. Not platform credit or a balance you cannot withdraw. If you refunded part of it, enter what you kept. Leave empty until paid.</string>
     <string name="error_received">Enter an amount like 50 or $50, or leave it empty</string>
 
     <plurals name="completed_count">

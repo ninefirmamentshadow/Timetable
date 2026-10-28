@@ -127,7 +127,7 @@ installs never collide), `DTSTAMP` (the export time, UTC), `DTSTART` and `DTEND`
 as floating local times, `SUMMARY` (the alias), `LOCATION` (the location label,
 if any), `STATUS` and `DESCRIPTION` (the status label). There is no `METHOD`
 line, because `METHOD:PUBLISH` would need an `ORGANIZER`. Rates, notes and the
-screening and deposit flags are not exported. Text values are escaped (`\\`,
+screening flag and advance-payment note are not exported. Text values are escaped (`\\`,
 `\;`, `\,`, line breaks as `\n`; tabs are kept) and lines are folded at 75
 octets without splitting a character. With no bookings nothing is written (a
 calendar with no event is not valid). The app warns that the file is

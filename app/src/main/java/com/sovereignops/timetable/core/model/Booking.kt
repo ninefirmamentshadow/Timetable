@@ -19,6 +19,12 @@ data class Booking(
     val status: BookingStatus,
     val locationLabel: String = "",
     val screened: Boolean = false,
+    /**
+     * Optional note that an advance payment was received for this booking. The name
+     * is historical and is kept so stored rows and backups stay readable. It is not
+     * a policy: no rule requires it, no default sets it, and nothing (earnings,
+     * conflicts, validation, status changes) reads it. Cash is [amountReceived] only.
+     */
     val depositReceived: Boolean = false,
     val notes: String = "",
     /**

@@ -1,0 +1,509 @@
+{
+  "schema": 1,
+  "components": [
+    {
+      "name": "AndroidX Core KTX",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.15.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/core/core-ktx/1.15.0/core-ktx-1.15.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.core:core-ktx"
+      ]
+    },
+    {
+      "name": "AndroidX AppCompat",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.7.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/appcompat/appcompat/1.7.0/appcompat-1.7.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.appcompat:appcompat"
+      ]
+    },
+    {
+      "name": "AndroidX ConstraintLayout",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.1.4",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/constraintlayout/constraintlayout/2.1.4/constraintlayout-2.1.4.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.constraintlayout:constraintlayout"
+      ]
+    },
+    {
+      "name": "AndroidX Fragment",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.8.5",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/fragment/fragment-ktx/1.8.5/fragment-ktx-1.8.5.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.fragment:fragment-ktx"
+      ]
+    },
+    {
+      "name": "AndroidX Activity",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.9.3",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/activity/activity-ktx/1.9.3/activity-ktx-1.9.3.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.activity:activity-ktx"
+      ]
+    },
+    {
+      "name": "AndroidX RecyclerView",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.4.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/recyclerview/recyclerview/1.4.0/recyclerview-1.4.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.recyclerview:recyclerview"
+      ]
+    },
+    {
+      "name": "AndroidX Lifecycle",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.8.7",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/lifecycle/lifecycle-viewmodel-ktx/2.8.7/lifecycle-viewmodel-ktx-2.8.7.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.lifecycle:lifecycle-viewmodel-ktx",
+        "androidx.lifecycle:lifecycle-runtime-ktx",
+        "androidx.lifecycle:lifecycle-livedata-ktx"
+      ]
+    },
+    {
+      "name": "AndroidX SQLite",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.6.2",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/sqlite/sqlite/2.6.2/sqlite-2.6.2.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.sqlite:sqlite"
+      ]
+    },
+    {
+      "name": "AndroidX Biometric",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "1.1.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/biometric/biometric/1.1.0/biometric-1.1.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.biometric:biometric"
+      ]
+    },
+    {
+      "name": "AndroidX Room runtime",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.7.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/room/room-runtime/2.7.0/room-runtime-2.7.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "androidx.room:room-runtime",
+        "androidx.room:room-ktx"
+      ]
+    },
+    {
+      "name": "AndroidX Room testing",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.7.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/room/room-testing/2.7.0/room-testing-2.7.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "androidx.room:room-testing"
+      ]
+    },
+    {
+      "name": "AndroidX Room compiler (KSP processor)",
+      "upstream_url": "https://developer.android.com/jetpack/androidx",
+      "version_or_commit": "2.7.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/room/room-compiler/2.7.0/room-compiler-2.7.0.pom",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "coordinates": [
+        "androidx.room:room-compiler"
+      ]
+    },
+    {
+      "name": "Material Components for Android",
+      "upstream_url": "https://github.com/material-components/material-components-android",
+      "version_or_commit": "1.12.0",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/material-components/material-components-android/1.12.0/LICENSE",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "com.google.android.material:material"
+      ]
+    },
+    {
+      "name": "kotlinx.coroutines (Android)",
+      "upstream_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "version_or_commit": "1.8.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/Kotlin/kotlinx.coroutines/1.8.1/LICENSE.txt",
+      "files": [
+        "Linked library (not copied)"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "org.jetbrains.kotlinx:kotlinx-coroutines-android"
+      ]
+    },
+    {
+      "name": "kotlinx.coroutines test",
+      "upstream_url": "https://github.com/Kotlin/kotlinx.coroutines",
+      "version_or_commit": "1.8.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/Kotlin/kotlinx.coroutines/1.8.1/LICENSE.txt",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "org.jetbrains.kotlinx:kotlinx-coroutines-test"
+      ]
+    },
+    {
+      "name": "kotlinx.serialization (JSON)",
+      "upstream_url": "https://github.com/Kotlin/kotlinx.serialization",
+      "version_or_commit": "1.7.3",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/Kotlin/kotlinx.serialization/v1.7.3/LICENSE.txt",
+      "files": [
+        "Linked library (not copied); also brings kotlinx-serialization-core"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "org.jetbrains.kotlinx:kotlinx-serialization-json"
+      ]
+    },
+    {
+      "name": "Calendar (Kizito Nwose)",
+      "upstream_url": "https://github.com/kizitonwose/Calendar",
+      "version_or_commit": "2.6.2",
+      "spdx": "MIT",
+      "license_verified_from": "https://raw.githubusercontent.com/kizitonwose/Calendar/2.6.2/LICENSE.md",
+      "files": [
+        "Linked library (not copied): month view; also brings calendar core and data modules"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "com.kizitonwose.calendar:view"
+      ]
+    },
+    {
+      "name": "SQLCipher for Android (Zetetic)",
+      "upstream_url": "https://github.com/sqlcipher/sqlcipher-android",
+      "version_or_commit": "4.17.0",
+      "spdx": "BSD-3-Clause",
+      "license_verified_from": "https://raw.githubusercontent.com/sqlcipher/sqlcipher-android/v4.17.0/LICENSE",
+      "files": [
+        "Linked library (not copied): libsqlcipher.so for arm64-v8a, armeabi-v7a, x86, x86_64, with SQLCipher core, SQLite and LibTomCrypt compiled in"
+      ],
+      "notices_required": true,
+      "modified": false,
+      "scope": "runtime",
+      "coordinates": [
+        "net.zetetic:sqlcipher-android"
+      ],
+      "note": "License type: Zetetic's BSD-style licence (three conditions plus disclaimer, the BSD-3-Clause text with Zetetic as the named party); the Maven POM names only https://www.zetetic.net/sqlcipher/license/. SQLCipher core licence read from https://raw.githubusercontent.com/sqlcipher/sqlcipher/v4.17.0/LICENSE.md (the release tag matching this version; the Android repository's submodule pointer was not inspected). Bundled LibTomCrypt (the default crypto provider) is public domain or WTFPL, read from https://raw.githubusercontent.com/sqlcipher/libtomcrypt/master/LICENSE; SQLite is public domain."
+    },
+    {
+      "name": "JUnit 4",
+      "upstream_url": "https://github.com/junit-team/junit4",
+      "version_or_commit": "4.13.2",
+      "spdx": "EPL-1.0",
+      "license_verified_from": "https://raw.githubusercontent.com/junit-team/junit4/r4.13.2/LICENSE-junit.txt",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "junit:junit"
+      ]
+    },
+    {
+      "name": "Robolectric",
+      "upstream_url": "https://github.com/robolectric/robolectric",
+      "version_or_commit": "4.14.1",
+      "spdx": "MIT",
+      "license_verified_from": "https://raw.githubusercontent.com/robolectric/robolectric/robolectric-4.14.1/LICENSE",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "org.robolectric:robolectric"
+      ]
+    },
+    {
+      "name": "AndroidX Test core",
+      "upstream_url": "https://github.com/android/android-test",
+      "version_or_commit": "1.6.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/test/core/1.6.1/core-1.6.1.pom",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "androidx.test:core"
+      ]
+    },
+    {
+      "name": "AndroidX Test ext-junit",
+      "upstream_url": "https://github.com/android/android-test",
+      "version_or_commit": "1.2.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/test/ext/junit/1.2.1/junit-1.2.1.pom",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "androidx.test.ext:junit"
+      ]
+    },
+    {
+      "name": "AndroidX Test Espresso core",
+      "upstream_url": "https://github.com/android/android-test",
+      "version_or_commit": "3.5.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/androidx/test/espresso/espresso-core/3.5.1/espresso-core-3.5.1.pom",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "androidx.test.espresso:espresso-core"
+      ]
+    },
+    {
+      "name": "Roborazzi",
+      "upstream_url": "https://github.com/takahirom/roborazzi",
+      "version_or_commit": "1.45.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/takahirom/roborazzi/1.45.1/LICENSE",
+      "files": [
+        "Test dependency, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "io.github.takahirom.roborazzi:roborazzi",
+        "io.github.takahirom.roborazzi:roborazzi-junit-rule",
+        "io.github.takahirom.roborazzi:roborazzi-accessibility-check"
+      ]
+    },
+    {
+      "name": "Roborazzi Gradle plugin",
+      "upstream_url": "https://github.com/takahirom/roborazzi",
+      "version_or_commit": "1.45.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/takahirom/roborazzi/1.45.1/LICENSE",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "io.github.takahirom.roborazzi"
+      ]
+    },
+    {
+      "name": "Accessibility Test Framework for Android",
+      "upstream_url": "https://github.com/google/Accessibility-Test-Framework-for-Android",
+      "version_or_commit": "4.1.1",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/com/google/android/apps/common/testing/accessibility/framework/accessibility-test-framework/4.1.1/accessibility-test-framework-4.1.1.pom",
+      "files": [
+        "Transitive test dependency of roborazzi-accessibility-check, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "test",
+      "coordinates": [
+        "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework"
+      ],
+      "transitive": true,
+      "note": "Also checked against https://raw.githubusercontent.com/google/Accessibility-Test-Framework-for-Android/master/LICENSE (no tag carries a LICENSE file)."
+    },
+    {
+      "name": "Android Gradle Plugin",
+      "upstream_url": "https://developer.android.com/build",
+      "version_or_commit": "8.7.2",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.7.2/gradle-8.7.2.pom",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "com.android.application"
+      ]
+    },
+    {
+      "name": "Kotlin Gradle plugin",
+      "upstream_url": "https://github.com/JetBrains/kotlin",
+      "version_or_commit": "2.0.21",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/JetBrains/kotlin/v2.0.21/license/LICENSE.txt",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "org.jetbrains.kotlin.android"
+      ]
+    },
+    {
+      "name": "Kotlin serialization compiler plugin",
+      "upstream_url": "https://github.com/JetBrains/kotlin",
+      "version_or_commit": "2.0.21",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/JetBrains/kotlin/v2.0.21/license/LICENSE.txt",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "org.jetbrains.kotlin.plugin.serialization"
+      ]
+    },
+    {
+      "name": "Kotlin Symbol Processing (KSP)",
+      "upstream_url": "https://github.com/google/ksp",
+      "version_or_commit": "2.0.21-1.0.28",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/google/ksp/2.0.21-1.0.28/LICENSE",
+      "files": [
+        "Build plugin, not shipped"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "plugin_ids": [
+        "com.google.devtools.ksp"
+      ]
+    },
+    {
+      "name": "Gradle Wrapper",
+      "upstream_url": "https://github.com/gradle/gradle",
+      "version_or_commit": "8.9",
+      "spdx": "Apache-2.0",
+      "license_verified_from": "https://raw.githubusercontent.com/gradle/gradle/v8.9.0/LICENSE",
+      "files": [
+        "gradle/wrapper/gradle-wrapper.jar",
+        "gradlew",
+        "gradlew.bat"
+      ],
+      "notices_required": false,
+      "modified": false,
+      "scope": "build",
+      "note": "Wrapper files are the unmodified Gradle 8.9 distribution wrapper; they run the build and are not shipped in the APK."
+    }
+  ]
+}

@@ -16,7 +16,7 @@ interface BookingDao {
     fun observeAll(): Flow<List<BookingEntity>>
 
     @Query("SELECT * FROM bookings WHERE id = :id")
-    suspend fun byId(id: Long): BookingEntity?
+    suspend fun getById(id: Long): BookingEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: BookingEntity): Long

@@ -1,0 +1,68 @@
+{
+  "repo": "Timetable",
+  "objective": "Pipeline kit, policy files, bug fixes, backup/export, calendar, reminders, app lock and encrypted database for Timetable",
+  "branch": "claude/sovereign-execution-protocol-r676ri",
+  "base_commit": "396fbe7",
+  "head_commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80",
+  "owner_agent": "claude",
+  "claimed": [
+    "Pipeline kit: scripts/verify.sh, scripts/release.sh (refuses unsigned/debuggable), scripts/check_third_party.py, handoff schema, CI runs verify.sh",
+    "Policy files and AGENTS.md owner decisions dated 2026-10-20 (POST_NOTIFICATIONS, RECEIVE_BOOT_COMPLETED, USE_BIOMETRIC)",
+    "Bug fixes with regression tests: past bookings and needs-review, editor state, delete confirm and undo, window edit and overlap, midnight windows, unreadable rows",
+    "Encrypted backup and restore (envelope v2, interop-tested with Node 22 in both directions) and .ics export",
+    "Month view (Kizitonwose Calendar 2.6.2, MIT), FLAG_SECURE toggle, Room migration scaffolding",
+    "Booking reminders, opt-in app lock, SQLCipher database encryption (new installs encrypted; existing data converted only after confirm and encrypted backup)",
+    "third_party.json (31 components) and THIRD_PARTY_NOTICES.md, checked by scripts/check_third_party.py"
+  ],
+  "verified": [
+    {
+      "check": "unit-tests",
+      "command": "./gradlew test",
+      "result": "PASS",
+      "commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80"
+    },
+    {
+      "check": "lint",
+      "command": "./gradlew lintDebug",
+      "result": "PASS",
+      "commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80"
+    },
+    {
+      "check": "assembleDebug",
+      "command": "./gradlew assembleDebug",
+      "result": "PASS",
+      "commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80"
+    },
+    {
+      "check": "third-party",
+      "command": "python3 scripts/check_third_party.py",
+      "result": "PASS",
+      "commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80"
+    },
+    {
+      "check": "diff-check",
+      "command": "git diff --check HEAD",
+      "result": "PASS",
+      "commit": "0c8ef42d5331e3971f5ab2175946ed8053b14e80"
+    }
+  ],
+  "not_run": [
+    "Real-device install and acceptance (no emulator or KVM in the build environment)",
+    "Instrumented (androidTest) tests",
+    "Real BiometricPrompt and device-credential prompt",
+    "Real Android Keystore key wrapping (AndroidKeystoreWrapper)",
+    "Native SQLCipher: sqlcipher_export conversion and Room open with SQLCipher (compile-checked only; the JVM cannot load the native library)",
+    "Real alarm delivery timing and notification rendering on a device",
+    "Signed release build (release.sh refuses without a keystore; an unsigned assembleRelease with R8 succeeded once locally)"
+  ],
+  "pending": [
+    "Owner: test on a real device (reminders, lock, DB encryption conversion with a backup first, backup restore)",
+    "Owner: decide whether the product description in README/AGENTS/CLAUDE.md should stay as written for a public repository",
+    "Owner: provide the release keystore and signing-cert digest (release/signing-cert.sha256) before cutting a release"
+  ],
+  "next_action": "Owner device test; then cut a signed release with scripts/release.sh",
+  "next_executor_hint": "owner-device-test",
+  "opened_at": "2026-10-20T18:25:00Z",
+  "closed_at": "2026-10-22T00:00:00Z",
+  "owner_interventions": 0
+}

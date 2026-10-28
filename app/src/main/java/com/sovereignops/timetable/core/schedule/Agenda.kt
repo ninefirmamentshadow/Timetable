@@ -11,6 +11,21 @@ data class AgendaDay(
 )
 
 /**
+ * What the agenda screen shows, as of one instant:
+ * - [needsReview]: open bookings whose time has passed, oldest first. They need
+ *   a recorded outcome and are neither earned nor projected.
+ * - [upcoming]: calendar-occupying bookings that have not ended, by day.
+ * - [past]: everything else that is closed (completed, cancelled, no-show),
+ *   most recent day first. Nothing is hidden: a cancelled or no-show booking
+ *   stays reachable here.
+ */
+data class AgendaSections(
+    val needsReview: List<Booking>,
+    val upcoming: List<AgendaDay>,
+    val past: List<AgendaDay>,
+)
+
+/**
  * Pure agenda shaping over a booking list. No clock is read internally; the
  * caller passes [now] so the same inputs always produce the same agenda.
  */
@@ -34,6 +49,34 @@ object Agenda {
             .filter { it.isPast(now) }
             .sortedByDescending { it.start }
             .toList()
+
+    /** All three agenda sections as of [now]; see [AgendaSections]. */
+    fun sections(bookings: List<Booking>, now: LocalDateTime): AgendaSections {
+        val review = mutableListOf<Booking>()
+        val upcoming = mutableListOf<Booking>()
+        val closed = mutableListOf<Booking>()
+        for (b in bookings) {
+            when {
+                b.needsReview(now) -> review += b
+                b.occupiesCalendar && b.isUpcoming(now) -> upcoming += b
+                else -> closed += b
+            }
+        }
+        return AgendaSections(
+            needsReview = review.sortedBy { it.start },
+            upcoming = upcoming.groupByDay(ascending = true),
+            past = closed.groupByDay(ascending = false),
+        )
+    }
+
+    private fun List<Booking>.groupByDay(ascending: Boolean): List<AgendaDay> {
+        val order = if (ascending) compareBy<LocalDate> { it } else compareByDescending { it }
+        return groupBy { it.start.toLocalDate() }
+            .toSortedMap(order)
+            .map { (date, list) ->
+                AgendaDay(date, if (ascending) list.sortedBy { it.start } else list.sortedByDescending { it.start })
+            }
+    }
 
     /** The very next upcoming booking, or null. */
     fun next(bookings: List<Booking>, now: LocalDateTime): Booking? =

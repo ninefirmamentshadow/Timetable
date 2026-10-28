@@ -28,12 +28,16 @@ Where older text conflicts with these principles, these principles win.
 
 Timetable is a mobile-first, offline booking scheduler for an independent
 mobile, transit-dependent operator. It manages appointments (alias, time,
-duration, rate, status, screening/deposit flags, freeform location label),
+duration, rate, status, a screening flag, an optional advance-payment note
+(historical field `depositReceived`; the app has no deposit policy), freeform
+location label),
 recurring availability windows, and an earned-vs-projected earnings view. It
 warns about overlaps and about bookings too close together to travel between.
 
-It holds **no permissions** — no `INTERNET`, no location, no notifications. All
-data is local Room storage; nothing leaves the device.
+It has **no network access** and only the three permissions the owner approved
+(see "Owner decisions" below). All data is local Room storage; nothing leaves the
+device except an encrypted backup file or a plain calendar export the operator
+saves themselves through the system file picker.
 
 ## Repository map
 
@@ -41,12 +45,38 @@ data is local Room storage; nothing leaves the device.
   (`Booking`, `BookingStatus`, `AvailabilityWindow`), `schedule/`
   (`ConflictDetector`, `Agenda`), `earnings/`. **Pure Kotlin, no Android, fully
   unit-tested.** New rules go here with tests.
-- `app/src/main/java/.../data/` — Room entities (primitive rows), DAOs, mappers,
-  database, repository, local settings.
+- `app/src/main/java/.../data/` — Room entities (primitive rows), DAOs, mappers
+  (reading returns a `Result`; unreadable rows are skipped and counted, never
+  deleted), database, repository, local settings; `data/backup/` is the
+  Timetable backup payload and restore.
+- Self-contained packages with no Timetable types, written to be copied as they
+  are: `.../backup/` (passphrase envelope and file IO), `.../applock/` (lock
+  policy, authenticator, lock screen), `.../dbcrypto/` (Keystore-wrapped key,
+  SQLCipher support, safe plaintext-to-encrypted migration). `.../reminders/`
+  and `.../core/reminders/` hold the reminder scheduling (pure planner plus the
+  AlarmManager glue).
 - `app/src/main/java/.../ui/` — single activity, bottom-nav fragments (Agenda,
   Availability, Earnings), the booking editor.
-- `.github/workflows/build.yml` — CI: unit tests, debug APK, signed release APK
-  when keystore secrets are present.
+- `.github/workflows/build.yml` — CI: runs `scripts/verify.sh`, uploads the debug
+  APK, and builds a signed release APK when keystore secrets are present.
+- `scripts/` — `verify.sh` (the one verification entry point), `release.sh`,
+  `check_third_party.py`, `bootstrap-android-sdk.sh`.
+- `.agent/` — branch handoff files and their schema. `third_party.json` and
+  `THIRD_PARTY_NOTICES.md` — the component inventory.
+
+## Standing directives
+
+- `SOVEREIGN_EXECUTION_PROTOCOL.md` is the owner's default working style for every
+  agent and workflow in this repository: execution first, verification alongside
+  the work, minimal friction, risk-proportionate intervention, deliverables over
+  commentary. Read it in full before starting. It applies unless the owner
+  overrides it for a specific task; the security posture and protected data
+  boundary below are its §4 boundaries made concrete.
+- `OPEN_SOURCE_COMPLIANCE_PROTOCOL.md` governs any third-party code, library or
+  text that enters this repository: verify the license from the upstream LICENSE
+  at a pinned version, copy only from permissive sources, record every component
+  in `third_party.json` and `THIRD_PARTY_NOTICES.md`, and keep notices. It
+  supplements the execution protocol and ends with an agent workflow section.
 
 ## Scope and authority
 
@@ -59,11 +89,31 @@ data is local Room storage; nothing leaves the device.
 
 ## Security posture — do not weaken without an owner call
 
-- **No permissions.** Adding `INTERNET`, location, calendar/contacts access, or
-  cloud backup is a posture change and an owner decision, not a convenience.
+- **No `INTERNET`, no location, no calendar or contacts access, no cloud
+  backup.** Adding any of them, or any permission not recorded under "Owner
+  decisions", is a posture change and an owner decision, not a convenience. After
+  adding a dependency, check the merged manifest for permissions it brings.
 - `allowBackup=false`; backup and device-transfer are explicitly excluded.
 - Client identifiers are **aliases**, never legal names. Location is a freeform
   label the operator types; the app never resolves, geocodes, or transmits it.
+
+## Owner decisions
+
+- **2026-10-20 — permissions.** The owner approved exactly three, and nothing
+  else: `POST_NOTIFICATIONS` (requested only when reminders are switched on) and
+  `RECEIVE_BOOT_COMPLETED` for booking reminders, and `USE_BIOMETRIC` for the
+  opt-in app lock, which arrives through the androidx.biometric manifest merge.
+  Reminders use inexact `AlarmManager.setAndAllowWhileIdle`, so no exact-alarm
+  permission. The lock-screen notification text carries no alias. Backup and
+  export go through the system file picker and need no storage permission.
+  (AndroidX core also merges one app-private signature permission,
+  `<applicationId>.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`; no other app can
+  hold it and it grants nothing, so it is not an addition. `ReminderTest` asserts
+  the full requested-permission set against this list.)
+- **2026-10-20 — encrypted database.** Approved: SQLCipher
+  (`net.zetetic:sqlcipher-android`) through Room's `openHelperFactory`. New
+  installs are encrypted; existing installs migrate only when the owner taps
+  **Encrypt database**, and only after an encrypted backup was made that session.
 
 ## Protected data boundary
 
@@ -79,21 +129,35 @@ placeholder locations only — never a real handle, number, or address.
   Android or a clock: pass `now` in, never read it inside the core.
 - Earned money (`COMPLETED`) and projected money (`INQUIRY`/`CONFIRMED`) are
   never summed into one total — a confirmed future booking is not money in hand.
-- Room migrations are append-only against the tracked schema; validate before
-  replacing live data and never report success after a failed write.
+- Room migrations are append-only against the tracked schema (`app/schemas/`);
+  validate before replacing live data and never report success after a failed
+  write. Schema changes are additive and ship with a migration test.
+- Code that does not depend on this app's types (the backup envelope, the app
+  lock, the encrypted-database support) lives in its own package with no
+  Timetable types, so it can be reused verbatim.
+- Every confirmed, reproducible defect gets a regression test in the same commit.
 - **Never publish a debug build as an operational release.** The signed release
   path exists for exactly this reason.
+- User-visible changes go in `CHANGELOG.md`; raise `versionCode` for every build
+  handed to the phone (Android refuses a downgrade).
+- The booking editor never discards typed input silently: every change is kept as
+  a draft (`booking_drafts`) until it is saved or the operator discards it.
 - CI scripts must not print secrets.
 
 ## Validation
 
 ```bash
-./gradlew test            # the scheduling core — the part that must be correct
-./gradlew assembleDebug   # the app compiles
-./gradlew assembleRelease # the shipping artifact compiles (signed if keys present)
+scripts/verify.sh [--handoff]   # unit tests, lint, assembleDebug, third-party inventory, git diff --check
+# re-record golden screenshots after an intended UI change: push a commit whose message
+# contains [record-screenshots]; CI (JDK 17) records and commits them. Never record locally.
+scripts/release.sh              # signed release; stops with "unsigned: not a release" without a keystore
 ```
 
-A successful build is not device validation; distinguish the two.
+`scripts/verify.sh` prints PASS, FAIL or NOT_RUN per step with the HEAD SHA; a
+missing Android SDK is NOT_RUN, never a pass. Device and instrumented tests are
+not run by it and stay NOT_RUN until the owner tests on the phone. A successful
+build is not device validation; distinguish the two. One agent owns an active
+branch; update `.agent/handoffs/<branch>.json` at every stop.
 
 ## Git discipline
 
@@ -106,9 +170,10 @@ A successful build is not device validation; distinguish the two.
 ## Completion checklist
 
 - The requested behavior is implemented, not merely described.
-- `./gradlew test` and the relevant assemble task pass, or exact failures named.
+- `scripts/verify.sh` passes, or the exact FAIL and NOT_RUN steps are named.
 - Room schema/migrations stay coherent when entities change.
-- No permission or backup posture was silently added.
+- No permission or backup posture was silently added; the manifest permissions
+  match "Owner decisions".
 - No protected identity, location, or contact data was exposed.
 
 ## Verification report and definition of done

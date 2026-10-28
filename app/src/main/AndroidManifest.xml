@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--
-      No permissions are declared, and none should be added. A scheduling app that
-      holds appointment times, aliases, and location labels is exactly the kind of
-      data that must never leave the device.
+      Permissions. The owner approved exactly these (recorded in AGENTS.md, 2026-10-20):
+        POST_NOTIFICATIONS        - booking reminders; requested only when reminders are switched on
+        RECEIVE_BOOT_COMPLETED    - set the reminder alarms again after a reboot
+      USE_BIOMETRIC (the opt-in app lock) arrives through the androidx.biometric manifest merge.
 
       Specifically absent, deliberately:
-        android.permission.INTERNET          — there is no network code, ever
-        ACCESS_FINE_LOCATION / COARSE        — location labels are typed, never sensed
-        POST_NOTIFICATIONS                   — nothing here notifies (yet; owner call)
-        READ/WRITE_CONTACTS, CALENDAR        — no cross-app data reach
+        android.permission.INTERNET          - there is no network code, ever
+        ACCESS_FINE_LOCATION / COARSE        - location labels are typed, never sensed
+        SCHEDULE_EXACT_ALARM / USE_EXACT_ALARM - reminders use inexact alarms
+        READ/WRITE_CONTACTS, CALENDAR        - no cross-app data reach
+        READ/WRITE_EXTERNAL_STORAGE          - backup and export use the system file picker
     -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!--
+      androidx.biometric merges USE_BIOMETRIC (approved) and also USE_FINGERPRINT, which is not.
+      USE_FINGERPRINT is only needed by the library's pre-API-28 fingerprint path; the app lock
+      uses BiometricPrompt on API 30+ and the device-credential intent on 26-29, so it is removed.
+    -->
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" tools:node="remove" />
 
     <application
+        android:name=".TimetableApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,6 +46,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".applock.LockActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:label="@string/app_name" />
+
+        <receiver
+            android:name=".reminders.ReminderReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".reminders.BootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

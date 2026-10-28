@@ -11,6 +11,19 @@
     <string name="no_upcoming">No upcoming bookings</string>
     <string name="agenda_empty">Nothing scheduled. Tap + to add a booking.</string>
     <string name="add_booking">Add booking</string>
+    <string name="section_needs_review">Needs review</string>
+    <string name="section_upcoming">Upcoming</string>
+    <string name="section_past">Past and closed</string>
+    <string name="resolve_title">How did it end?</string>
+    <string name="resolve_completed">Mark completed</string>
+    <string name="resolve_no_show">Mark no-show</string>
+    <string name="resolve_cancelled">Mark cancelled</string>
+    <string name="resolve_edit">Edit booking</string>
+    <string name="midnight">Midnight</string>
+    <plurals name="needs_review_summary">
+        <item quantity="one">%d booking needs review</item>
+        <item quantity="other">%d bookings need review</item>
+    </plurals>
 
     <!-- Booking editor -->
     <string name="new_booking">New booking</string>
@@ -24,13 +37,54 @@
     <string name="notes_hint">Notes (optional)</string>
     <string name="status_label">Status</string>
     <string name="screened">Screened</string>
-    <string name="deposit">Deposit received</string>
+    <!-- Legacy field name depositReceived. An optional per-booking note only: the app has no deposit policy and nothing requires, defaults or computes from it. -->
+    <string name="deposit">Advance payment received (optional note)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="back">Back</string>
     <string name="save_anyway">Save anyway</string>
     <string name="conflicts_title">Scheduling conflict</string>
+    <plurals name="unreadable_records">
+        <item quantity="one">%d unreadable record is hidden. Nothing was deleted.</item>
+        <item quantity="other">%d unreadable records are hidden. Nothing was deleted.</item>
+    </plurals>
+    <string name="undo">Undo</string>
+    <string name="booking_deleted">Booking deleted (%1$s)</string>
+    <string name="window_deleted">%1$s window deleted</string>
+    <string name="confirm_delete_booking_title">Delete this booking?</string>
+    <string name="confirm_delete_booking_message">%1$s, %2$s. You can undo this right after.</string>
+    <string name="confirm_delete_window_title">Delete this window?</string>
+    <string name="confirm_delete_window_message">%1$s %2$s. You can undo this right after.</string>
+    <string name="edit_window">Edit window</string>
+    <string name="error_window_overlap">Overlaps another window: %1$s</string>
+    <string name="booking_not_found">That booking no longer exists</string>
+    <string name="booking_load_failed">That booking could not be read. Nothing was changed.</string>
+    <string name="draft_restored">Unsaved changes from earlier were put back. Cancel and discard them to start over.</string>
+    <string name="draft_restored_deleted">This booking was deleted, but your unsaved changes were kept. Saving adds it again as a new booking.</string>
+    <string name="save_failed">Not saved: %1$s. Everything you typed is still here; try Save again.</string>
+    <string name="draft_write_failed">Could not keep a draft copy on this device. Save soon so nothing is lost.</string>
+    <string name="unsaved_title">Unsaved booking</string>
+    <string name="unsaved_message">Keep this as a draft to finish later, or discard the changes?</string>
+    <string name="keep_draft">Keep draft</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="saving">Saving…</string>
+    <string name="draft_banner_resume">Resume</string>
+    <string name="draft_banner_discard">Discard</string>
+    <string name="draft_banner_new">Unsaved new booking%1$s, last changed %2$s</string>
+    <string name="draft_banner_edit">Unsaved changes to a booking%1$s, last changed %2$s</string>
+    <plurals name="draft_banner_more">
+        <item quantity="one">(and %d more draft)</item>
+        <item quantity="other">(and %d more drafts)</item>
+    </plurals>
+    <string name="discard_draft_title">Discard this draft?</string>
+    <string name="discard_draft_message">The unsaved changes in this draft will be deleted. Saved bookings are not affected.</string>
+    <string name="backup_failed_reason">Backup not made: %1$s. Nothing was changed.</string>
+    <string name="export_failed_reason">Calendar export not made: %1$s.</string>
+    <string name="app_version">Version %1$s (build %2$d)</string>
+    <string name="next_booking">Next: %1$s · %2$s</string>
+    <string name="error_generic">Something went wrong: %1$s. Nothing you saved earlier was changed.</string>
     <string name="error_alias_required">An alias is required</string>
     <string name="error_duration">Enter a duration in minutes</string>
     <string name="error_rate">Enter a rate like 125 or $125</string>
@@ -39,7 +93,7 @@
     <string name="availability_empty">No availability windows. Add the days and hours you take bookings.</string>
     <string name="add_window">Add window</string>
     <string name="travel_buffer_label">Travel buffer (minutes)</string>
-    <string name="travel_buffer_help">Minimum gap warned between two bookings. Covers transit for outcall.</string>
+    <string name="travel_buffer_help">Minimum gap warned between two bookings. Covers travel between bookings.</string>
     <string name="save_buffer">Set</string>
     <string name="day_label">Day</string>
     <string name="window_start">Start</string>
@@ -49,10 +103,24 @@
     <string name="remove">Remove</string>
 
     <!-- Earnings -->
-    <string name="earned_label">Earned</string>
+    <string name="earned_label">Completed</string>
+    <string name="cash_label">Cash recorded</string>
     <string name="projected_label">Projected</string>
-    <string name="by_week_label">Earned by week</string>
+    <string name="by_week_label">Completed value by week (booked, not cash)</string>
     <string name="no_earnings">No completed bookings yet</string>
+
+    <string name="needs_review_note">Needs review: %1$d. Open the Agenda and mark each one completed, no-show or cancelled; until then it counts as neither completed nor projected.</string>
+    <plurals name="cash_count">
+        <item quantity="one">Received on %d booking, as you recorded it</item>
+        <item quantity="other">Received on %d bookings, as you recorded it</item>
+    </plurals>
+    <plurals name="unpaid_note">
+        <item quantity="one">%d completed booking has no payment recorded. Completed shows its booked value; it is not counted as cash until you enter the amount received.</item>
+        <item quantity="other">%d completed bookings have no payment recorded. Completed shows their booked value; they are not counted as cash until you enter the amount received.</item>
+    </plurals>
+    <string name="received_hint">Received (optional)</string>
+    <string name="received_help">Cash actually received. Not platform credit or a balance you cannot withdraw. If you refunded part of it, enter what you kept. Leave empty until paid.</string>
+    <string name="error_received">Enter an amount like 50 or $50, or leave it empty</string>
 
     <plurals name="completed_count">
         <item quantity="one">%d completed booking</item>
@@ -62,4 +130,118 @@
         <item quantity="one">%d open booking</item>
         <item quantity="other">%d open bookings</item>
     </plurals>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="settings_backup_section">Backup and export</string>
+    <string name="settings_backup_help">The backup is one encrypted file you choose where to save. Without its passphrase it cannot be opened, and the app cannot recover a lost passphrase.</string>
+    <string name="settings_about_section">About</string>
+    <string name="backup_create">Create encrypted backup</string>
+    <string name="backup_restore">Restore from backup</string>
+    <string name="export_calendar">Export calendar (.ics, not encrypted)</string>
+    <string name="passphrase_hint">Passphrase (at least 8 characters)</string>
+    <string name="passphrase_confirm_hint">Repeat passphrase</string>
+    <string name="passphrase_create_help">Choose a passphrase for this backup. Write it down somewhere safe: there is no way to recover it.</string>
+    <string name="passphrase_restore_help">Enter the passphrase this backup was made with.</string>
+    <string name="passphrase_too_short">Use at least 8 characters</string>
+    <string name="passphrase_mismatch">The two passphrases differ</string>
+    <string name="passphrase_invalid">That passphrase contains characters that cannot be used</string>
+    <string name="working_backup">Encrypting the backup…</string>
+    <string name="working_reading">Reading the file…</string>
+    <string name="working_restore">Checking the backup…</string>
+    <string name="working_export">Writing the calendar…</string>
+    <string name="backup_saved">Backup saved: %1$d bookings, %2$d availability windows.</string>
+    <string name="backup_skipped_unreadable">%1$d unreadable records could not be included.</string>
+    <string name="backup_failed">The backup could not be made.</string>
+    <string name="backup_write_failed">The file could not be written.</string>
+    <string name="restore_failed">The backup could not be restored.</string>
+    <string name="restore_read_failed">The file could not be read.</string>
+    <string name="restore_invalid">The backup is damaged or not valid, so nothing was changed. (%1$s)</string>
+    <string name="restore_failed_unchanged">The restore failed. Your existing data was not changed.</string>
+    <string name="restore_confirm_title">Replace everything?</string>
+    <string name="restore_confirm_message">This backup (made %3$s) has %1$d bookings and %2$d availability windows. Restoring replaces ALL current bookings, availability, unsaved drafts and the travel buffer with them.</string>
+    <plurals name="restore_confirm_drafts">
+        <item quantity="one">It also holds %d unsaved booking draft.</item>
+        <item quantity="other">It also holds %d unsaved booking drafts.</item>
+    </plurals>
+    <string name="restore_confirm_safety">Your current data is first kept on this phone as a safety copy, sealed with this backup\'s passphrase (Settings → Restore a safety copy). The last three are kept.</string>
+    <string name="safety_restore">Restore a safety copy</string>
+    <string name="safety_choose">Safety copies made before a restore</string>
+    <string name="safety_none">There are no safety copies yet. One is made each time you restore a backup.</string>
+    <string name="safety_copy_failed">The safety copy of your current data could not be written (%1$s), so nothing was restored or changed.</string>
+    <string name="restore_confirm_action">Replace and restore</string>
+    <string name="restore_done">Restored %1$d bookings and %2$d availability windows.</string>
+    <string name="export_warning_title">Export unencrypted calendar?</string>
+    <string name="export_warning_message">The .ics file is NOT encrypted. Anyone who can open it sees aliases, times, location labels and status. Rates and notes are left out. Keep it somewhere safe and delete it when you are done.</string>
+    <string name="export_continue">Choose where to save</string>
+    <string name="export_saved">Calendar saved: %1$d bookings.</string>
+    <string name="export_nothing">No bookings to export, so nothing was written. The empty file you named can be deleted.</string>
+    <plurals name="export_skipped">
+        <item quantity="one">%1$d stored booking could not be read and is not in the file.</item>
+        <item quantity="other">%1$d stored bookings could not be read and are not in the file.</item>
+    </plurals>
+    <string name="notices_open">Open-source notices</string>
+    <string name="notices_title">Open-source notices</string>
+    <string name="close">Close</string>
+    <string name="notices_missing">The notices file is not bundled in this build.</string>
+
+    <!-- Month view -->
+    <string name="calendar_month">Month</string>
+    <string name="calendar_previous">Previous</string>
+    <string name="calendar_next">Next</string>
+    <string name="calendar_day_empty">No bookings this day.</string>
+    <plurals name="calendar_day_description">
+        <item quantity="one">%1$s, %2$d booking</item>
+        <item quantity="other">%1$s, %2$d bookings</item>
+    </plurals>
+
+    <string name="settings_privacy_section">Privacy</string>
+    <string name="secure_window_title">Block screenshots and hide in recent apps</string>
+    <string name="secure_window_help">On by default. Stops screenshots and screen recording of this app and shows a blank thumbnail in the recent-apps list.</string>
+
+    <!-- Reminders -->
+    <string name="settings_reminders_section">Reminders</string>
+    <string name="reminders_title">Remind me before confirmed bookings</string>
+    <string name="reminders_lead_hint">Minutes before (plus travel buffer)</string>
+    <string name="reminders_help">A reminder arrives %1$d minutes before a confirmed booking plus your %2$d-minute travel buffer, so about %3$d minutes ahead. Reminders are approximate and may arrive a few minutes late. On the lock screen only the time shows, never the alias.</string>
+    <string name="reminders_denied">Notifications are blocked for this app, so reminders stay off. You can allow them in the system settings.</string>
+    <string name="reminders_error_lead">Enter minutes from 0 to 1440</string>
+    <string name="reminders_channel_name">Booking reminders</string>
+    <string name="reminders_channel_description">Reminders before confirmed bookings</string>
+
+    <!-- App lock -->
+    <string name="settings_lock_section">App lock</string>
+    <string name="lock_switch_title">Lock the app</string>
+    <string name="lock_timeout_hint">Lock after (seconds in the background)</string>
+    <string name="lock_help_settings">Off by default. When on, the app asks for your screen lock (PIN, pattern, password or a strong biometric) when it opens and after it has been in the background for the time above. Screenshots stay blocked while the lock is on. Needs a screen lock set on this phone.</string>
+    <string name="lock_needs_screen_lock">Set a screen lock (PIN, pattern or password) in the phone settings first. The app lock uses it.</string>
+    <string name="lock_error_timeout">Enter seconds from 0 to 600</string>
+    <string name="lock_title">Timetable is locked</string>
+    <string name="lock_help">Unlock with your screen lock to continue.</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_failed">Not unlocked. Try again.</string>
+    <string name="lock_prompt_title">Unlock Timetable</string>
+    <string name="lock_prompt_subtitle">Use your screen lock</string>
+    <string name="lock_turned_off_no_screen_lock">App lock was turned off because this phone has no screen lock.</string>
+
+    <!-- Encrypted database -->
+    <string name="settings_database_section">Database</string>
+    <string name="db_status_encrypted">Database: encrypted (SQLCipher). The key is held by the phone\'s secure storage.</string>
+    <string name="db_status_plaintext">Database: not encrypted. Android\'s own file encryption still protects it, but a copy of the file is readable.</string>
+    <string name="db_status_pending">Encryption will run the next time the app starts. Close the app and open it again.</string>
+    <string name="db_last_result">Last attempt: %1$s</string>
+    <string name="db_help_need_backup">Make an encrypted backup first (Backup and export, above). Encrypting is offered only after one was made in this session.</string>
+    <string name="db_help_ready">An encrypted backup exists from this session. You can encrypt the database now.</string>
+    <string name="db_encrypt">Encrypt database</string>
+    <string name="db_encrypt_title">Encrypt the database?</string>
+    <string name="db_encrypt_message">The database is converted the next time the app starts, in a copy; the old copy is deleted only after the new one has been checked row by row. If anything fails, your data is left exactly as it is and the reason is shown here. Your encrypted backup is the safety net: keep it.</string>
+    <string name="db_encrypt_confirm">Encrypt on next start</string>
+    <string name="db_requested_title">Close the app to finish</string>
+    <string name="db_requested_message">Encryption runs when the app starts again. Close it now, then open it.</string>
+    <string name="db_close_now">Close the app</string>
+    <string name="db_later">Later</string>
+    <string name="db_key_lost_title">The database cannot be opened</string>
+    <string name="db_key_lost_message">The key that unlocks the encrypted database is no longer available on this phone (for example after a factory reset or a phone transfer). The data cannot be recovered from this file. Reset the app\'s database, then restore from an encrypted backup.</string>
+    <string name="db_key_lost_reset">Reset database</string>
+    <string name="db_key_lost_close">Close</string>
 </resources>

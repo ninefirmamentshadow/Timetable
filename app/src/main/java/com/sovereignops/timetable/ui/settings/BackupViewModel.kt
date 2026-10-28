@@ -1,0 +1,249 @@
+package com.sovereignops.timetable.ui.settings
+
+import android.app.Application
+import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.sovereignops.timetable.R
+import com.sovereignops.timetable.backup.BackupException
+import com.sovereignops.timetable.backup.BackupFileIo
+import com.sovereignops.timetable.core.export.IcsWriter
+import com.sovereignops.timetable.data.AppDatabase
+import com.sovereignops.timetable.data.Settings
+import com.sovereignops.timetable.data.backup.BackupService
+import com.sovereignops.timetable.data.backup.BackupSession
+import com.sovereignops.timetable.data.backup.InvalidBackup
+import com.sovereignops.timetable.data.backup.RestorePlan
+import com.sovereignops.timetable.data.backup.SafetyCopies
+import com.sovereignops.timetable.data.toModelResult
+import com.sovereignops.timetable.ui.AppClock
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+
+/**
+ * The backup, restore and calendar-export flows. State lives here, not in the
+ * fragment, so a rotation in the middle of a key derivation does not lose it.
+ * Nothing is written to the database until [applyRestore], which only runs after
+ * the user confirmed a successfully decrypted and validated backup.
+ */
+class BackupViewModel(app: Application) : AndroidViewModel(app) {
+
+    sealed interface State {
+        data object Idle : State
+        data class Working(val label: Int) : State
+
+        /** Finished (or failed): show [message] once, then call [consume]. */
+        data class Done(val message: String, val isError: Boolean) : State
+
+        /** A file was read and looks like a backup: ask for its passphrase. */
+        data object NeedPassphrase : State
+
+        /** Decrypted and valid: ask the user to confirm replacing everything. */
+        data class ConfirmRestore(val bookings: Int, val windows: Int, val exportedAt: String, val drafts: Int = 0) : State
+    }
+
+    private val _state = MutableLiveData<State>(State.Idle)
+    val state: LiveData<State> = _state
+
+    private var pendingText: String? = null
+    private var pendingPlan: RestorePlan? = null
+    private var pendingBackupPassphrase: String? = null
+
+    /** The passphrase of the backup being restored; it also seals the pre-restore safety copy. Memory only. */
+    private var pendingRestorePassphrase: String? = null
+
+    private fun safety() = SafetyCopies(File(getApplication<Application>().noBackupFilesDir, "pre-restore"))
+
+    /** Pre-restore safety copies on this phone, newest first. */
+    fun safetyCopies(): List<File> = safety().list()
+
+    private fun service(): BackupService =
+        BackupService(AppDatabase.get(getApplication()), Settings(getApplication()), AppClock::now)
+
+    private fun text(id: Int, vararg args: Any) = getApplication<Application>().getString(id, *args)
+
+    private fun plural(id: Int, n: Int) = getApplication<Application>().resources.getQuantityString(id, n, n)
+
+    private fun reason(e: Exception) = e.message ?: e.javaClass.simpleName
+
+    fun consume() {
+        if (_state.value is State.Done) _state.value = State.Idle
+    }
+
+    /** Remember the passphrase while the file picker is open. */
+    fun holdBackupPassphrase(passphrase: String) {
+        pendingBackupPassphrase = passphrase
+    }
+
+    fun cancelPending() {
+        pendingBackupPassphrase = null
+        pendingRestorePassphrase = null
+        pendingText = null
+        pendingPlan = null
+        _state.value = State.Idle
+    }
+
+    fun createBackup(uri: Uri) {
+        val passphrase = pendingBackupPassphrase ?: return
+        pendingBackupPassphrase = null
+        _state.value = State.Working(R.string.working_backup)
+        viewModelScope.launch {
+            _state.value = try {
+                val created = service().create(passphrase)
+                withContext(Dispatchers.IO) { BackupFileIo.writeText(getApplication(), uri, created.text) }
+                BackupSession.markBackedUp()
+                val skipped = if (created.unreadableSkipped > 0) {
+                    " " + text(R.string.backup_skipped_unreadable, created.unreadableSkipped)
+                } else {
+                    ""
+                }
+                State.Done(text(R.string.backup_saved, created.bookings, created.windows) + skipped, false)
+            } catch (e: BackupException) {
+                State.Done(e.message ?: text(R.string.backup_failed), true)
+            } catch (e: IOException) {
+                State.Done(text(R.string.backup_write_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.backup_failed_reason, reason(e)), true)
+            }
+        }
+    }
+
+    /** Read the chosen file and check it is a Timetable backup (no passphrase needed). */
+    fun openRestoreFile(uri: Uri) {
+        _state.value = State.Working(R.string.working_reading)
+        viewModelScope.launch {
+            _state.value = try {
+                val read = withContext(Dispatchers.IO) { BackupFileIo.readText(getApplication(), uri) }
+                service().inspect(read)
+                pendingText = read
+                State.NeedPassphrase
+            } catch (e: BackupException) {
+                State.Done(e.message ?: text(R.string.restore_failed), true)
+            } catch (e: IOException) {
+                State.Done(text(R.string.restore_read_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Anything unexpected in a chosen file is "not a backup", never a crash.
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
+            }
+        }
+    }
+
+    /** Open a pre-restore safety copy; from here on it is restored like any backup file. */
+    fun openSafetyCopy(file: File) {
+        _state.value = State.Working(R.string.working_reading)
+        viewModelScope.launch {
+            _state.value = try {
+                val read = withContext(Dispatchers.IO) { file.readText() }
+                service().inspect(read)
+                pendingText = read
+                State.NeedPassphrase
+            } catch (e: BackupException) {
+                State.Done(e.message ?: text(R.string.restore_failed), true)
+            } catch (e: IOException) {
+                State.Done(text(R.string.restore_read_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
+            }
+        }
+    }
+
+    /** Decrypt and validate. On success ask for confirmation; on any failure nothing changed. */
+    fun decrypt(passphrase: String) {
+        val fileText = pendingText ?: return
+        _state.value = State.Working(R.string.working_restore)
+        viewModelScope.launch {
+            _state.value = try {
+                val plan = service().prepareRestore(fileText, passphrase)
+                pendingPlan = plan
+                pendingRestorePassphrase = passphrase
+                State.ConfirmRestore(plan.bookings.size, plan.availability.size, plan.exportedAt, plan.drafts.size)
+            } catch (e: BackupException.AuthenticationFailed) {
+                // Keep the file so the user can try the passphrase again.
+                State.Done(e.message ?: text(R.string.restore_failed), true)
+            } catch (e: BackupException) {
+                pendingText = null
+                State.Done(e.message ?: text(R.string.restore_failed), true)
+            } catch (e: InvalidBackup) {
+                pendingText = null
+                State.Done(text(R.string.restore_invalid, e.message ?: ""), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                pendingText = null
+                State.Done(text(R.string.restore_invalid, reason(e)), true)
+            }
+        }
+    }
+
+    /**
+     * Seal the current data (bookings, availability, drafts) as a safety copy with the
+     * restore's passphrase, then replace. If the safety copy cannot be written, nothing
+     * is replaced. Same order as Drafts: copy first, then restore.
+     */
+    fun applyRestore() {
+        val plan = pendingPlan ?: return
+        val passphrase = pendingRestorePassphrase ?: return
+        _state.value = State.Working(R.string.working_restore)
+        viewModelScope.launch {
+            _state.value = try {
+                val current = service().create(passphrase)
+                withContext(Dispatchers.IO) { safety().write(current.text, System.currentTimeMillis()) }
+                try {
+                    service().apply(plan)
+                    State.Done(text(R.string.restore_done, plan.bookings.size, plan.availability.size), false)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // The replace is one transaction: a failure leaves the old data in place.
+                    State.Done(text(R.string.restore_failed_unchanged), true)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.safety_copy_failed, reason(e)), true)
+            } finally {
+                pendingPlan = null
+                pendingText = null
+                pendingRestorePassphrase = null
+            }
+        }
+    }
+
+    fun exportCalendar(uri: Uri) {
+        _state.value = State.Working(R.string.working_export)
+        viewModelScope.launch {
+            _state.value = try {
+                val rows = AppDatabase.get(getApplication()).backupDao().allBookings()
+                val bookings = rows.mapNotNull { it.toModelResult().getOrNull() }
+                val skipped = rows.size - bookings.size
+                if (bookings.isEmpty()) {
+                    // A calendar file with no event is not valid; write nothing.
+                    State.Done(text(R.string.export_nothing), true)
+                } else {
+                    val ics = IcsWriter.write(bookings, AppClock.instant(), Settings(getApplication()).exportId)
+                    withContext(Dispatchers.IO) { BackupFileIo.writeText(getApplication(), uri, ics) }
+                    val saved = text(R.string.export_saved, bookings.size)
+                    State.Done(if (skipped == 0) saved else saved + " " + plural(R.plurals.export_skipped, skipped), false)
+                }
+            } catch (e: IOException) {
+                State.Done(text(R.string.backup_write_failed), true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                State.Done(text(R.string.export_failed_reason, reason(e)), true)
+            }
+        }
+    }
+}

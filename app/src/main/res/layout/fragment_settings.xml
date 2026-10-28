@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:id="@+id/settings_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            style="@style/SectionLabel"
+            android:layout_marginTop="4dp"
+            android:text="@string/settings_backup_section" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp"
+            android:text="@string/settings_backup_help" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/backup_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_create" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/restore_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/backup_restore" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/safety_restore_button"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/safety_restore" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/export_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/export_calendar" />
+
+        <TextView
+            android:id="@+id/working_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/projected"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/settings_reminders_section" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/reminders_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/reminders_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lead_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/reminders_lead_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lead_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:imeOptions="actionDone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/reminders_help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/settings_lock_section" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/lock_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/lock_switch_title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/lock_timeout_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="@string/lock_timeout_hint">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/lock_timeout_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:imeOptions="actionDone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp"
+            android:text="@string/lock_help_settings" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/settings_privacy_section" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/secure_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/secure_window_title" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp"
+            android:text="@string/secure_window_help" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/settings_database_section" />
+
+        <TextView
+            android:id="@+id/db_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/on_surface"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/db_help"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/db_encrypt_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/db_encrypt" />
+
+        <TextView
+            style="@style/SectionLabel"
+            android:text="@string/settings_about_section" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/notices_button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/notices_open" />
+
+        <TextView
+            android:id="@+id/app_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/on_surface_muted"
+            android:textSize="13sp" />
+    </LinearLayout>
+</ScrollView>
